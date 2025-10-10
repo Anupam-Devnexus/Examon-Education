@@ -2,6 +2,7 @@ import React from 'react'
 import Hero from '../Component/Hero'
 import { FourStepSelection } from '../Component/FourStepSelection'
 import AboutNumber from '../Component/AboutNumber'
+import MissionVisionValues from '../Component/MissionVisionValus'
 
 const Aboutus = () => {
   return (
@@ -20,6 +21,10 @@ const Aboutus = () => {
         </div>
       </div>
       <AboutNumber />
+      <div className='flex items-center justify-center'>
+
+      <MissionVisionValues/>
+      </div>
     </div>
     </>
   )
