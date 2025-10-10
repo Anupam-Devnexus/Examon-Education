@@ -33,7 +33,7 @@ export const FourStepSelection = () => {
         <div className='relative min-h-[100vh] z-999 min-w-full -mt-44'>
             <section
                 className="absolute h-full flex flex-col p-7 min-w-full items-center bg-white overflow-hidden"
-                style={{clipPath: "polygon(78% 0, 100% 19%, 100% 46%, 100% 70%, 100% 100%, 50% 100%, 0 100%, 0% 70%, 0 19%, 25% 0)" }}
+                style={{clipPath: "polygon(15% 0, 87% 0, 100% 18%, 100% 100%, 80% 100%, 20% 100%, 0 100%, 0 18%)" }}
             >
                 {/* Heading */}
                 <h2 className="text-center py-8 text-2xl md:text-3xl  text-[var(--text-color)]">

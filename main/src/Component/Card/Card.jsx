@@ -3,7 +3,7 @@ import React from "react";
 const Card = ({ title, bgImage, icon, description, accentColor = "#e74c3c" }) => {
     return (
         <div
-            className="w-72 md:w-80 bg-gray-300 rounded-2xl overflow-hidden shadow-md 
+            className="w-72 md:w-80 bg-gray-100 rounded-2xl overflow-hidden shadow-md 
                  hover:-translate-y-2 hover:shadow-2xl transition-all duration-300"
         >
            
@@ -32,7 +32,7 @@ const Card = ({ title, bgImage, icon, description, accentColor = "#e74c3c" }) =>
             {/* 🔹 Hexagon Icon Section */}
             <div className="flex justify-center -mt-10">
                 <div
-                    className="w-24 h-24 flex bg-gray-300 items-center justify-center shadow-md"
+                    className="w-24 h-24 flex bg-gray-100 items-center justify-center shadow-md"
                     style={{
 
                         clipPath:

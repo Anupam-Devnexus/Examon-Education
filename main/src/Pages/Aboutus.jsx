@@ -3,6 +3,8 @@ import Hero from '../Component/Hero'
 import { FourStepSelection } from '../Component/FourStepSelection'
 import AboutNumber from '../Component/AboutNumber'
 import MissionVisionValues from '../Component/MissionVisionValus'
+import ContactSection from '../Component/ContactSection'
+import NewsLetter from '../Component/NewsLetter'
 
 const Aboutus = () => {
   return (
@@ -21,9 +23,11 @@ const Aboutus = () => {
         </div>
       </div>
       <AboutNumber />
-      <div className='flex items-center justify-center'>
+      <div className='flex min-w-full flex-col items-center justify-center'>
 
       <MissionVisionValues/>
+      <ContactSection/>
+      <NewsLetter/>
       </div>
     </div>
     </>
