@@ -1,31 +1,47 @@
-import './App.css';
+// App.js
+import React, { Suspense, lazy } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import React, { Suspense } from 'react';
+import './App.css';
 
-// Lazy load Aboutus page
-const Aboutus = React.lazy(() => import('./Pages/Aboutus'));
+import Footer from "./Component/Footer";
+
+// Lazy-loaded pages
+const Home = lazy(() => import("./Pages/Home"));
+const Aboutus = lazy(() => import("./Pages/Aboutus"));
+const ContactUs = lazy(() => import("./Pages/ContactUs"));
 
 function App() {
   return (
-    <div className=''>
-      <Suspense fallback={<div className="text-center mt-10">Loading...</div>}>
-        <Aboutus />
-      </Suspense>
+    <Router>
+      <div className="App">
+        <Suspense fallback={<div className="text-center mt-10">Loading...</div>}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<Aboutus />} />
+            <Route path="/contact" element={<ContactUs />} />
+            {/* Optional: 404 Page */}
+            <Route path="*" element={<div className="text-center mt-10">Page Not Found</div>} />
+          </Routes>
+        </Suspense>
 
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-      />
-    </div>
+        <Footer />
+
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="colored"
+        />
+      </div>
+    </Router>
   );
 }
 
