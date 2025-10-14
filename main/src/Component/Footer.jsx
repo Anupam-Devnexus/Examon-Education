@@ -4,6 +4,7 @@ import { IoMdMail } from "react-icons/io";
 import { RiMapPin2Fill } from "react-icons/ri";
 import { FaYoutube, FaLinkedin, FaInstagramSquare, FaFacebook } from "react-icons/fa";
 import { GoDotFill } from "react-icons/go";
+import NewsLetter from "./NewsLetter"
 
 const Footer = () => {
 
@@ -34,10 +35,13 @@ const Footer = () => {
   );
 
   return (
-    <footer className="bg-[var(--primary-color)] text-[var(--text-color)] px-6 py-10 md:px-16 mt-10 rounded-t-xl shadow-lg">
-      
+    <footer className="bg-[var(--primary-color)] flex flex-col gap-2 relative text-[var(--text-color)] px-6 py-10 md:px-16 mt-10 rounded-t-xl shadow-lg">
+     <div className="absolute -mt-32">
+
+      <NewsLetter />
+     </div>
       {/* TOP SECTION */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 pb-8 border-b border-white/30">
+      <div className="grid mt-20 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 pb-8 border-b border-white/30">
         
         {/* Contact */}
         <div className="flex flex-col gap-3">

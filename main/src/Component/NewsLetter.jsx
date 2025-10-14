@@ -24,23 +24,23 @@ const NewsLetter = () => {
   };
 
   return (
-    <div className="bg-[var(--primary-color)] p-6  w-[97%] rounded-3xl shadow-xl text-white flex flex-col md:flex-row items-center justify-between gap-6 ">
+    <div className="bg-[var(--primary-color)] p-6  rounded-3xl shadow-xl text-white flex flex-col md:flex-row items-center justify-between gap-6 ">
       
       {/* Image / Hero */}
       <div className="flex-shrink-0">
         <img
           src="./books.svg"
           alt="Books"
-          className="w-28 h-28 md:w-32 md:h-32 "
+          className="w-28 h-28"
         />
       </div>
 
       {/* Text + Form */}
       <div className="flex flex-col md:flex-1 gap-4">
-        <h2 className="text-3xl md:text-4xl font-bold leading-tight">
+        <h2 className="text-xl md:text-2xl font-bold leading-tight">
           Subscribe to our Newsletter
         </h2>
-        <p className="text-white/80 text-base md:text-lg">
+        <p className="text-white/80 text-base md:text-md">
           Stay updated with our latest news, insights, and updates. Enter your
           email below!
         </p>
