@@ -25,7 +25,7 @@ const HomeNumber = () => {
     }
 
     return (
-        <div className='flex flex-wrap justify-around gap-4'>
+        <div className='grid grid-cols-2 md:grid-cols-4 mx-auto gap-4'>
             {stats.map((item, index) => (
                 <NumbCompo key={index} {...item} isLast={index === stats.length - 1} />
             ))}
