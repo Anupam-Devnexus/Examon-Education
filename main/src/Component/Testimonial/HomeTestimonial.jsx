@@ -97,10 +97,10 @@ const HomeTestimonial = () => {
       </div>
 
       {/* Carousel */}
-      <div className="w-full bg-[var(--primary-color)] p-3 overflow-hidden rounded-b-xl">
+      <div className="w-full bg-[var(--primary-color)] p-4 overflow-hidden rounded-b-xl">
         <div
           ref={carouselRef}
-          className={`flex ${isTransitioning ? "transition-transform duration-500" : ""}`}
+          className={`flex gap-2 ${isTransitioning ? "transition-transform duration-500" : ""}`}
           style={{
             width: `${(extendedData.length * 100) / visibleCount}%`,
             transform: `translateX(${translateX}%)`,
@@ -109,7 +109,7 @@ const HomeTestimonial = () => {
           {extendedData.map((item, index) => (
             <div
               key={index}
-              className="flex-shrink-0 px-2"
+              className=""
               style={{ width: `${100 / extendedData.length}%` }}
             >
               <TestimonialCard {...item} />
