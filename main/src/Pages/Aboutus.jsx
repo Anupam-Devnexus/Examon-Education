@@ -21,7 +21,7 @@ const Aboutus = () => {
           </div>
         </div>
         <AboutNumber />
-        <div className='flex min-w-full flex-col items-center justify-center'>
+        <div className='flex min-w-full py-10 flex-col items-center justify-center'>
 
           <MissionVisionValues />
           <ContactSection />

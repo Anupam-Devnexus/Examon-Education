@@ -68,7 +68,7 @@ const ContactUspageForm = () => {
   };
 
   return (
-    <div className="flex flex-col rounded-2xl shadow-md overflow-hidden gap-8 p-6 lg:p-10 bg-white max-w-6xl mx-auto lg:flex-row  ">
+    <div className="flex flex-col rounded-2xl shadow-md overflow-hidden gap-8 p-6 bg-white max-w-6xl mx-auto lg:flex-row  ">
       {/* Toast */}
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
 

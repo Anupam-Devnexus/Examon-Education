@@ -13,12 +13,15 @@ const WhyChooseUs = () => {
     ];
 
     const Card = ({ src, title, description }) => (
-        <div className="flex flex-col items-start gap-2 p-4 ">
+        <div className="flex items-start gap-6 p-4 ">
             <div className="flex items-center gap-3">
                 <img src={src} alt={title} className="w-10 h-10 md:w-12 md:h-12" />
-                <span className="font-semibold text-lg md:text-xl text-[var(--primary-color)]">{title}</span>
             </div>
+            <div>
+
+                <span className="font-semibold text-lg md:text-xl text-[var(--primary-color)]">{title}</span>
             <p className="text-[var(--text-color)] text-left  text-sm md:text-base">{description}</p>
+            </div>
         </div>
     );
 

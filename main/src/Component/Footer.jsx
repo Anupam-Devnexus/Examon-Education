@@ -1,13 +1,16 @@
-import React from 'react';
-import { IoIosCall } from "react-icons/io";
-import { IoMdMail } from "react-icons/io";
+import React from "react";
+import { IoIosCall, IoMdMail } from "react-icons/io";
 import { RiMapPin2Fill } from "react-icons/ri";
-import { FaYoutube, FaLinkedin, FaInstagramSquare, FaFacebook } from "react-icons/fa";
+import {
+  FaYoutube,
+  FaLinkedin,
+  FaInstagramSquare,
+  FaFacebook,
+} from "react-icons/fa";
 import { GoDotFill } from "react-icons/go";
-import NewsLetter from "./NewsLetter"
+import NewsLetter from "./NewsLetter";
 
 const Footer = () => {
-
   const Links = [
     { link: "Home", path: "/home" },
     { link: "About", path: "/about" },
@@ -29,25 +32,28 @@ const Footer = () => {
       target="_blank"
       rel="noopener noreferrer"
       className="text-[var(--primary-color)] bg-white p-2 rounded-full hover:bg-gray-200 transition"
+      aria-label={`Visit our ${Icon.name} page`}
     >
       <Icon size={22} />
     </a>
   );
 
   return (
-    <footer className="bg-[var(--primary-color)] flex flex-col gap-2 relative text-[var(--text-color)] px-6 py-10 md:px-16 mt-10 rounded-t-xl shadow-lg">
-     <div className="absolute -mt-32">
+    
+    <footer className="bg-[var(--primary-color)] text-[var(--text-color)] px-6 py-16 md:px-20 rounded-t-xl shadow-lg">
+      {/* Newsletter */}
+      <div className="-mt-38">
+        <NewsLetter />
+      </div>
 
-      <NewsLetter />
-     </div>
-      {/* TOP SECTION */}
-      <div className="grid mt-20 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 pb-8 border-b border-white/30">
-        
-        {/* Contact */}
-        <div className="flex flex-col gap-3">
-          <h2 className="font-bold text-white text-2xl mb-2">Contact Details</h2>
-          <p>If you have any questions or need help, feel free to contact our team!</p>
-
+      {/* Top Grid */}
+      <div className="grid grid-cols-1 mt-12 sm:grid-cols-2 lg:grid-cols-4 gap-10 pb-10 border-b border-white/30">
+        {/* Contact Info */}
+        <div className="space-y-4">
+          <h2 className="text-white text-2xl font-bold">Contact Details</h2>
+          <p className="text-sm">
+            If you have any questions or need help, feel free to contact our team!
+          </p>
           <div className="flex items-center gap-3">
             <IoIosCall size={20} /> <span>+91 83688 86542</span>
           </div>
@@ -59,14 +65,14 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Links */}
-        <div className="flex flex-col gap-2">
-          <h2 className="text-white font-semibold text-lg mb-2">Quick Links</h2>
+        {/* Quick Links */}
+        <div className="space-y-2">
+          <h2 className="text-white text-lg font-semibold">Quick Links</h2>
           {Links.map((item, i) => (
             <a
-              href={item.path}
               key={i}
-              className="hover:text-white transition-colors"
+              href={item.path}
+              className="hover:text-white transition-colors block text-sm"
             >
               {item.link}
             </a>
@@ -74,22 +80,22 @@ const Footer = () => {
         </div>
 
         {/* Policies */}
-        <div className="flex flex-col gap-2">
-          <h2 className="text-white font-semibold text-lg mb-2">Policies</h2>
+        <div className="space-y-2">
+          <h2 className="text-white text-lg font-semibold">Policies</h2>
           {Policies.map((item, i) => (
             <a
-              href={item.path}
               key={i}
-              className="hover:text-white transition-colors"
+              href={item.path}
+              className="hover:text-white transition-colors block text-sm"
             >
               {item.link}
             </a>
           ))}
         </div>
 
-        {/* Social */}
-        <div className="flex flex-col gap-3">
-          <h2 className="text-white font-semibold text-lg mb-2">Follow Us</h2>
+        {/* Social Media */}
+        <div className="space-y-4">
+          <h2 className="text-white text-lg font-semibold">Follow Us</h2>
           <div className="flex gap-3">
             <SocialIcon Icon={FaYoutube} url="#" />
             <SocialIcon Icon={FaLinkedin} url="#" />
@@ -97,21 +103,23 @@ const Footer = () => {
             <SocialIcon Icon={FaFacebook} url="#" />
           </div>
         </div>
-
       </div>
 
-      {/* BOTTOM SECTION */}
-      <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-200 mt-6">
+      {/* Bottom Section */}
+      <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-200 mt-8">
         <span className="text-center md:text-left">
-          © 2025 <b>Examon Education Pvt. Ltd.</b> | All Rights Reserved
+          © 2025 <strong>Examon Education Pvt. Ltd.</strong> | All Rights Reserved
         </span>
         <div className="flex items-center gap-2 mt-3 md:mt-0">
-          <a href="/privacypolicy" className="hover:text-white transition">Privacy</a>
+          <a href="/privacypolicy" className="hover:text-white transition">
+            Privacy
+          </a>
           <GoDotFill size={10} />
-          <a href="/terms" className="hover:text-white transition">Terms & Conditions</a>
+          <a href="/terms" className="hover:text-white transition">
+            Terms & Conditions
+          </a>
         </div>
       </div>
-
     </footer>
   );
 };

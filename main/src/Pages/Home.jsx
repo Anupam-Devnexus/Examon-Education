@@ -7,14 +7,17 @@ import ContactSection from '../Component/ContactSection'
 
 const Home = () => {
   return (
-    <div className='flex flex-col p-2 gap-2'>
+    <div className='flex flex-col p-2 gap-2 '>
   
         <HomeSlider />
      
       <WhyChooseUs />
       <StudyMaterialHome />
       <HomeTestimonial />
+      <section className='py-10'>
+
       <ContactSection/>
+      </section>
     </div>
   )
 }

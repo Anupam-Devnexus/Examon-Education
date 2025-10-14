@@ -25,7 +25,6 @@ function App() {
             <Route path="*" element={<div className="text-center mt-10">Page Not Found</div>} />
           </Routes>
         </Suspense>
-
         <Footer />
 
         <ToastContainer
