@@ -80,16 +80,15 @@ const HomeSlider = () => {
 
   const Slide = ({ slide, isActive }) => (
     <div
-      className={`absolute inset-0 transition-all duration-700 ease-in-out transform  ${
-        isActive ? "opacity-100 scale-100 z-10" : "opacity-0 scale-95 z-0"
-      }`}
+      className={`absolute inset-0 transition-all duration-700 ease-in-out transform  ${isActive ? "opacity-100 scale-100 z-10" : "opacity-0 scale-95 z-0"
+        }`}
     >
       <img
         src={slide.image}
         alt={slide.title}
         className="w-full h-full object-cover rounded-2xl"
       />
-      <div className="absolute inset-0 bg-black/30 flex flex-col justify-center items-start  p-6 md:p-10 text-white rounded-2xl">
+      <div className="absolute inset-0 bg-black/40 flex flex-col justify-center items-start  p-6 md:p-10 text-white rounded-2xl">
         <h2 className="text-2xl ml-12 sm:text-3xl md:text-5xl font-bold mb-4">
           {slide.title}
         </h2>
@@ -145,9 +144,8 @@ const HomeSlider = () => {
           <div
             key={index}
             onClick={() => setCurrent(index)}
-            className={`w-3 h-3 rounded-full cursor-pointer transition-all ${
-              current === index ? "bg-white scale-125" : "bg-gray-400"
-            }`}
+            className={`w-3 h-3 rounded-full cursor-pointer transition-all ${current === index ? "bg-white scale-125" : "bg-gray-400"
+              }`}
           />
         ))}
       </div>
