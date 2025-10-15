@@ -4,7 +4,7 @@ import { FaUserLarge } from "react-icons/fa6";
 
 const TestimonialCard = ({ img, name, exam, date, star = 5, review }) => {
   return (
-    <div className="bg-white w-[30vw] rounded-xl p-6 flex flex-col justify-between gap-4 shadow-lg hover:shadow-xl transition-shadow duration-300">
+    <div className="bg-white rounded-xl p-6 flex flex-col justify-between gap-4 shadow-lg hover:shadow-xl transition-shadow duration-300">
       
       {/* ---------- Top: Avatar + Rating ---------- */}
       <div className="flex items-center justify-between w-full">
