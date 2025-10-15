@@ -14,6 +14,7 @@ import Navbar from "./Component/Navbar";
 const Home = lazy(() => import("./Pages/Home"));
 const Aboutus = lazy(() => import("./Pages/Aboutus"));
 const ContactUs = lazy(() => import("./Pages/ContactUs"));
+const Courses = lazy(() => import("./Pages/Courses"))
 
 const Login = lazy(() => import('./auth/Login'))
 const Register = lazy(() => import('./auth/Register'))
@@ -31,6 +32,7 @@ function App() {
             <Route path="/contact" element={<ContactUs />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/courses" element={<Courses/>}/>
 
             {/* Optional: 404 Page */}
             <Route path="*" element={<div className="text-center mt-10">Page Not Found</div>} />
