@@ -5,6 +5,7 @@ import HomeTestimonial from '../Component/Testimonial/HomeTestimonial'
 import StudyMaterialHome from '../Component/StudyMaterialHome'
 import ContactSection from '../Component/ContactSection'
 import HomeNumber from '../Component/HomeNumber'
+import LiveRecordedBatches from '../Component/LiveRecordedBatches'
 
 const Home = () => {
   return (
@@ -15,10 +16,12 @@ const Home = () => {
 
       <WhyChooseUs />
       <StudyMaterialHome />
+      <LiveRecordedBatches/>
       <HomeTestimonial />
       <section className='py-10'>
         <ContactSection />
       </section>
+
     </div>
   )
 }
