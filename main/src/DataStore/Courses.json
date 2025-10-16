@@ -42,7 +42,7 @@
     "previousprice": 7499,
     "percent": 60,
     "courseDetails": "PSU 2025 (EE) – Crash Course",
-    "insideCourses": ["Electrical Machines", "Control Systems", "Practice Sets", "PYQs"],
+    "insideCourses": [ "Electronics", "Electrical Machines", "Control Systems", "Practice Sets", "PYQs"],
     "perks": ["NEW", "RECORDED"],
     "Discount": true,
     "amount": 1000

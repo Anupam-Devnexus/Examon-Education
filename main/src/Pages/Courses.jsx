@@ -5,7 +5,7 @@ import CoursesCard from '../Component/Card/CoursesCard';
 
 const Courses = () => {
     return (
-        <section className='py-10 px-4'>
+        <section className='py-10 '>
             {/* Header Section */}
             <section className='flex flex-col p-4 items-start'>
                 <span className='font-extrabold text-2xl md:text-5xl text-[var(--primary-color)]'>Courses</span>
@@ -17,11 +17,14 @@ const Courses = () => {
             </section>
 
             {/* Courses Grid */}
-            <section className='grid grid-cols-1  mx-auto sm:grid-cols-2 lg:grid-cols-3 gap-6 '>
+            <div className='flex p-3 items-center justify-center min-w-full bg-[#EEF6FC]'>
+
+            <section className='grid grid-cols-1 max-w-6xl mx-auto sm:grid-cols-2 lg:grid-cols-3 gap-6 '>
                 {Data.map((course) => (
                     <CoursesCard key={course.id} {...course} />
                 ))}
             </section>
+            </div>
 
             {/* Contact Section */}
             <ContactSection />
