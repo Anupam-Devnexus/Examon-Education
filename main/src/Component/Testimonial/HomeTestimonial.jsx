@@ -16,11 +16,11 @@ const HomeTestimonial = () => {
       <div className="absolute top-0 left-0 w-24 h-24 bg-[var(--secondary-color)] rounded-md opacity-20 -z-10"></div>
       <div className="absolute bottom-0 right-0 w-32 h-32 bg-[var(--secondary-color)] rounded-md opacity-20 -z-10"></div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 items-center ">
+      <div className="grid grid-cols-1 md:grid-cols-2 items-center justify-between">
 
         {/* Header */}
-        <div className="w-full flex-col md:flex justify-between items-start text-center mb-12">
-          <div className="h-1 w-full bg-[var(--secondary-color)] mb-4 rounded-md"></div>
+        <div className="w-full flex-col md:flex justify-between h-3/4 items-start text-center">
+          <div className="h-2 w-full bg-[#CCDEEB] mb-4 rounded-md"></div>
           <div className="flex flex-col px-3 items-start gap-3">
 
             <span className="text-[var(--text-color)] text-sm md:text-base tracking-wide font-semibold">
@@ -30,12 +30,12 @@ const HomeTestimonial = () => {
               What Our Students Say
             </h2>
           </div>
-          <div className="h-1 w-full bg-[var(--secondary-color)] mt-4 rounded-full"></div>
+          <div className="h-2 w-full bg-[#CCDEEB] mt-4 rounded-full"></div>
         </div>
 
         {/* Swiper + Arrows */}
         <div
-          className="relative flex items-center gap-3 justify-center md:h-[600px] w-full"
+          className="relative flex items-center gap-3 justify-center md:h-[500px] w-full"
           style={{
             background: `url('./testimonialBack.svg') center/contain no-repeat`,
           }}

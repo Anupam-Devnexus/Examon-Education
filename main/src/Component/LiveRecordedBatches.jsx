@@ -27,7 +27,8 @@ const LiveRecordedBatches = () => {
           effect="coverflow"
           grabCursor={true}
           centeredSlides={true}
-          infinite={true}
+          loop={true} 
+          speed={1000} 
           slidesPerView={2}
           breakpoints={{
             640: { slidesPerView: 1 },
@@ -37,20 +38,17 @@ const LiveRecordedBatches = () => {
             rotate: 30,
             stretch: 0,
             depth: 120,
-            modifier: 1,
-            slideShadows: true,
+            modifier: 1.2,
+            slideShadows: false,
           }}
           autoplay={{
-            delay: 2500,
+            delay: 2000,
             disableOnInteraction: false,
           }}
           className="w-full"
         >
           {Data.map((batch) => (
-            <SwiperSlide
-              key={batch.id}
-              className="gap-3 "
-            >
+            <SwiperSlide key={batch.id} className="flex justify-center">
               <RecordedBatchesCard {...batch} />
             </SwiperSlide>
           ))}
@@ -60,14 +58,14 @@ const LiveRecordedBatches = () => {
         <div className="absolute left-1/2 -translate-x-1/2 bottom-[-50px] flex items-center gap-6 z-30">
           <button
             onClick={() => swiperRef.current.swiper.slidePrev()}
-            className="bg-[var(--primary-color)] text-white p-4 rounded-full shadow-lg hover:scale-110 transition-transform"
+            className="bg-[var(--primary-color)] text-white p-2 cursor-pointer rounded-full shadow-lg hover:scale-110 transition-transform"
             aria-label="Previous Slide"
           >
             <FaArrowLeft />
           </button>
           <button
             onClick={() => swiperRef.current.swiper.slideNext()}
-            className="bg-[var(--primary-color)] text-white p-4 rounded-full shadow-lg hover:scale-110 transition-transform"
+            className="bg-[var(--primary-color)] text-white p-2 cursor-pointer rounded-full shadow-lg hover:scale-110 transition-transform"
             aria-label="Next Slide"
           >
             <FaArrowRight />
