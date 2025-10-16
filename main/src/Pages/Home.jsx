@@ -10,7 +10,7 @@ import MeetMentor from '../Component/MeetMentor'
 
 const Home = () => {
   return (
-    <div className='flex flex-col space-y-2 '>
+    <div className='flex flex-col '>
 
       <HomeSlider />
       <HomeNumber/>

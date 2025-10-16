@@ -80,7 +80,7 @@ const HomeSlider = () => {
 
   const Slide = ({ slide, isActive }) => (
     <div
-      className={`absolute inset-0 transition-all duration-700 ease-in-out transform  ${isActive ? "opacity-100 scale-100 z-10" : "opacity-0 scale-95 z-0"
+      className={`absolute inset-0  transition-all duration-700 ease-in-out transform  ${isActive ? "opacity-100 scale-100 z-10" : "opacity-0 scale-95 z-0"
         }`}
     >
       <img
@@ -114,6 +114,8 @@ const HomeSlider = () => {
   );
 
   return (
+    <div className="p-2">
+
     <div
       className="relative w-full h-[70vh] sm:h-[75vh] md:h-[80vh] overflow-hidden rounded-2xl shadow-lg"
       onTouchStart={handleTouchStart}
@@ -127,15 +129,15 @@ const HomeSlider = () => {
       {/* Arrows */}
       <button
         onClick={prevSlide}
-        className="absolute  top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white/60 text-black rounded-full p-2 sm:p-3 transition z-20"
+        className="absolute  top-1/2 cursor-pointer -translate-y-1/2  text-[var(--secondary-color)] text-4xl rounded-full p-2 sm:p-3 transition z-20"
       >
-        <MdNavigateBefore size={28} />
+        <MdNavigateBefore size={80} />
       </button>
       <button
         onClick={nextSlide}
-        className="absolute     right-1 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white/60 text-black rounded-full p-2 sm:p-3 transition z-20"
+        className="absolute     right-1 top-1/2 -translate-y-1/2  text-[var(--secondary-color)] text-4xl cursor-pointer p-2 sm:p-3 transition z-20"
       >
-        <MdNavigateNext size={28} />
+        <MdNavigateNext size={80} />
       </button>
 
       {/* Dots */}
@@ -149,6 +151,7 @@ const HomeSlider = () => {
           />
         ))}
       </div>
+    </div>
     </div>
   );
 };

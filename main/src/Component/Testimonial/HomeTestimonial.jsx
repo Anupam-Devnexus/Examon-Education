@@ -16,7 +16,7 @@ const HomeTestimonial = () => {
       <div className="absolute top-0 left-0 w-24 h-24 bg-[var(--secondary-color)] rounded-md opacity-20 -z-10"></div>
       <div className="absolute bottom-0 right-0 w-32 h-32 bg-[var(--secondary-color)] rounded-md opacity-20 -z-10"></div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 items-center justify-between">
+      <div className="grid grid-cols-1 gap-8 md:gap-1 md:grid-cols-2 items-center justify-between">
 
         {/* Header */}
         <div className="w-full flex-col md:flex justify-between h-3/4 items-start text-center">
