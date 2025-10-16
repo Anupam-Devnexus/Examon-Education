@@ -36,9 +36,18 @@ const StudyMaterialHome = () => {
   ];
 
   return (
-    <section className="w-full bg-gray-50 py-20 px-6 md:px-20">
+    <section className="w-full relative  bg-gray-50 py-20 px-6 "
+      style={{
+        background: 'url(./Ellipse1.svg)',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: 'contain'
+      }}
+    >
+      <img src="./Ellipse2.svg" alt="" className="absolute right-0 -z-0" />
       {/* Section Heading */}
-      <div className="text-center max-w-2xl mx-auto mb-14">
+      <div className="text-center max-w-2xl mx-auto mb-14"
+ 
+      >
         <h2 className="text-4xl md:text-5xl font-bold text-[var(--primary-color)] mb-4">
           Study Material & Quiz
         </h2>
@@ -50,11 +59,13 @@ const StudyMaterialHome = () => {
       </div>
 
       {/* Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 items-center gap-10"
+
+      >
         {studyMaterialData.map((item, index) => (
           <div
             key={item.id}
-            className="animate-fadeIn"
+            className="animate-fadeIn z-10"
             style={{ animationDelay: `${index * 150}ms` }}
           >
             <StudyMaterialCard {...item} />

@@ -10,8 +10,6 @@ import Data from "../DataStore/Batches.json"
 
 const LiveRecordedBatches = () => {
 
-
-
   const swiperRef = React.useRef(null);
 
   return (

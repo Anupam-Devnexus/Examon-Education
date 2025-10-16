@@ -17,6 +17,8 @@ const MeetMentor = () => {
             direction="vertical"
             slidesPerView={1}
             spaceBetween={10}
+            loop={true}
+            speed={1000}
             mousewheel={true}
             pagination={{ clickable: true }}
             modules={[Mousewheel, Pagination]}
@@ -32,16 +34,11 @@ const MeetMentor = () => {
 
         {/* Right Side — Text Poster */}
         <div className="hidden lg:flex flex-col justify-center h-full">
-          <h2 className="text-5xl font-extrabold text-gray-800 leading-tight">
+          <h2 className="text-5xl  text-gray-800 leading-tight">
             Meet Our <br />
-            <span className="text-[var(--primary-color)]">Mentors</span>
+            <span className="text-[var(--primary-color)] font-extrabold">Mentors</span>
           </h2>
-          <p className="text-gray-500 mt-4 text-lg leading-relaxed">
-            Learn from experienced mentors who have guided thousands of
-            aspirants toward success in competitive exams. Each of our mentors
-            brings deep subject expertise and practical industry insight to
-            make learning engaging and result-oriented.
-          </p>
+          
         </div>
       </div>
     </section>

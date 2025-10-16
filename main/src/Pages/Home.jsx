@@ -10,15 +10,15 @@ import MeetMentor from '../Component/MeetMentor'
 
 const Home = () => {
   return (
-    <div className='flex flex-col p-2 '>
+    <div className='flex flex-col space-y-2 '>
 
       <HomeSlider />
       <HomeNumber/>
-
-      <WhyChooseUs />
-      <StudyMaterialHome />
-      <MeetMentor/>
       <LiveRecordedBatches/>
+
+      <StudyMaterialHome />
+      <WhyChooseUs />
+      <MeetMentor/>
       <HomeTestimonial />
       <section className='py-10'>
         <ContactSection />
