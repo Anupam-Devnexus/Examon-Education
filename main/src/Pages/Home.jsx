@@ -6,16 +6,18 @@ import StudyMaterialHome from '../Component/StudyMaterialHome'
 import ContactSection from '../Component/ContactSection'
 import HomeNumber from '../Component/HomeNumber'
 import LiveRecordedBatches from '../Component/LiveRecordedBatches'
+import MeetMentor from '../Component/MeetMentor'
 
 const Home = () => {
   return (
-    <div className='flex flex-col p-2 gap-2 '>
+    <div className='flex flex-col p-2 '>
 
       <HomeSlider />
       <HomeNumber/>
 
       <WhyChooseUs />
       <StudyMaterialHome />
+      <MeetMentor/>
       <LiveRecordedBatches/>
       <HomeTestimonial />
       <section className='py-10'>

@@ -1,8 +1,8 @@
 import React, { useRef } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Autoplay } from "swiper/modules";
+import { EffectCards, Autoplay } from "swiper/modules";
 import "swiper/css";
-import "swiper/css/navigation";
+import "swiper/css/effect-cards";
 import { FaArrowRight, FaArrowLeft } from "react-icons/fa6";
 import TestimonialCard from "../Card/TestimonialCard";
 import Data from "../../DataStore/testimonial.json";
@@ -11,61 +11,76 @@ const HomeTestimonial = () => {
   const swiperRef = useRef(null);
 
   return (
-    <section className="w-full py-10 md:py-16 px-4 md:px-8 flex flex-col items-center">
-      {/* Header */}
-      <div className="w-full flex flex-col md:flex-row justify-between items-center bg-[var(--primary-color)] rounded-t-xl">
-        <div className="w-full md:w-1/2 p-6 space-y-2">
-          <span className="text-white font-semibold text-sm md:text-base tracking-wide">
-            OUR REVIEWS
-          </span>
-          <h2 className="text-white text-2xl md:text-4xl font-bold">
-            What Our Students Say
-          </h2>
+    <section className="w-full bg-white overflow-hidden relative">
+      {/* Decorative Background Circles */}
+      <div className="absolute top-0 left-0 w-24 h-24 bg-[var(--secondary-color)] rounded-md opacity-20 -z-10"></div>
+      <div className="absolute bottom-0 right-0 w-32 h-32 bg-[var(--secondary-color)] rounded-md opacity-20 -z-10"></div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 items-center ">
+
+        {/* Header */}
+        <div className="w-full flex-col md:flex justify-between items-start text-center mb-12">
+          <div className="h-1 w-full bg-[var(--secondary-color)] mb-4 rounded-md"></div>
+          <div className="flex flex-col px-3 items-start gap-3">
+
+            <span className="text-[var(--text-color)] text-sm md:text-base tracking-wide font-semibold">
+              OUR REVIEWS
+            </span>
+            <h2 className="text-3xl md:text-6xl font-bold text-[var(--primary-color)] mt-2">
+              What Our Students Say
+            </h2>
+          </div>
+          <div className="h-1 w-full bg-[var(--secondary-color)] mt-4 rounded-full"></div>
         </div>
 
-        <div className="w-full md:w-1/2 h-[20vh] flex justify-end items-center bg-white p-4 rounded-bl-2xl space-x-3">
+        {/* Swiper + Arrows */}
+        <div
+          className="relative flex items-center gap-3 justify-center md:h-[600px] w-full"
+          style={{
+            background: `url('./testimonialBack.svg') center/contain no-repeat`,
+          }}
+        >
+          {/* Left Arrow */}
           <button
-            onClick={() => swiperRef.current.swiper.slidePrev()}
-            className="p-3 rounded-full bg-[var(--primary-color)] text-white hover:scale-110 transition-transform duration-200 shadow-md"
-            aria-label="Previous testimonials"
+            onClick={() => swiperRef.current?.swiper.slidePrev()}
+            className="absolute hidden md:block md:left-[5%] z-20 bg-[var(--primary-color)] text-white p-3 rounded-full shadow-lg hover:scale-110 transition-transform duration-200"
+            aria-label="Previous testimonial"
           >
             <FaArrowLeft />
           </button>
+
+          {/* Swiper Section */}
+          <div className="flex justify-center items-center w-full">
+            <Swiper
+              ref={swiperRef}
+              modules={[EffectCards, Autoplay]}
+              effect="cards"
+              grabCursor={true}
+              autoplay={{
+                delay: 3500,
+                disableOnInteraction: false,
+              }}
+              className="w-[300px] md:w-[360px] lg:w-[400px]"
+            >
+              {Data.map((item, index) => (
+                <SwiperSlide key={index}>
+                  <TestimonialCard {...item} />
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
+
+          {/* Right Arrow */}
           <button
-            onClick={() => swiperRef.current.swiper.slideNext()}
-            className="p-3 rounded-full bg-[var(--primary-color)] text-white hover:scale-110 transition-transform duration-200 shadow-md"
-            aria-label="Next testimonials"
+            onClick={() => swiperRef.current?.swiper.slideNext()}
+            className="absolute hidden md:block md:right-[5%] z-20 bg-[var(--primary-color)] text-white p-3 rounded-full shadow-lg hover:scale-110 transition-transform duration-200"
+            aria-label="Next testimonial"
           >
             <FaArrowRight />
           </button>
         </div>
       </div>
 
-      {/* Cards */}
-      <div className="w-full bg-[var(--primary-color)] p-6 rounded-b-xl">
-        <Swiper
-          ref={swiperRef}
-          modules={[Navigation, Autoplay]}
-          slidesPerView={1}
-          spaceBetween={30}
-          autoplay={{
-            delay: 3000,
-            disableOnInteraction: false,
-          }}
-          breakpoints={{
-            768: { slidesPerView: 2 },
-            1024: { slidesPerView: 3 },
-          }}
-          navigation={false}
-          className="grid place-items-center"
-        >
-          {Data.map((item, index) => (
-            <SwiperSlide key={index} className="flex items-center justify-center">
-              <TestimonialCard {...item} />
-            </SwiperSlide>
-          ))}
-        </Swiper>
-      </div>
     </section>
   );
 };

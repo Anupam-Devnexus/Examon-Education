@@ -31,7 +31,7 @@ const Footer = () => {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="text-[var(--primary-color)] bg-white p-2 rounded-full hover:bg-gray-200 transition"
+      className="text-[var(--primary-color)] bg-white p-2 rounded-full hover:text-[var(--primary-color)] transition"
       aria-label={`Visit our ${Icon.name} page`}
     >
       <Icon size={22} />

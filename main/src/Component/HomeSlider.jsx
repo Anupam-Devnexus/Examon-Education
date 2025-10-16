@@ -7,7 +7,7 @@ const slides = [
     title: "Examon Education",
     desc: "Examon Education provides comprehensive learning resources to help students excel in their academic pursuits. Learn smart, grow faster.",
     image:
-      "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=1170&q=80",
+      "https://res.cloudinary.com/dt4ohfuwc/image/upload/v1760590838/Picture1_jf6uek.png",
     enrollNow: "/enroll-now",
     courses: "/courses",
   },
@@ -15,7 +15,7 @@ const slides = [
     title: "Examon 2.0 – Smarter Learning",
     desc: "Experience a new way of learning with interactive lessons and progress tracking. Tailored for your success.",
     image:
-      "https://images.hdqwalls.com/wallpapers/peacemaker-watching-superman-wall-painiting-6d.jpg",
+      "https://res.cloudinary.com/dt4ohfuwc/image/upload/v1760590838/Picture9_khn89v.png",
     enrollNow: "/enroll-now",
     courses: "/courses",
   },
@@ -23,7 +23,7 @@ const slides = [
     title: "Achieve More with Examon",
     desc: "Unlock your academic potential with our expert-designed courses and personalized support.",
     image:
-      "https://images.hdqwalls.com/wallpapers/peacemaker-watching-superman-wall-painiting-6d.jpg",
+      "https://res.cloudinary.com/dt4ohfuwc/image/upload/v1760590837/Picture7_pt4oyf.png",
     enrollNow: "/enroll-now",
     courses: "/courses",
   },
@@ -86,7 +86,7 @@ const HomeSlider = () => {
       <img
         src={slide.image}
         alt={slide.title}
-        className="w-full h-full object-cover rounded-2xl"
+        className="w-full h-full object-center rounded-xl"
       />
       <div className="absolute inset-0 bg-black/40 flex flex-col justify-center items-start  p-6 md:p-10 text-white rounded-2xl">
         <h2 className="text-2xl ml-12 sm:text-3xl md:text-5xl font-bold mb-4">
