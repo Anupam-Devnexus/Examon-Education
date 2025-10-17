@@ -1,9 +1,10 @@
 import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 import Data from "../DataStore/Mentor.json";
+import { Pagination, Navigation } from 'swiper/modules';
+
 
 const MeetMentor = () => {
   return (
@@ -29,14 +30,15 @@ const MeetMentor = () => {
                     }}
         >
           <Swiper
-            modules={[Pagination, Autoplay]}
+            modules={[Pagination, Navigation]}
             slidesPerView={1}
             spaceBetween={30}
             loop={true}
             speed={1000}
+            Navigation={true}
             pagination={{ clickable: true }}
             autoplay={{ delay: 4000, disableOnInteraction: false }}
-            className="w-full max-w-6xl"
+            className="w-full max-w-6xl mySwiper"
           >
             {Data.map((mentor) => (
               <SwiperSlide key={mentor.id}>
