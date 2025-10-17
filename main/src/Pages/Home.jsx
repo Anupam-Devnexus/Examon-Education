@@ -7,6 +7,7 @@ import ContactSection from '../Component/ContactSection'
 import HomeNumber from '../Component/HomeNumber'
 import LiveRecordedBatches from '../Component/LiveRecordedBatches'
 import MeetMentor from '../Component/MeetMentor'
+import LatestNewsInsights from '../Component/LatestNewsInsights'
 
 const Home = () => {
   return (
@@ -17,6 +18,7 @@ const Home = () => {
       <LiveRecordedBatches/>
 
       <StudyMaterialHome />
+      <LatestNewsInsights/>
       <WhyChooseUs />
       <MeetMentor/>
       <HomeTestimonial />
