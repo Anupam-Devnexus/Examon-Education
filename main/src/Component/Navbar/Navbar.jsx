@@ -38,7 +38,7 @@ const Navbar = () => {
           {/* Logo + Dropdown */}
           <div className="flex items-center justify-center gap-6">
             <img src="/logo.svg" alt="Logo" className="h-10 w-auto" />
-            <div className="hidden md:block h-8 w-0.5 bg-gray-300"></div>
+            <div className="block h-8 w-0.5 bg-gray-300"></div>
             <div className="relative border-2 px-3 py-1 rounded-xl border-[var(--secondary-color)]">
               <button
                 onClick={() => setExamOpen(!examOpen)}
@@ -112,26 +112,7 @@ const Navbar = () => {
         {/* Mobile Menu */}
         {menuOpen && (
           <div className="md:hidden px-4 pb-4 space-y-2 animate-fade-in">
-            <div className="relative">
-              <button
-                onClick={() => setExamOpen(!examOpen)}
-                className="block w-full text-left text-gray-700 font-medium"
-              >
-                All Exams ▾
-              </button>
-              {examOpen && (
-                <div className="mt-2 bg-white border rounded-md shadow-lg">
-                  {mockExams.map((exam, idx) => (
-                    <div
-                      key={idx}
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                    >
-                      {exam}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+          
 
             {navLinks.map((link, idx) => (
               <button

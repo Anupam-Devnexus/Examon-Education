@@ -69,7 +69,7 @@ export const FourStepSelection = () => {
                 <img
                     src={wave}
                     alt="Wave decoration"
-                    className="absolute px-3 top-1/4  w-full h-auto z-0"
+                    className="absolute hidden md:block px-3 top-1/4  w-full h-auto z-0"
                 />
             </section>
         </div>
