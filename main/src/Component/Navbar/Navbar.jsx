@@ -38,16 +38,16 @@ const Navbar = () => {
           {/* Logo + Dropdown */}
           <div className="flex items-center justify-center gap-6">
             <img src="/logo.svg" alt="Logo" className="h-10 w-auto" />
-<div className="hidden md:block h-8 w-0.5 bg-gray-300"></div>
-            <div className="relative">
+            <div className="hidden md:block h-8 w-0.5 bg-gray-300"></div>
+            <div className="relative border-2 px-3 py-1 rounded-xl border-[var(--secondary-color)]">
               <button
                 onClick={() => setExamOpen(!examOpen)}
-                className="text-gray-700 cursor-pointer font-medium hover:text-[var(--primary-color)] transition"
+                className="text-gray-700 border-[var(--secondary-color)] cursor-pointer font-medium hover:text-[var(--primary-color)] transition"
               >
                 All Exams ▾
               </button>
               {examOpen && (
-                <div className="absolute top-full left-0 mt-2 w-48 bg-white border rounded-md shadow-lg z-10 animate-fade-in">
+                <div className="absolute top-full left-0 mt-2 w-48  bg-white border rounded-md shadow-lg z-10 animate-fade-in">
                   {mockExams.map((exam, idx) => (
                     <div
                       key={idx}
@@ -69,9 +69,8 @@ const Navbar = () => {
                 <button
                   key={idx}
                   onClick={() => navigate(link.path)}
-                  className={`relative text-gray-700 cursor-pointer font-medium transition duration-300 hover:text-[var(--primary-color)] ${
-                    isActive ? "text-[var(--primary-color)]" : ""
-                  }`}
+                  className={`relative text-gray-700 cursor-pointer font-medium transition duration-300 hover:text-[var(--primary-color)] ${isActive ? "text-[var(--primary-color)]" : ""
+                    }`}
                 >
                   {link.label}
                   {isActive && (
@@ -138,11 +137,10 @@ const Navbar = () => {
               <button
                 key={idx}
                 onClick={() => navigate(link.path)}
-                className={`block w-full text-left text-gray-700 font-medium ${
-                  location.pathname === link.path
+                className={`block w-full text-left text-gray-700 font-medium ${location.pathname === link.path
                     ? "border-l-4 border-[var(--primary-color)] pl-2 text-[var(--primary-color)]"
                     : ""
-                }`}
+                  }`}
               >
                 {link.label}
               </button>
