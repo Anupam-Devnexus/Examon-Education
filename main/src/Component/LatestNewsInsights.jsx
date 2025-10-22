@@ -6,7 +6,7 @@ const LatestNewsInsights = () => {
       id: 1,
       img: "https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=800&h=400&fit=crop",
       title: "SSC JE 2025 Exam postponed notification released.",
-      desc: "The SSC JE 2025 exam has been postponed due to administrative reasons. Candidates are advised to check the official website for revised dates.",
+      desc: "The SSC JE 2025 exam has been postponed due to administrative reasons. Candidates are advised to check the official website for revised dates.The SSC JE 2025 exam has been postponed due to administrative reasons. Candidates are advised to check the official website for revised dates.The SSC JE 2025 exam has been postponed due to administrative reasons. Candidates are advised to check the official website for revised dates.The SSC JE 2025 exam has been postponed due to administrative reasons. Candidates are advised to check the official website for revised dates.The SSC JE 2025 exam has been postponed due to administrative reasons. Candidates are advised to check the official website for revised dates.The SSC JE 2025 exam has been postponed due to administrative reasons. Candidates are advised to check the official website for revised dates.The SSC JE 2025 exam has been postponed due to administrative reasons. Candidates are advised to check the official website for revised dates.The SSC JE 2025 exam has been postponed due to administrative reasons. Candidates are advised to check the official website for revised dates.The SSC JE 2025 exam has been postponed due to administrative reasons. Candidates are advised to check the official website for revised dates.The SSC JE 2025 exam has been postponed due to administrative reasons. Candidates are advised to check the official website for revised dates.",
       date: "May 12, 2025",
     },
     {
@@ -85,20 +85,20 @@ const LatestNewsInsights = () => {
           </div>
 
           {/* Dynamic Featured Image */}
-          <div className="relative w-full aspect-video overflow-hidden rounded-2xl shadow-md">
+          <div className="relative w-full h-40 aspect-video overflow-hidden rounded-2xl shadow-md">
             <img
               src={selectedItem.img}
               alt="Featured"
-              className="w-full object-cover hover:scale-105 transition-transform duration-500"
+              className="w-full  object-cover hover:scale-105 transition-transform duration-500"
             />
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent text-white p-5">
               <h3 className="font-semibold text-lg">{selectedItem.title}</h3>
-              <p className="text-sm text-gray-200">{selectedItem.desc}</p>
+              <p className="text-sm text-gray-200">{selectedItem.desc.split('').slice(0,60).join('')}...</p>
             </div>
           </div>
 
           {/* Dynamic Tip Section */}
-          <div className="bg-white shadow-sm border border-gray-100 p-4 rounded-2xl flex flex-col gap-3">
+          <div className="bg-white shadow-sm h-72 overflow-scroll border border-gray-100 p-4 rounded-2xl flex flex-col gap-3">
             <span className="text-[var(--primary-color)] font-semibold text-lg">
               {selectedItem.title}
             </span>
