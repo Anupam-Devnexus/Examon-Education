@@ -33,7 +33,7 @@ const MeetMentor = () => {
             {Data.map((mentor) => (
               <SwiperSlide key={mentor.id}>
                 <div
-                  className="flex flex-col md:flex-row items-center gap-8 border-14 border-[var(--secondary-color)] rounded-3xl p-8 shadow-2xl min-h-[32rem] bg-cover bg-no-repeat"
+                  className="flex flex-col md:flex-row items-center gap-8 border-14 border-[#6E889B] rounded-3xl p-8 shadow-2xl min-h-[32rem] bg-cover bg-no-repeat"
                   style={{ backgroundImage: "url(./Group.svg)" }}
                 >
                   {/* Mentor Image */}
