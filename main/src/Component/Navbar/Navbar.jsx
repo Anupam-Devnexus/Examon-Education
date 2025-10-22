@@ -33,7 +33,7 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="bg-white shadow-md sticky top-0 z-50 transition-all duration-300">
+      <nav className="bg-white shadow-md sticky top-0 z-999 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           {/* Logo + Dropdown */}
           <div className="flex items-center justify-center gap-6">

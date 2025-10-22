@@ -14,13 +14,12 @@ const Home = () => {
     <div className='flex flex-col '>
 
       <HomeSlider />
-      <HomeNumber/>
-      <LiveRecordedBatches/>
-
+      <HomeNumber />
+      <LiveRecordedBatches />
       <StudyMaterialHome />
-      <LatestNewsInsights/>
+      <LatestNewsInsights />
       <WhyChooseUs />
-      <MeetMentor/>
+      <MeetMentor />
       <HomeTestimonial />
       <section className='py-10'>
         <ContactSection />

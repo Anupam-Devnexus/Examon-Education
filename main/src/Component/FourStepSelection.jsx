@@ -30,7 +30,7 @@ export const FourStepSelection = () => {
     ];
 
     return (
-        <div className='relative min-h-[100vh] z-999 min-w-full -mt-44'>
+        <div className='relative min-h-[100vh] z-990 min-w-full -mt-44'>
             <section
                 className="absolute h-full flex flex-col p-7 min-w-full items-center bg-white overflow-hidden"
                 style={{clipPath: "polygon(15% 0, 87% 0, 100% 18%, 100% 100%, 80% 100%, 20% 100%, 0 100%, 0 18%)" }}
