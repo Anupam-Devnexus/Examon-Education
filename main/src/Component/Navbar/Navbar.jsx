@@ -37,7 +37,7 @@ const Navbar = () => {
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           {/* Logo + Dropdown */}
           <div className="flex items-center justify-center gap-6">
-            <img src="/logo.svg" alt="Logo" className="h-10 w-auto" />
+            <img src="/logo.svg" alt="Logo" className="h-10 w-auto" onClick={() => navigate('/')} />
             <div className="block h-8 w-0.5 bg-gray-300"></div>
             <div className="relative border-2 px-3 py-1 rounded-xl border-[var(--secondary-color)]">
               <button
@@ -112,15 +112,15 @@ const Navbar = () => {
         {/* Mobile Menu */}
         {menuOpen && (
           <div className="md:hidden px-4 pb-4 space-y-2 animate-fade-in">
-          
+
 
             {navLinks.map((link, idx) => (
               <button
                 key={idx}
                 onClick={() => navigate(link.path)}
                 className={`block w-full text-left text-gray-700 font-medium ${location.pathname === link.path
-                    ? "border-l-4 border-[var(--primary-color)] pl-2 text-[var(--primary-color)]"
-                    : ""
+                  ? "border-l-4 border-[var(--primary-color)] pl-2 text-[var(--primary-color)]"
+                  : ""
                   }`}
               >
                 {link.label}
