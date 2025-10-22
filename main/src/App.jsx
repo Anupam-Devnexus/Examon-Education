@@ -1,4 +1,3 @@
-// App.js
 import React, { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
@@ -14,25 +13,30 @@ import Navbar from "./Component/Navbar/Navbar";
 const Home = lazy(() => import("./Pages/Home"));
 const Aboutus = lazy(() => import("./Pages/Aboutus"));
 const ContactUs = lazy(() => import("./Pages/ContactUs"));
-const Courses = lazy(() => import("./Pages/Courses"))
+const Courses = lazy(() => import("./Pages/Courses"));
+// const Quiz = lazy(() => import("./Pages/Quiz"));
+// const StudyMaterial = lazy(() => import("./Pages/StudyMaterial"));
+// const Blog = lazy(() => import("./Pages/Blog"));
 
-const Login = lazy(() => import('./auth/Login'))
-const Register = lazy(() => import('./auth/Register'))
-
+const Login = lazy(() => import('./auth/Login'));
+const Register = lazy(() => import('./auth/Register'));
 
 function App() {
   return (
     <Router>
       <div className="App">
         <Suspense fallback={<div className="text-center mt-10">Loading...</div>}>
-        <Navbar/>
+          <Navbar />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<Aboutus />} />
+            <Route path="/courses" element={<Courses />} />
+            {/* <Route path="/quiz" element={<Quiz />} /> */}
+            {/* <Route path="/study-material" element={<StudyMaterial />} /> */}
+            {/* <Route path="/blog" element={<Blog />} /> */}
             <Route path="/contact" element={<ContactUs />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/courses" element={<Courses/>}/>
 
             {/* Optional: 404 Page */}
             <Route path="*" element={<div className="text-center mt-10">Page Not Found</div>} />
