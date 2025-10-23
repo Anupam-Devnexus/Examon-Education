@@ -9,6 +9,7 @@ import LiveRecordedBatches from '../Component/LiveRecordedBatches'
 import MeetMentor from '../Component/MeetMentor'
 import LatestNewsInsights from '../Component/LatestNewsInsights'
 import HomeQuiz from '../Component/Quiz/HomeQuiz'
+import CoursesYouLike from '../Component/CoursesYouLike'
 
 const Home = () => {
   return (
@@ -21,6 +22,7 @@ const Home = () => {
       <LatestNewsInsights />
       <WhyChooseUs />
       <MeetMentor />
+      <CoursesYouLike/>
       <HomeQuiz/>
       <HomeTestimonial />
       <section className='py-10'>
