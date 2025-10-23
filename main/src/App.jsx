@@ -14,6 +14,7 @@ const Home = lazy(() => import("./Pages/Home"));
 const Aboutus = lazy(() => import("./Pages/Aboutus"));
 const ContactUs = lazy(() => import("./Pages/ContactUs"));
 const Courses = lazy(() => import("./Pages/Courses"));
+const DynamicCourses = lazy(() => import("./Pages/DynamicCourse"))
 // const Quiz = lazy(() => import("./Pages/Quiz"));
 // const StudyMaterial = lazy(() => import("./Pages/StudyMaterial"));
 // const Blog = lazy(() => import("./Pages/Blog"));
@@ -37,6 +38,8 @@ function App() {
             <Route path="/contact" element={<ContactUs />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+          <Route path="/courses/:id" element={<DynamicCourses />} />
+
 
             {/* Optional: 404 Page */}
             <Route path="*" element={<div className="text-center mt-10">Page Not Found</div>} />

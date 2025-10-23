@@ -24,6 +24,7 @@ const Courses = () => {
         );
     }, [debouncedTerm]);
 
+
     return (
         <section className="py-16 flex flex-col items-center w-full">
             {/* Header Section */}

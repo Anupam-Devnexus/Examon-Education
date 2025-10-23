@@ -29,9 +29,9 @@ const NewsLetter = () => {
       {/* Image / Hero */}
       <div className="flex-shrink-0">
         <img
-          src="./books.svg"
+          src="/books.svg"
           alt="Books"
-          className="w-28 h-28"
+          className="w-24 h-24"
         />
       </div>
 

@@ -29,6 +29,8 @@ const slides = [
   },
 ];
 
+
+
 const HomeSlider = () => {
   const navigate = useNavigate();
   const [current, setCurrent] = useState(0);
