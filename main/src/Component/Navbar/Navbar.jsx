@@ -37,7 +37,7 @@ const Navbar = () => {
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           {/* Logo + Dropdown */}
           <div className="flex items-center justify-center gap-6">
-            <img src="/logo.svg" alt="Logo" className="h-10 w-auto" onClick={() => navigate('/')} />
+            <img src="/logo.svg" alt="Logo" className="h-10 cursor-pointer w-auto" onClick={() => navigate('/')} />
             <div className="block h-8 w-0.5 bg-gray-300"></div>
             <div className="relative border-2 px-3 py-1 rounded-xl border-[var(--secondary-color)]">
               <button

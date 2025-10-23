@@ -8,6 +8,7 @@ import HomeNumber from '../Component/HomeNumber'
 import LiveRecordedBatches from '../Component/LiveRecordedBatches'
 import MeetMentor from '../Component/MeetMentor'
 import LatestNewsInsights from '../Component/LatestNewsInsights'
+import HomeQuiz from '../Component/Quiz/HomeQuiz'
 
 const Home = () => {
   return (
@@ -20,6 +21,7 @@ const Home = () => {
       <LatestNewsInsights />
       <WhyChooseUs />
       <MeetMentor />
+      <HomeQuiz/>
       <HomeTestimonial />
       <section className='py-10'>
         <ContactSection />
