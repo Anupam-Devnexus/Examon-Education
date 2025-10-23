@@ -8,11 +8,11 @@ import Data from "../DataStore/Mentor.json";
 const MeetMentor = () => {
   return (
     <section className="w-full py-8 overflow-hidden bg-white">
-      <div className="max-w-full mx-auto flex flex-col md:flex-row justify-between items-center gap-12">
+      <div className="max-w-7xl flex flex-col md:flex-row justify-between items-center gap-12">
         {/* Header */}
-        <div className="md:w-1/3 text-left md:text-right mr-4 md:order-2">
+        <div className=" text-left md:text-right md:order-2">
           <h2 className="text-xl md:text-2xl font-bold text-gray-700">Meet Our</h2>
-          <h3 className="text-4xl md:text-6xl font-extrabold text-[var(--primary-color)] leading-tight">
+          <h3 className="text-4xl md:text-5xl font-extrabold text-[var(--primary-color)] leading-tight">
             Mentors
           </h3>
         </div>
@@ -28,12 +28,12 @@ const MeetMentor = () => {
             pagination={{ clickable: true }}
             navigation={true}
             autoplay={{ delay: 4000, disableOnInteraction: false }}
-            className="w-full max-w-5xl"
+            className="w-full max-w-4xl"
           >
             {Data.map((mentor) => (
               <SwiperSlide key={mentor.id}>
                 <div
-                  className="flex flex-col md:flex-row items-center gap-8 border-r-14 border-t-14 border-b-14 border-[#6E889B] rounded-xl p-8 shadow-2xl min-h-[32rem] bg-cover bg-no-repeat"
+                  className="flex flex-col md:flex-row items-center gap-6 border-r-14 border-t-14 border-b-14 border-[#6E889B] rounded-xl p-3 shadow-2xl min-h-[28rem] bg-cover bg-no-repeat"
                   style={{ backgroundImage: "url(./Group.svg)" }}
                 >
                   {/* Mentor Image */}

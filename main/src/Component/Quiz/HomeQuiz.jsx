@@ -79,7 +79,7 @@ const HomeQuiz = () => {
       {/* Progress Bar */}
       <div className="w-full bg-gray-200 rounded-full h-1 mb-4">
         <div
-          className="bg-blue-600 h-1 rounded-full transition-all duration-500 ease-in-out"
+          className="bg-[var(--primary-color)] h-1 rounded-full transition-all duration-500 ease-in-out"
           style={{ width: `${progressPercent}%` }}
         ></div>
       </div>
@@ -88,8 +88,8 @@ const HomeQuiz = () => {
       </p>
 
       {/* Question Card */}
-      <div className="bg-white rounded-xl p-6 transition-all duration-300">
-        <h2 className="text-xl font-semibold border-r-2 border-blue-700 text-blue-700 mb-4">
+      <div className="bg-white rounded-xl p-4 transition-all duration-300">
+        <h2 className="text-xl font-semibold border-r-2 border-blue-700 text-[var(--primary-color)] mb-4">
           Q{currentQuestionIndex + 1}. {currentQuestion.question}
         </h2>
 
@@ -117,7 +117,7 @@ const HomeQuiz = () => {
           <button
             onClick={handleNext}
             disabled={currentQuestionIndex === questions.length - 1}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md disabled:opacity-50 hover:bg-blue-700 transition"
+            className="px-4 py-2 bg-[var(--primary-color)] cursor-pointer text-white rounded-md disabled:opacity-50 hover:bg-blue-700 transition"
           >
             Submit & Next »
           </button>
