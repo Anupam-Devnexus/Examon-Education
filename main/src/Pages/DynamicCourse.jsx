@@ -26,12 +26,12 @@ const DynamicCourse = () => {
       </section>
 
       {/* Mentor Section */}
-      <section className="w-full max-w-7xl px-4 py-8">
+      <section className="w-full  py-8">
         <MeetMentor />
       </section>
 
       {/* Related Courses Section */}
-      <section className="w-full max-w-7xl px-4 py-8">
+      <section className="w-full py-8">
         <CoursesYouLike title={true} />
       </section>
     </main>
