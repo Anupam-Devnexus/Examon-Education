@@ -31,7 +31,7 @@ const DynamicCourse = () => {
       </section>
 
       {/* Related Courses Section */}
-      <section className="w-full py-8">
+      <section className="w-full py-12">
         <CoursesYouLike title={true} />
       </section>
     </main>

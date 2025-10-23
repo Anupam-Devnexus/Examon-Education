@@ -11,7 +11,7 @@ const DHero = ({
   badges = [],
 }) => {
   return (
-    <section className="relative h-auto md:h-[70vh] w-full flex flex-col md:flex-row items-center justify-between px-6 md:px-16 py-10 bg-blue-50 overflow-hidden">
+    <section className="relative h-auto md:h-[70vh] w-full flex flex-col-reverse md:flex-row items-center justify-between px-6 md:px-16 py-10 bg-blue-50 overflow-hidden">
       {/* Left Background Shape */}
       <div
         className="absolute top-0 left-0 w-full h-full -z-10"
