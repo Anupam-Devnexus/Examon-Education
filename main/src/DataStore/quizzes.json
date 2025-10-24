@@ -19,7 +19,7 @@
             "Promotion of international peace"
           ],
           "correctAnswerIndex": 2,
-          "marks": 2,
+          "marks": 50,
           "topic": "Polity",
           "difficulty": "medium"
         },
@@ -29,7 +29,7 @@
           "question": "Which of the following rivers originates in India?",
           "options": ["Brahmaputra", "Sutlej", "Mahanadi", "Indus"],
           "correctAnswerIndex": 2,
-          "marks": 2,
+          "marks": 50,
           "topic": "Geography",
           "difficulty": "easy"
         }
@@ -54,7 +54,7 @@
             "Harshavardhana"
           ],
           "correctAnswerIndex": 1,
-          "marks": 2,
+          "marks": 25,
           "topic": "History",
           "difficulty": "easy"
         },
@@ -64,7 +64,7 @@
           "question": "Which gas is used in the preparation of soda water?",
           "options": ["Oxygen", "Carbon dioxide", "Nitrogen", "Hydrogen"],
           "correctAnswerIndex": 1,
-          "marks": 2,
+          "marks": 25,
           "topic": "Science",
           "difficulty": "easy"
         }
@@ -84,7 +84,7 @@
           "question": "What is the least common multiple (LCM) of 12 and 18?",
           "options": ["36", "72", "24", "48"],
           "correctAnswerIndex": 0,
-          "marks": 2,
+          "marks": 25,
           "topic": "Maths",
           "difficulty": "easy"
         },
@@ -94,7 +94,7 @@
           "question": "If TRAIN is coded as WUDLQ, how is BUS coded?",
           "options": ["EXV", "DWV", "EWT", "DWT"],
           "correctAnswerIndex": 0,
-          "marks": 2,
+          "marks": 25,
           "topic": "Reasoning",
           "difficulty": "medium"
         }
