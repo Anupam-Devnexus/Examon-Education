@@ -1,5 +1,40 @@
 import React, { useState, useEffect } from 'react';
-import Data from '../../DataStore/quizzes.json'; // Replace with API call later
+import Data from '../../DataStore/quizzes.json';
+
+const ResultCard = ({ percentage, qualified }) => {
+  const isPassed = qualified;
+  const styles = {
+    container: `relative flex flex-col items-center rounded-lg p-6 shadow-md ${isPassed ? 'bg-[#ECFEE9] text-[#35B324]' : 'bg-[#FFE6E6] text-[#FF1111]'
+      }`,
+    icon: 'w-24 h-24 mb-6',
+    title: 'text-xl font-bold',
+    message: 'text-lg font-semibold',
+    subtext: 'text-center max-w-md mt-2 text-sm',
+  };
+
+  return (
+    <div className={styles.container}>
+      <div className="absolute left-0 top-0">
+        <img
+          src={`${isPassed ? "/greenEllipse.svg" : "/redEllipse.svg"}`}
+          alt="decorative"
+          className="hidden md:block md:h-68"
+        />
+
+      </div>
+      <img src="/happy.svg" alt="result icon" className={styles.icon} />
+      <h3 className={styles.title}>Your Score: {percentage}%</h3>
+      <p className={styles.message}>
+        {isPassed ? 'Well done! You’ve passed the quiz' : 'Better Luck Next Time!'}
+      </p>
+      <p className={styles.subtext}>
+        {isPassed
+          ? 'Continue your learning journey by exploring our advanced courses for further improvement.'
+          : 'Strengthen your preparation with our expert-led courses to enhance your performance and achieve success.'}
+      </p>
+    </div>
+  );
+};
 
 const QuizPageComponent = ({ quizId = 'upsc_gs_2025_01' }) => {
   const quiz = Data.quizzes.find((q) => q.id === quizId);
@@ -10,7 +45,6 @@ const QuizPageComponent = ({ quizId = 'upsc_gs_2025_01' }) => {
   const [showReview, setShowReview] = useState(false);
   const [timeLeft, setTimeLeft] = useState(duration);
 
-  // Timer countdown
   useEffect(() => {
     if (timeLeft > 0 && !showReview) {
       const timer = setTimeout(() => setTimeLeft((prev) => prev - 1), 1000);
@@ -40,26 +74,16 @@ const QuizPageComponent = ({ quizId = 'upsc_gs_2025_01' }) => {
     setCurrentIndex((prev) => prev + 1);
   };
 
-  const calculateScore = () => {
-    return questions.reduce((score, q) => {
+  const calculateScore = () =>
+    questions.reduce((score, q) => {
       const userAnswer = answers[q.id];
       return userAnswer === q.correctAnswerIndex ? score + q.marks : score;
     }, 0);
-  };
 
   const score = calculateScore();
   const percentage = ((score / totalMarks) * 100).toFixed(2);
   const qualified = percentage >= 40;
-
   const currentQuestion = questions[currentIndex];
-
-  const passedExam = () =>{
-    return(
-      <div className='relative flex flex-col'>
-
-      </div>
-    )
-  }
 
   const renderQuestion = () => (
     <div className="space-y-4">
@@ -72,9 +96,7 @@ const QuizPageComponent = ({ quizId = 'upsc_gs_2025_01' }) => {
             <button
               key={index}
               onClick={() => handleAnswer(currentQuestion.id, index)}
-              className={`w-full text-left px-4 py-2 rounded border ${isSelected
-                ? 'border-blue-600 bg-blue-50'
-                : 'border-gray-300 hover:bg-gray-100'
+              className={`w-full text-left px-4 py-2 rounded border ${isSelected ? 'border-blue-600 bg-blue-50' : 'border-gray-300 hover:bg-gray-100'
                 }`}
             >
               {option}
@@ -85,13 +107,13 @@ const QuizPageComponent = ({ quizId = 'upsc_gs_2025_01' }) => {
       <div className="flex justify-end gap-4 pt-4">
         <button
           onClick={handleSkip}
-          className="px-4 py-2 bg-gray-200 text-white rounded hover:bg-yellow-600"
+          className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
         >
           Skip
         </button>
         <button
           onClick={handleNext}
-          className="px-4 py-2 bg-[var(--primary-color)] cursor-pointer text-white rounded hover:bg-blue-700"
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
         >
           Submit & Next
         </button>
@@ -101,17 +123,7 @@ const QuizPageComponent = ({ quizId = 'upsc_gs_2025_01' }) => {
 
   const renderReview = () => (
     <div className="space-y-6">
-      <h3 className="text-xl font-semibold">Review Answers</h3>
-      <div className="text-lg font-medium text-gray-800 space-y-1">
-        <p>Score: <span className="text-blue-600">{score} / {totalMarks}</span></p>
-        <p>Percentage: <span className="text-blue-600">{percentage}%</span></p>
-        <p>Status: <span className={qualified ? 'text-green-600' : 'text-red-600'}>
-          {qualified ? 'Qualified' : 'Not Qualified'}
-        </span></p>
-        <p>Attempted: {Object.keys(answers).length} / {questions.length}</p>
-        <p>Correct: {questions.filter(q => answers[q.id] === q.correctAnswerIndex).length}</p>
-        <p>Skipped: {questions.filter(q => answers[q.id] === undefined).length}</p>
-      </div>
+      <ResultCard percentage={percentage} qualified={qualified} />
 
       {questions.map((q, index) => {
         const userAnswer = answers[q.id];
@@ -123,7 +135,7 @@ const QuizPageComponent = ({ quizId = 'upsc_gs_2025_01' }) => {
             <p className="font-medium text-gray-800">
               {index + 1}. {q.question}
             </p>
-            <div className="space-y-1">
+            <div className="space-y-1 grid grid-cols-1 md:grid-cols-2 gap-3">
               {q.options.map((option, i) => {
                 const isUserSelected = userAnswer === i;
                 const isCorrectAnswer = q.correctAnswerIndex === i;
