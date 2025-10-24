@@ -15,7 +15,8 @@ const Aboutus = lazy(() => import("./Pages/Aboutus"));
 const ContactUs = lazy(() => import("./Pages/ContactUs"));
 const Courses = lazy(() => import("./Pages/Courses"));
 const DynamicCourses = lazy(() => import("./Pages/DynamicCourse"))
-// const Quiz = lazy(() => import("./Pages/Quiz"));
+const Quiz = lazy(() => import("./Pages/Quiz"));
+const DynamicQuiz = lazy(() => import("./Pages/DynamicTest"))
 // const StudyMaterial = lazy(() => import("./Pages/StudyMaterial"));
 // const Blog = lazy(() => import("./Pages/Blog"));
 
@@ -32,13 +33,14 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<Aboutus />} />
             <Route path="/courses" element={<Courses />} />
-            {/* <Route path="/quiz" element={<Quiz />} /> */}
+            <Route path="/quiz" element={<Quiz />} />
             {/* <Route path="/study-material" element={<StudyMaterial />} /> */}
             {/* <Route path="/blog" element={<Blog />} /> */}
             <Route path="/contact" element={<ContactUs />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-          <Route path="/courses/:id" element={<DynamicCourses />} />
+            <Route path="/courses/:id" element={<DynamicCourses />} />
+            <Route path="/quiz/:id" element={<DynamicQuiz />} />
 
 
             {/* Optional: 404 Page */}
