@@ -12,8 +12,6 @@ const DynamicCourse = () => {
     window.scrollTo(0, 0);
   }, [id]);
 
-  // Optional: Fetch course data using `id` here
-
   return (
     <main className="w-full mb-10 flex flex-col items-center bg-white">
       {/* Hero Section */}

@@ -118,7 +118,7 @@ const handleSkip = () => {
           );
         })}
       </div>
-      <div className="flex justify-end gap-4 pt-4">
+      <div className="flex justify-end gap-4">
         <button
           onClick={handleSkip}
           className="px-4 py-2 bg-gray-200 cursor-pointer text-white rounded hover:bg-yellow-600"
@@ -194,7 +194,7 @@ const handleSkip = () => {
   return (
     <div className="flex flex-col w-full justify-between">
       <div className="max-w-full p-2 space-y-6">
-        <h2 className="text-2xl font-bold">{title}</h2>
+        <h2 className="text-3xl text-[var(--primary-color)] font-bold">{title}</h2>
         {renderProgressBar()}
       </div>
       {!showReview ? renderQuestion() : renderReview()}
