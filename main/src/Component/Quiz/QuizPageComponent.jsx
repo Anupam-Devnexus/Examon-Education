@@ -60,9 +60,14 @@ const QuizPageComponent = ({ quizId = 'upsc_gs_2025_01' }) => {
     }
   };
 
-  const handleSkip = () => {
+const handleSkip = () => {
+  if (currentIndex < questions.length - 1) {
     setCurrentIndex((prev) => prev + 1);
-  };
+  } else {
+    setShowReview(true);
+  }
+};
+
 
   const calculateScore = () =>
     questions.reduce((score, q) => {
