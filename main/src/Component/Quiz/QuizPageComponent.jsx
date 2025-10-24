@@ -4,9 +4,8 @@ import Data from '../../DataStore/quizzes.json';
 const ResultCard = ({ percentage, qualified }) => {
   const isPassed = qualified;
   const styles = {
-    container: `relative flex flex-col items-center rounded-lg p-6 shadow-md ${
-      isPassed ? 'bg-[#ECFEE9] text-[#35B324]' : 'bg-[#FFE6E6] text-[#FF1111]'
-    }`,
+    container: `relative flex flex-col items-center rounded-lg p-6 shadow-md ${isPassed ? 'bg-[#ECFEE9] text-[#35B324]' : 'bg-[#FFE6E6] text-[#FF1111]'
+      }`,
     icon: 'w-24 h-24 mb-6',
     title: 'text-xl font-bold',
     message: 'text-lg font-semibold',
@@ -17,10 +16,11 @@ const ResultCard = ({ percentage, qualified }) => {
     <div className={styles.container}>
       <div className="absolute left-0 top-0">
         <img
-          src={isPassed ? '/greenEllipse.svg' : '/redEllipse.svg'}
+          src={`${isPassed ? "/greenEllipse.svg" : "/redEllipse.svg"}`}
           alt="decorative"
           className="hidden md:block md:h-68"
         />
+
       </div>
       <img src="/happy.svg" alt="result icon" className={styles.icon} />
       <h3 className={styles.title}>Your Score: {percentage}%</h3>
@@ -29,8 +29,8 @@ const ResultCard = ({ percentage, qualified }) => {
       </p>
       <p className={styles.subtext}>
         {isPassed
-          ? 'Continue your learning journey by exploring our advanced courses.'
-          : 'Strengthen your preparation with our expert-led courses.'}
+          ? 'Continue your learning journey by exploring our advanced courses for further improvement.'
+          : 'Strengthen your preparation with our expert-led courses to enhance your performance and achieve success.'}
       </p>
     </div>
   );
@@ -63,11 +63,15 @@ const QuizPageComponent = ({ quizId = 'upsc_gs_2025_01' }) => {
   };
 
   const handleNext = () => {
-    setCurrentIndex((prev) => prev + 1);
+    if (currentIndex < questions.length - 1) {
+      setCurrentIndex((prev) => prev + 1);
+    } else {
+      setShowReview(true);
+    }
   };
 
-  const handleSubmit = () => {
-    setShowReview(true);
+  const handleSkip = () => {
+    setCurrentIndex((prev) => prev + 1);
   };
 
   const calculateScore = () =>
@@ -92,11 +96,8 @@ const QuizPageComponent = ({ quizId = 'upsc_gs_2025_01' }) => {
             <button
               key={index}
               onClick={() => handleAnswer(currentQuestion.id, index)}
-              className={`w-full text-left px-4 py-2 rounded border ${
-                isSelected
-                  ? 'border-blue-600 bg-blue-50'
-                  : 'border-gray-300 hover:bg-gray-100'
-              }`}
+              className={`w-full text-left px-4 py-2 rounded border ${isSelected ? 'border-blue-600 bg-blue-50' : 'border-gray-300 hover:bg-gray-100'
+                }`}
             >
               {option}
             </button>
@@ -110,21 +111,12 @@ const QuizPageComponent = ({ quizId = 'upsc_gs_2025_01' }) => {
         >
           Skip
         </button>
-        {currentIndex < questions.length - 1 ? (
-          <button
-            onClick={handleNext}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            Submit & Next
-          </button>
-        ) : (
-          <button
-            onClick={handleSubmit}
-            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-          >
-            Submit Assessment
-          </button>
-        )}
+        <button
+          onClick={handleNext}
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          Submit & Next
+        </button>
       </div>
     </div>
   );
@@ -132,6 +124,7 @@ const QuizPageComponent = ({ quizId = 'upsc_gs_2025_01' }) => {
   const renderReview = () => (
     <div className="space-y-6">
       <ResultCard percentage={percentage} qualified={qualified} />
+
       {questions.map((q, index) => {
         const userAnswer = answers[q.id];
         const isCorrect = userAnswer === q.correctAnswerIndex;
@@ -182,6 +175,7 @@ const QuizPageComponent = ({ quizId = 'upsc_gs_2025_01' }) => {
           </div>
         );
       })}
+
       <div className="pt-6 w-full flex items-center justify-center mx-auto">
         <button
           onClick={() => window.location.reload()}
