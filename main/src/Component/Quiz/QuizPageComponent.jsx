@@ -176,10 +176,10 @@ const QuizPageComponent = ({ quizId = 'upsc_gs_2025_01' }) => {
         );
       })}
 
-      <div className="pt-6">
+      <div className="pt-6 w-full flex items-center justify-center mx-auto">
         <button
           onClick={() => window.location.reload()}
-          className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+          className="px-4 py-2 bg-[var(--primary-color)] cursor-pointer text-white rounded hover:bg-indigo-700"
         >
           Retake Quiz
         </button>
