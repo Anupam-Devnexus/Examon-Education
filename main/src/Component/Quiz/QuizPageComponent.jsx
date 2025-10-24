@@ -88,8 +88,8 @@ const QuizPageComponent = ({ quizId = 'upsc_gs_2025_01' }) => {
   const renderQuestion = () => (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold">Question {currentIndex + 1}</h3>
-      <p className="text-gray-700">{currentQuestion.question}</p>
-      <div className="space-y-2">
+      <p className=" font-semibold text-[var(--primary-color)]">{currentQuestion.question}</p>
+      <div className="space-y-2 grid grid-cols-1 md:grid-cols-2 gap-3">
         {currentQuestion.options.map((option, index) => {
           const isSelected = answers[currentQuestion.id] === index;
           return (
@@ -135,7 +135,7 @@ const QuizPageComponent = ({ quizId = 'upsc_gs_2025_01' }) => {
             <p className="font-medium text-gray-800">
               {index + 1}. {q.question}
             </p>
-            <div className="space-y-1 grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className=" space-y-1 grid grid-cols-1 md:grid-cols-2 gap-3">
               {q.options.map((option, i) => {
                 const isUserSelected = userAnswer === i;
                 const isCorrectAnswer = q.correctAnswerIndex === i;
@@ -170,7 +170,7 @@ const QuizPageComponent = ({ quizId = 'upsc_gs_2025_01' }) => {
               })}
             </div>
             {isSkipped && (
-              <p className="text-sm text-yellow-700 italic">You skipped this question.</p>
+              <p className="text-sm text-gray-100 italic">You skipped this question.</p>
             )}
           </div>
         );
