@@ -9,11 +9,9 @@ import { FaLinkedin, FaInstagram } from "react-icons/fa";
 const MeetYourMentor = () => {
   return (
     <section className="w-full bg-white flex flex-col items-center justify-center">
-      <div className="max-w-7xl w-full mx-auto flex flex-col items-center justify-center px-6 md:px-10">
+      <div className="max-w-full w-full mx-auto flex flex-col items-center justify-center px-6 md:px-10">
         {/* Heading */}
-        <h2 className="text-3xl md:text-4xl font-bold text-[var(--primary-color)] mb-12 text-center">
-          Meet Your Mentors
-        </h2>
+       
 
         {/* Swiper Section */}
         <Swiper
@@ -29,6 +27,9 @@ const MeetYourMentor = () => {
                 
                 {/* Left Content */}
                 <div className="w-full md:w-1/2 flex flex-col items-start text-left md:pl-6">
+                  <h2 className="text-3xl md:text-4xl font-bold text-[var(--primary-color)] mb-12 text-left">
+          Meet Your Mentors
+        </h2>
                   <h3 className="text-2xl md:text-3xl font-extrabold text-[#111827] uppercase tracking-wide mb-3">
                     {mentor.name}
                   </h3>
