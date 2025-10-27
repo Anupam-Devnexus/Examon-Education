@@ -3,7 +3,9 @@ import { useParams } from 'react-router-dom';
 import MeetMentor from '../Component/MeetMentor';
 import DHero from '../Component/DynamicPage/DHero';
 import CoursesYouLike from '../Component/CoursesYouLike';
-
+import { StagesOfSSC } from '../Component/StagesOfSSC';
+import QuizandNotes from '../Component/DynamicPage/QuizandNotes';
+import Masterclass from "../Component/DynamicPage/Masterclass"
 const DynamicCourse = () => {
   const { id } = useParams();
 
@@ -22,7 +24,9 @@ const DynamicCourse = () => {
           onEnroll={() => console.log("Enroll clicked!")}
         />
       </section>
-
+      <StagesOfSSC/>
+      <Masterclass />
+<QuizandNotes/>
       {/* Mentor Section */}
       <section className="w-full  py-8">
         <MeetMentor />
