@@ -47,7 +47,7 @@ const DHero = ({
         </h1>
 
         {/* Date & Time Info */}
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col w-1/2 gap-3">
           {[
             { label: "DATE", value: date },
             { label: "TIME", value: time },
