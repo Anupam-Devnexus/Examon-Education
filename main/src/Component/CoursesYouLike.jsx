@@ -88,7 +88,7 @@ const CoursesYouLike = ({ title = false }) => {
             }}
           >
             {/* Sticky Header */}
-            <div className="sticky top-0 z-20 w-full bg-gradient-to-b from-[#f9fbff]/95 to-white/95 backdrop-blur-sm py-1 flex flex-col items-center gap-2 ">
+            <div className="sticky top-0 z-20 w-full backdrop-blur-sm py-1 flex flex-col items-center gap-2 ">
               <h2 className="text-2xl font-bold text-[var(--primary-color)] leading-snug">
                 Courses You May Like!
               </h2>
