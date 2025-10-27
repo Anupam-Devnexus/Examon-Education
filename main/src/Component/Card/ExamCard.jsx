@@ -1,53 +1,83 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { CiStopwatch } from "react-icons/ci";
+import { SiLevelsdotfyi } from "react-icons/si";
+import { TbMessage2Question } from "react-icons/tb";
+import { SiTicktick } from "react-icons/si";
 
 const ExamCard = ({ examData }) => {
-    const { id, title, exam, duration, totalMarks, tags } = examData;
-    const navigate = useNavigate();
+  const { id, title, exam, duration, totalMarks, tags } = examData;
+  const navigate = useNavigate();
 
-    const formatDuration = (seconds) => {
-        const hrs = Math.floor(seconds / 3600);
-        const mins = Math.floor((seconds % 3600) / 60);
-        return `${hrs}h ${mins}m`;
-    };
+  const formatDuration = (seconds) => {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    if (hrs === 0) return `${mins} min`;
+    return `${hrs}h ${mins}m`;
+  };
 
-    const handleNavigation = () => {
-        navigate(`/quiz/${id}`);
-    };
+  const handleNavigation = () => {
+    navigate(`/quiz/${id}`);
+  };
 
-    return (
-        <div className="bg-white shadow-md rounded-xl flex flex-col justify-between p-6 max-w-md w-full mx-auto hover:shadow-lg transition-shadow duration-300">
-            {/* Content */}
-            <div>
-                <h2 className="text-lg font-bold text-[var(--primary-color)] mb-3">{title}</h2>
-                <div className="text-sm grid grid-cols-2 text-gray-600 space-y-1 mb-4">
-                    <p><span className="font-medium">Exam:</span> {exam}</p>
-                    <p><span className="font-medium">Duration:</span> {formatDuration(duration)}</p>
-                    <p><span className="font-medium">Total Marks:</span> {totalMarks}</p>
-                </div>
-                <div className="flex flex-wrap gap-2 mb-6">
-                    {tags.map((tag) => (
-                        <span
-                            key={tag}
-                            className="bg-blue-100 text-[var(--primary-color)] text-xs font-semibold px-2 py-1 rounded-full"
-                        >
-                            {tag}
-                        </span>
-                    ))}
-                </div>
-            </div>
+  return (
+    <div
+      className="bg-gradient-to-b from-[#EAF5FF] to-[#FFFFFF] shadow-md hover:shadow-lg rounded-2xl flex flex-col justify-between overflow-hidden border border-gray-100 transition-all duration-300 hover:-translate-y-1"
+    >
+      {/* Top Content */}
+      <div className="p-5 flex flex-col gap-3">
+        {/* Title */}
+        <h2 className="text-xl font-bold text-[var(--primary-color)] leading-snug line-clamp-2">
+          {title}
+        </h2>
 
-            {/* Button */}
-            <div className="mt-auto pt-4">
-                <button
-                    onClick={handleNavigation}
-                    className="w-full bg-[var(--primary-color)] cursor-pointer text-white font-medium py-2 rounded-lg transition-colors duration-200"
-                >
-                    Start Now
-                </button>
-            </div>
+        {/* Info Grid */}
+        <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-gray-700 text-sm">
+          <div className="flex items-center gap-2">
+            <SiLevelsdotfyi className="text-[var(--primary-color)] text-lg" />
+            <span className="truncate">{exam}</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <CiStopwatch className="text-[var(--primary-color)] text-lg" />
+            <span>{formatDuration(duration)}</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <TbMessage2Question className="text-[var(--primary-color)] text-lg" />
+            <span>{totalMarks} Marks</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <SiTicktick className="text-[var(--primary-color)] text-lg" />
+            <span>Ready</span>
+          </div>
         </div>
-    );
+
+        {/* Tags */}
+        <div className="flex flex-wrap gap-2 mt-3">
+          {tags.map((tag) => (
+            <span
+              key={tag}
+              className="bg-blue-100 text-[var(--primary-color)] text-xs font-medium px-3 py-1 rounded-full whitespace-nowrap"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* Start Button */}
+      <div className="bg-[var(--primary-color)] py-3 px-4 flex justify-center">
+        <button
+          onClick={handleNavigation}
+          className="w-full cursor-pointer sm:w-3/4 bg-white text-[var(--primary-color)] font-semibold py-2 rounded-lg shadow-sm hover:bg-[var(--secondary-color)] hover:text-white transition-all duration-300"
+        >
+          Start Now
+        </button>
+      </div>
+    </div>
+  );
 };
 
 export default ExamCard;

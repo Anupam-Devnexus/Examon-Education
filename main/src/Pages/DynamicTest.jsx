@@ -40,7 +40,7 @@ const DynamicTest = () => {
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 items-start">
         
         {/* Quiz Section */}
-        <section className="lg:col-span-2 h-[85vh] md:h-[75vh] bg-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 p-4 mt-4 md:p-6">
+        <section className="lg:col-span-2 mb-18 bg-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 p-4 mt-4 md:p-6">
           <QuizPageComponent quizId={quizId} />
         </section>
 
