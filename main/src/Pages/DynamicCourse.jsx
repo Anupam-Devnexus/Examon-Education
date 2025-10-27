@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import MeetMentor from '../Component/MeetMentor';
+import MeetMentor from '../Component/DynamicPage/MeetYourMentor';
 import DHero from '../Component/DynamicPage/DHero';
 import CoursesYouLike from '../Component/CoursesYouLike';
 import { StagesOfSSC } from '../Component/StagesOfSSC';
@@ -24,9 +24,9 @@ const DynamicCourse = () => {
           onEnroll={() => console.log("Enroll clicked!")}
         />
       </section>
-      <StagesOfSSC/>
+      <StagesOfSSC />
       <Masterclass />
-<QuizandNotes/>
+      <QuizandNotes />
       {/* Mentor Section */}
       <section className="w-full  py-8">
         <MeetMentor />
