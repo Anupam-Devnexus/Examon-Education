@@ -8,7 +8,7 @@ import { FaLinkedin, FaInstagram } from "react-icons/fa";
 
 const MeetYourMentor = () => {
   return (
-    <section className="w-full bg-white flex flex-col items-center justify-center py-14">
+    <section className="w-full bg-white flex flex-col items-center justify-center">
       <div className="max-w-7xl w-full mx-auto flex flex-col items-center justify-center px-6 md:px-10">
         {/* Heading */}
         <h2 className="text-3xl md:text-4xl font-bold text-[var(--primary-color)] mb-12 text-center">
