@@ -60,13 +60,13 @@ const QuizPageComponent = ({ quizId = 'upsc_gs_2025_01' }) => {
     }
   };
 
-const handleSkip = () => {
-  if (currentIndex < questions.length - 1) {
-    setCurrentIndex((prev) => prev + 1);
-  } else {
-    setShowReview(true);
-  }
-};
+  const handleSkip = () => {
+    if (currentIndex < questions.length - 1) {
+      setCurrentIndex((prev) => prev + 1);
+    } else {
+      setShowReview(true);
+    }
+  };
 
 
   const calculateScore = () =>
@@ -81,9 +81,9 @@ const handleSkip = () => {
   const currentQuestion = questions[currentIndex];
 
   const renderProgressBar = () => {
-   const progress = showReview
-  ? 100
-  : Math.floor((currentIndex / questions.length) * 100);
+    const progress = showReview
+      ? 100
+      : Math.floor((currentIndex / questions.length) * 100);
 
     return (
       <div className="w-full flex items-center justify-between gap-4 mt-4">
@@ -102,7 +102,7 @@ const handleSkip = () => {
 
   const renderQuestion = () => (
     <div className="space-y-4">
-      <h3 className="text-lg text-[var(--primary-color)] font-semibold">Question {currentIndex + 1}</h3>
+      <h4 className="text-lg text-[var(--primary-color)] font-semibold">Question {currentIndex + 1}</h4>
       <p className="text-lg font-bold text-[var(--primary-color)]">{currentQuestion.question}</p>
       <div className="space-y-2 grid grid-cols-1 md:grid-cols-2 gap-3">
         {currentQuestion.options.map((option, index) => {
@@ -194,7 +194,7 @@ const handleSkip = () => {
   return (
     <div className="flex flex-col w-full justify-between">
       <div className="max-w-full p-2 space-y-6">
-        <h2 className="text-3xl text-[var(--primary-color)] font-bold">{title}</h2>
+        <h5 className="text-2xl md:text-3xl text-[var(--primary-color)] font-bold">{title}</h5>
         {renderProgressBar()}
       </div>
       {!showReview ? renderQuestion() : renderReview()}

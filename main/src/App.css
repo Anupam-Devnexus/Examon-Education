@@ -88,3 +88,19 @@ a:hover {
 .bg-footer {
   background-color: var(--footer-bg);
 }
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Optional: soft gradient background animation */
+@keyframes fadeGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+main {
+  background-size: 200% 200%;
+  animation: fadeGradient 15s ease infinite;
+}

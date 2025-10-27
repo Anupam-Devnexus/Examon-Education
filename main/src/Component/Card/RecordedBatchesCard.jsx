@@ -20,7 +20,7 @@ const RecordedBatchesCard = ({
         src={image}
         alt={batchName}
         loading="lazy"
-        className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
+        className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
       />
 
       {/* Hover Overlay */}

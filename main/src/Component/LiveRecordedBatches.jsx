@@ -34,19 +34,19 @@ const LiveRecordedBatches = () => {
           }}
           coverflowEffect={{
             rotate: 30,
-            stretch: 0,
+            stretch: 30,
             depth: 120,
-            modifier: 1.2,
-            slideShadows: false,
+            modifier: 1.4,
+            slideShadows: true,
           }}
           autoplay={{
             delay: 2000,
             disableOnInteraction: false,
           }}
-          className="w-full"
+          className=""
         >
           {Data.map((batch) => (
-            <SwiperSlide key={batch.id} className="flex justify-center">
+            <SwiperSlide key={batch.id} className="flex">
               <RecordedBatchesCard {...batch} />
             </SwiperSlide>
           ))}
