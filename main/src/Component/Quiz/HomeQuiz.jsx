@@ -52,7 +52,7 @@ const HomeQuiz = () => {
 
   return (
     <section className="w-full py-10 px-4 md:px-6 bg-white">
-      <div className="max-w-5xl mx-auto flex flex-col gap-6">
+      <div className="max-w-full mx-auto flex flex-col gap-6">
         {/* Title */}
         <h1 className="text-2xl md:text-4xl font-bold text-[var(--primary-color)] text-center">
           Wanna Test Your Skills? Take a Quick Quiz
@@ -89,7 +89,7 @@ const HomeQuiz = () => {
         </div>
 
         {/* Question Card */}
-        <div className="bg-white rounded-xl shadow-md p-4 md:p-6 transition-all duration-300">
+        <div className="bg-white rounded-xl p-4 md:p-6 transition-all duration-300">
           <h2 className="text-lg md:text-xl font-semibold border-r-2 border-blue-700 text-[var(--primary-color)] mb-4">
             Q{currentQuestionIndex + 1}. {currentQuestion.question}
           </h2>

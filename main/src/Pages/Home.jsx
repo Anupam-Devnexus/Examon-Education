@@ -22,8 +22,8 @@ const Home = () => {
       <LatestNewsInsights />
       <WhyChooseUs />
       <MeetMentor />
-      <CoursesYouLike />
       <HomeQuiz />
+      <CoursesYouLike />
       <HomeTestimonial />
       <section className='py-10'>
         <ContactSection />
