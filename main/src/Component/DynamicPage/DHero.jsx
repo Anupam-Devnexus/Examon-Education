@@ -8,80 +8,95 @@ const DHero = ({
   bgLeft = "/Ellipse2.svg",
   bgRight = "/Ellipse1.svg",
   onEnroll,
-  badges = [],
+  badges = ["/ssc.svg"],
+  date = "OCT 30th, 2025",
+  time = "5:00 PM",
 }) => {
   return (
-    <section className="relative h-auto md:h-[70vh] w-full flex flex-col-reverse md:flex-row items-center justify-between px-6 md:px-16 py-10 bg-blue-50 overflow-hidden">
-      {/* Left Background Shape */}
+    <section
+      className="relative flex flex-col-reverse md:flex-row items-center justify-between px-6 md:px-16 py-10 bg-blue-50 md:h-[75vh] overflow-hidden"
+      style={{
+        background: "url('/dynamicbg.svg') no-repeat center/cover",
+      }}
+    >
+      {/* ===== Background Shapes ===== */}
       <div
-        className="absolute top-0 left-0 w-full h-full -z-10"
+        className="absolute inset-0 -z-10"
         style={{
-          backgroundImage: `url(${bgLeft})`,
-          backgroundRepeat: "no-repeat",
-          backgroundSize: "cover",
-          backgroundPosition: "left top",
+          backgroundImage: `url(${bgLeft}), url(${bgRight})`,
+          backgroundRepeat: "no-repeat, no-repeat",
+          backgroundSize: "cover, contain",
+          backgroundPosition: "left top, right center",
         }}
       />
 
-      {/* Right Background Shape */}
-      <div
-        className="absolute top-0 right-0 w-full h-full -z-10"
-        style={{
-          backgroundImage: `url(${bgRight})`,
-          backgroundRepeat: "no-repeat",
-          backgroundSize: "contain",
-          backgroundPosition: "right center",
-        }}
-      />
-
-      {/* Left Section */}
-      <div className="z-10 flex flex-col gap-6 max-w-2xl text-left">
+      {/* ===== Left Content ===== */}
+      <div className="z-10 flex flex-col gap-6 max-w-3xl">
         {/* Badges */}
-        <div className="flex flex-wrap gap-2">
-          {badges.map((badge, i) => (
-            <span
-              key={i}
-              className="px-3 py-1 text-xs font-semibold rounded-full bg-[var(--primary-color)] text-white"
-            >
-              {badge}
-            </span>
-          ))}
-        </div>
+        {badges.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {badges.map((badge, i) => (
+              <img key={i} src={badge} alt={`badge-${i}`} className="h-10" />
+            ))}
+          </div>
+        )}
 
         {/* Title */}
-        <h1 className="text-2xl md:text-4xl font-bold text-[var(--primary-color)] leading-snug">
+        <h1 className="text-3xl md:text-5xl font-bold text-[var(--primary-color)] leading-snug drop-shadow-sm">
           {title}
         </h1>
 
-        {/* CTA Buttons */}
-        <div className="flex items-center gap-4">
+        {/* Date & Time Info */}
+        <div className="flex flex-col gap-3">
+          {[
+            { label: "DATE", value: date },
+            { label: "TIME", value: time },
+          ].map(({ label, value }) => (
+            <div
+              key={label}
+              className="flex items-center gap-3 bg-[#0071BD] shadow-lg p-2 rounded-md"
+              style={{
+                clipPath: "polygon(0 0, 90% 0, 100% 100%, 0% 100%)",
+              }}
+            >
+              <span className="bg-white px-4 py-2 text-[var(--primary-color)] font-semibold">
+                {label}
+              </span>
+              <span className="text-white font-medium">{value}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Buttons */}
+        <div className="flex items-center gap-4 mt-2">
           <button
             onClick={onEnroll}
-            className="flex items-center gap-3 px-6 py-3 bg-[var(--primary-color)] text-white rounded-full font-semibold hover:scale-105 transition-transform"
+            className="flex items-center gap-3 px-6 py-3 bg-[var(--primary-color)] text-white rounded-full font-semibold hover:scale-105 transition-transform shadow-md"
           >
             Enroll Now
-            <span className="p-2 rounded-full bg-white text-black">
+            <span className="p-2 rounded-full bg-white text-[var(--primary-color)]">
               <FaArrowRightLong />
             </span>
           </button>
 
-          <button className="p-3 rounded-full bg-black text-white hover:scale-110 transition-transform">
+          <button className="p-3 rounded-full bg-black text-white hover:scale-110 transition-transform shadow-md">
             <CiHeart className="text-xl" />
           </button>
         </div>
       </div>
 
-      {/* Right Section */}
+      {/* ===== Right Image ===== */}
       <div className="z-10 w-full md:w-[40%] flex justify-center items-center mt-10 md:mt-0">
         <img
           src={image}
           alt="Course Visual"
-          className="w-full max-w-md object-contain drop-shadow-xl"
+          className="w-full max-w-md object-contain drop-shadow-3xl"
+          loading="lazy"
         />
       </div>
 
-      {/* Optional Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-white via-transparent to-white opacity-20 pointer-events-none" />
+      {/* ===== Subtle Overlay ===== */}
+      <div className="absolute inset-0 bg-gradient-to-r from-white via-transparent to-white opacity-10 pointer-events-none" />
     </section>
   );
 };

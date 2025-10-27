@@ -56,7 +56,7 @@ const DynamicCourse = () => {
       </section>
 
       {/* Masterclass Section */}
-      <section className="w-full">
+      <section className="w-full ">
         <Masterclass />
       </section>
 
@@ -66,7 +66,7 @@ const DynamicCourse = () => {
       </section>
 
       {/* Mentor Section */}
-      <section className="w-full">
+      <section className="w-full mt-4">
         <MeetMentor />
       </section>
 
