@@ -19,7 +19,8 @@ const Quiz = lazy(() => import("./Pages/Quiz"));
 const DynamicQuiz = lazy(() => import("./Pages/DynamicTest"))
 const StudyMaterial = lazy(() => import("./Pages/StudyMaterial"));
 // const Blog = lazy(() => import("./Pages/Blog"));
-const DynamicExam = lazy(()=> import("./Pages/DynamicExam") )
+const DynamicExam = lazy(()=> import("./Pages/DynamicExam"))
+const Profile = lazy(() => import('./Pages/UserProfile'))
 
 const Login = lazy(() => import('./auth/Login'));
 const Register = lazy(() => import('./auth/Register'));
@@ -43,6 +44,7 @@ function App() {
             <Route path="/courses/:id" element={<DynamicCourses />} />
             <Route path="/exams/:id" element={<DynamicExam/>}/>
             <Route path="/quiz/:id" element={<DynamicQuiz />} />
+            <Route path="/profile" element={<Profile/>}/>
 
 
             {/* Optional: 404 Page */}

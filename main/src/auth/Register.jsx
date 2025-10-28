@@ -53,7 +53,7 @@ const Register = () => {
       // navigate("/login");
 
     } catch (err) {
-      console.error("❌ Registration Error:", err.response ? err.response.data : err.message);
+      console.error("Registration Error:", err.response ? err.response.data : err.message);
       toast.error(
         err.response?.data?.message || "Server error or invalid data ❌"
       );
@@ -68,7 +68,7 @@ const Register = () => {
     <div
       id="register-backdrop"
       onClick={handleBackdropClick}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+      className="fixed inset-0 z-999 flex items-center justify-center bg-black/50 backdrop-blur-sm"
     >
       <ToastContainer position="top-right" autoClose={3000} />
 
@@ -109,9 +109,8 @@ const Register = () => {
                 value={formData.fullName}
                 onChange={handleChange}
                 placeholder="Enter your full name"
-                className={`w-full p-2 rounded-full border ${
-                  errors.fullName ? "border-red-500" : "border-gray-300"
-                } focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)]`}
+                className={`w-full p-2 rounded-full border ${errors.fullName ? "border-red-500" : "border-gray-300"
+                  } focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)]`}
               />
               {errors.fullName && (
                 <p className="text-red-500 text-xs mt-1">{errors.fullName}</p>
@@ -127,9 +126,8 @@ const Register = () => {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="Enter your email"
-                className={`w-full p-2 rounded-full border ${
-                  errors.email ? "border-red-500" : "border-gray-300"
-                } focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)]`}
+                className={`w-full p-2 rounded-full border ${errors.email ? "border-red-500" : "border-gray-300"
+                  } focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)]`}
               />
               {errors.email && (
                 <p className="text-red-500 text-xs mt-1">{errors.email}</p>
@@ -145,9 +143,8 @@ const Register = () => {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="Create a password"
-                className={`w-full p-2 rounded-full border ${
-                  errors.password ? "border-red-500" : "border-gray-300"
-                } focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)]`}
+                className={`w-full p-2 rounded-full border ${errors.password ? "border-red-500" : "border-gray-300"
+                  } focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)]`}
               />
               {errors.password && (
                 <p className="text-red-500 text-xs mt-1">{errors.password}</p>

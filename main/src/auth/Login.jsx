@@ -8,6 +8,12 @@ import "react-toastify/dist/ReactToastify.css";
 const Login = () => {
   const navigate = useNavigate();
 
+  const mockData = [{
+    id:"1",
+    username:"Anupam",
+    password:"Anupam"
+  }]
+
   // Form state
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [errors, setErrors] = useState({});
@@ -30,7 +36,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
-console.log("Data from Login" , formData)
+    console.log("Data from Login", formData)
     try {
       const response = await axios.post(
         "http://localhost:5000/api/auth/login",
@@ -61,7 +67,7 @@ console.log("Data from Login" , formData)
     <div
       id="login-backdrop"
       onClick={handleBackdropClick}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+      className="fixed inset-0 z-999 flex items-center justify-center bg-black/50 backdrop-blur-sm"
     >
       <ToastContainer position="top-right" autoClose={3000} />
 
@@ -98,9 +104,8 @@ console.log("Data from Login" , formData)
                 value={formData.username}
                 onChange={handleChange}
                 placeholder="Enter your username"
-                className={`w-full p-2 rounded-full border ${
-                  errors.username ? "border-red-500" : "border-gray-300"
-                } focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)]`}
+                className={`w-full p-2 rounded-full border ${errors.username ? "border-red-500" : "border-gray-300"
+                  } focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)]`}
               />
               {errors.username && (
                 <p className="text-red-500 text-xs mt-1">{errors.username}</p>
@@ -116,9 +121,8 @@ console.log("Data from Login" , formData)
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="Enter your password"
-                className={`w-full p-2 rounded-full border ${
-                  errors.password ? "border-red-500" : "border-gray-300"
-                } focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)]`}
+                className={`w-full p-2 rounded-full border ${errors.password ? "border-red-500" : "border-gray-300"
+                  } focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)]`}
               />
               {errors.password && (
                 <p className="text-red-500 text-xs mt-1">{errors.password}</p>
