@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { CiSearch } from "react-icons/ci";
 import { FiMenu, FiX } from "react-icons/fi";
+import Data from "../../DataStore/exams.json";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -23,15 +24,8 @@ const Navbar = () => {
     { label: "Contact", path: "/contact" },
   ];
 
-  const mockExams = [
-    "UPSC",
-    "SSC CGL",
-    "Bank PO",
-    "NEET",
-    "JEE",
-    "CAT",
-    "GATE",
-  ];
+  // ✅ Load exams from JSON
+  const exams = Data.exams || [];
 
   useEffect(() => {
     if (searchOpen && searchInputRef.current) {
@@ -46,37 +40,49 @@ const Navbar = () => {
     setSearchOpen(false);
   };
 
+  const handleExamClick = (id) => {
+    console.log(id)
+    navigate(`/exams/${id}`);
+    setExamOpen(false);
+  };
+
   return (
     <>
-      <nav className="bg-white shadow-md sticky top-0 z-998 transition-all duration-300">
+      <nav className="bg-white shadow-md sticky top-0 z-[998] transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           {/* Logo + Dropdown */}
           <div className="flex items-center gap-6">
             <img
-              src="/logo.svg"
+              src="/logo2.svg"
               alt="Logo"
-              className="h-10 w-auto cursor-pointer"
+              className="h-12 w-auto cursor-pointer"
               onClick={() => handleNavigate("/")}
             />
             <div className="h-8 w-0.5 bg-gray-300"></div>
+
+            {/* Exams Dropdown */}
             <div className="relative">
               <button
                 onClick={() => setExamOpen(!examOpen)}
-                className="px-3 py-1 rounded-xl border-2 border-[var(--secondary-color)] text-gray-700 font-medium hover:text-[var(--primary-color)] transition"
+                className="px-3 py-1 rounded-xl border-2 border-[var(--secondary-color)] text-gray-700 font-medium hover:text-[var(--primary-color)] transition flex items-center gap-2"
                 aria-haspopup="true"
                 aria-expanded={examOpen}
               >
                 All Exams ▾
+                <span className="text-xs text-gray-500">
+                  ({exams.length})
+                </span>
               </button>
+
               {examOpen && (
-                <div className="absolute top-full left-0 mt-2 w-48 bg-white border rounded-md shadow-lg z-10 animate-fade-in">
-                  {mockExams.map((exam, idx) => (
+                <div className="absolute top-full left-0 mt-2 w-60 bg-white border rounded-md shadow-lg z-10 animate-fade-in">
+                  {exams.map((exam) => (
                     <div
-                      key={idx}
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer transition"
-                      onClick={() => handleNavigate(`/exams/${exam.toLowerCase()}`)}
+                      key={exam.id}
+                      onClick={() => handleExamClick(exam.id)}
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer transition text-gray-700"
                     >
-                      {exam}
+                      {exam.name}
                     </div>
                   ))}
                 </div>
@@ -92,11 +98,17 @@ const Navbar = () => {
                 <button
                   key={idx}
                   onClick={() => handleNavigate(link.path)}
-                  className={`relative cursor-pointer text-gray-700 font-medium transition hover:text-[var(--primary-color)] ${isActive ? "text-[var(--primary-color)]" : ""}`}
+                  className={`relative cursor-pointer text-gray-700 font-medium transition hover:text-[var(--primary-color)] ${
+                    isActive ? "text-[var(--primary-color)]" : ""
+                  }`}
                 >
                   {link.label}
                   {isActive && (
-                    <img src="/nb.svg" alt="Active" className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 h-2" />
+                    <img
+                      src="/nb.svg"
+                      alt="Active"
+                      className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 h-2"
+                    />
                   )}
                 </button>
               );
@@ -141,13 +153,12 @@ const Navbar = () => {
                   onClick={() => handleNavigate(link.path)}
                   className="w-full flex gap-4 items-center ml-4 text-left text-gray-700 font-medium"
                 >
-                   {isActive && (
+                  {isActive && (
                     <div className="h-4 border-l-2 border-[var(--primary-color)]"></div>
                   )}
                   <span className={`${isActive ? "text-[var(--primary-color)]" : ""}`}>
                     {link.label}
                   </span>
-                 
                 </button>
               );
             })}

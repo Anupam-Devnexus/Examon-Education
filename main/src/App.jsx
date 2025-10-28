@@ -17,8 +17,9 @@ const Courses = lazy(() => import("./Pages/Courses"));
 const DynamicCourses = lazy(() => import("./Pages/DynamicCourse"))
 const Quiz = lazy(() => import("./Pages/Quiz"));
 const DynamicQuiz = lazy(() => import("./Pages/DynamicTest"))
-// const StudyMaterial = lazy(() => import("./Pages/StudyMaterial"));
+const StudyMaterial = lazy(() => import("./Pages/StudyMaterial"));
 // const Blog = lazy(() => import("./Pages/Blog"));
+const DynamicExam = lazy(()=> import("./Pages/DynamicExam") )
 
 const Login = lazy(() => import('./auth/Login'));
 const Register = lazy(() => import('./auth/Register'));
@@ -34,12 +35,13 @@ function App() {
             <Route path="/about" element={<Aboutus />} />
             <Route path="/courses" element={<Courses />} />
             <Route path="/quiz" element={<Quiz />} />
-            {/* <Route path="/study-material" element={<StudyMaterial />} /> */}
+            <Route path="/study-material" element={<StudyMaterial />} />
             {/* <Route path="/blog" element={<Blog />} /> */}
             <Route path="/contact" element={<ContactUs />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/courses/:id" element={<DynamicCourses />} />
+            <Route path="/exams/:id" element={<DynamicExam/>}/>
             <Route path="/quiz/:id" element={<DynamicQuiz />} />
 
 

@@ -21,7 +21,7 @@ const Quiz = () => {
   });
 
   return (
-    <main className="min-h-screen px-4 py-8 md:px-8 bg-gradient-to-b from-[#f9fbff] to-white mb-18">
+    <main className="min-h-screen px-4 py-4 md:px-8 bg-gradient-to-b from-[#f9fbff] to-white mb-18">
       {/* Header */}
       <header className="bg-[var(--primary-color)] text-white rounded-2xl p-6 shadow-md mb-10 flex flex-col items-start gap-4 relative overflow-hidden">
         <div className="absolute right-0 top-0 opacity-10">

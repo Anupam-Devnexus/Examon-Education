@@ -36,7 +36,7 @@ const DynamicCourse = () => {
   }
 
   return (
-    <main className="w-full mb-10 flex flex-col items-center bg-white">
+    <main className="w-full mb-18 flex flex-col items-center bg-white">
       {/* Hero Section */}
       <section className="w-full">
         <DHero
@@ -71,8 +71,8 @@ const DynamicCourse = () => {
       </section>
 
       {/* Related Courses Section */}
-      <section className="w-full py-12">
-        <CoursesYouLike title={true} />
+      <section className="w-full py-5">
+        <CoursesYouLike title={false} />
       </section>
     </main>
   );

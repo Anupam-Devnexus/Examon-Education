@@ -34,12 +34,12 @@ const CoursesYouLike = ({ title = false }) => {
       }}
       speed={900}
       breakpoints={breakpointsConfig}
-      className={`w-full ${title ? "h-[55vh]" : ""}`}
+      className={`w-full ${title ? "h-[65vh]" : ""}`}
     >
       {Array.isArray(Data) && Data.length > 0 ? (
         Data.map((course) => (
           <SwiperSlide key={course.id}>
-            <div className="transition-all duration-500 ease-out transform hover:scale-[1.03] rounded-2xl bg-white border border-gray-100">
+            <div className="transition-all duration-500 ease-out transform rounded-2xl bg-white border border-gray-100">
               <CoursesSmallCard
                 image={course.img}
                 courseName={course.courseDetails}
