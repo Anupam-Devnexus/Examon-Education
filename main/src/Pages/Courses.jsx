@@ -72,7 +72,7 @@ const Courses = () => {
       </div>
 
       {/* 🔹 Contact Section */}
-      <div className="w-full mt-20">
+      <div className="w-full py-8">
         <ContactSection />
       </div>
     </section>

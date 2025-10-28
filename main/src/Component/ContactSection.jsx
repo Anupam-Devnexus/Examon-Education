@@ -5,8 +5,8 @@ import { IoCallSharp } from "react-icons/io5";
 
 const ContactSection = () => {
   return (
-    <section className="w-full py-16 px-6 md:px-16">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+    <section className="w-full mb-12 px-6 md:px-8">
+      <div className=" mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
         {/* 🔹 Left Content */}
         <div className="flex flex-col justify-center space-y-6">
           <div>
