@@ -45,7 +45,7 @@ const Masterclass = () => {
           ${
             isActive
               ? "bg-[var(--primary-color)] text-white border-transparent z-20"
-              : "bg-[var(--secondary-color)] text-[#333] border-gray-200 sm:hover:bg-[var(--primary-color)] sm:hover:text-white"
+              : "bg-[#E9F6FF] text-[#333] border-gray-200 sm:hover:bg-[var(--primary-color)] sm:hover:text-white"
           }`}
         style={{
           flex: isActive ? 1.5 : 1,
@@ -109,7 +109,7 @@ const Masterclass = () => {
       {/* Flex container with motion layout for fluid reflow */}
       <motion.div
         layout
-        className="flex flex-col sm:flex-row w-full max-w-full transition-all duration-500"
+        className="flex flex-col sm:flex-row w-full gap-2 max-w-full transition-all duration-500"
       >
         {Data.map((item) => (
           <Card key={item.id} {...item} />
