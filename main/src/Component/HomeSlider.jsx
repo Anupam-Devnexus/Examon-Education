@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { MdNavigateNext, MdNavigateBefore } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 
 const slides = [
   {
@@ -29,14 +30,13 @@ const slides = [
   },
 ];
 
-
-
 const HomeSlider = () => {
   const navigate = useNavigate();
   const [current, setCurrent] = useState(0);
   const timeoutRef = useRef(null);
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
+  const [direction, setDirection] = useState(1);
 
   const resetTimeout = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -45,115 +45,128 @@ const HomeSlider = () => {
   useEffect(() => {
     resetTimeout();
     timeoutRef.current = setTimeout(() => {
+      setDirection(1);
       setCurrent((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
-    }, 2500);
+    }, 3500);
 
     return () => resetTimeout();
   }, [current]);
 
   const nextSlide = useCallback(() => {
-    resetTimeout();
+    setDirection(1);
     setCurrent((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
   }, []);
 
   const prevSlide = useCallback(() => {
-    resetTimeout();
+    setDirection(-1);
     setCurrent((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
   }, []);
 
-  const handleNavigate = useCallback(
-    (path) => navigate(path),
-    [navigate]
-  );
+  const handleNavigate = useCallback((path) => navigate(path), [navigate]);
 
-  // Swipe handlers
-  const handleTouchStart = (e) => {
-    touchStartX.current = e.touches[0].clientX;
-  };
-
-  const handleTouchMove = (e) => {
-    touchEndX.current = e.touches[0].clientX;
-  };
-
+  // Swipe gestures
+  const handleTouchStart = (e) => (touchStartX.current = e.touches[0].clientX);
+  const handleTouchMove = (e) => (touchEndX.current = e.touches[0].clientX);
   const handleTouchEnd = () => {
     if (touchStartX.current - touchEndX.current > 50) nextSlide();
     if (touchStartX.current - touchEndX.current < -50) prevSlide();
   };
 
-  const Slide = ({ slide, isActive }) => (
-    <div
-      className={`absolute inset-0  transition-all duration-700 ease-in-out transform  ${isActive ? "opacity-100 scale-100 z-10" : "opacity-0 scale-95 z-0"
-        }`}
-    >
-      <img
-        src={slide.image}
-        alt={slide.title}
-        className="w-full h-full object-center rounded-xl"
-      />
-      <div className="absolute inset-0 bg-black/40 flex flex-col justify-center items-start  p-6 md:p-10 text-white rounded-2xl">
-        <h2 className="text-2xl ml-12 sm:text-3xl md:text-5xl font-bold mb-4">
-          {slide.title}
-        </h2>
-        <p className="max-w-full ml-12 sm:max-w-2xl mb-6 text-base sm:text-lg">
-          {slide.desc}
-        </p>
-        <div className="flex gap-3 ml-12  sm:gap-4 flex-wrap">
-          <button
-            onClick={() => handleNavigate(slide.enrollNow)}
-            className="bg-[var(--primary-color)] cursor-pointer hover:bg-[var(--text-color)] transition-all duration-300 text-white px-4 sm:px-6 py-2 rounded-full font-semibold"
-          >
-            Enroll Now
-          </button>
-          <button
-            onClick={() => handleNavigate(slide.courses)}
-            className="border-2 border-white cursor-pointer hover:bg-white hover:text-black transition-all duration-300 px-4 sm:px-6 py-2 rounded-full font-semibold"
-          >
-            View Courses
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+  const variants = {
+    enter: (dir) => ({
+      x: dir > 0 ? 1000 : -1000,
+      opacity: 0,
+      scale: 0.98,
+    }),
+    center: {
+      x: 0,
+      opacity: 1,
+      scale: 1,
+      transition: { duration: 0.6, ease: "easeInOut" },
+    },
+    exit: (dir) => ({
+      x: dir > 0 ? -1000 : 1000,
+      opacity: 0,
+      scale: 0.98,
+      transition: { duration: 0.7, ease: "easeInOut" },
+    }),
+  };
 
   return (
     <div className="p-2">
-
-    <div
-      className="relative w-full h-[70vh] sm:h-[75vh] md:h-[80vh] overflow-hidden rounded-2xl shadow-lg"
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-    >
-      {slides.map((slide, index) => (
-        <Slide key={index} slide={slide} isActive={index === current} />
-      ))}
-
-      {/* Arrows */}
-      <button
-        onClick={prevSlide}
-        className="absolute  top-1/2 cursor-pointer -translate-y-1/2  text-[var(--secondary-color)] text-4xl rounded-full p-2 sm:p-3 transition z-20"
+      <div
+        className="relative w-full h-[70vh] sm:h-[75vh] md:h-[80vh] overflow-hidden rounded-2xl shadow-lg"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
-        <MdNavigateBefore size={80} />
-      </button>
-      <button
-        onClick={nextSlide}
-        className="absolute     right-1 top-1/2 -translate-y-1/2  text-[var(--secondary-color)] text-4xl cursor-pointer p-2 sm:p-3 transition z-20"
-      >
-        <MdNavigateNext size={80} />
-      </button>
+        <AnimatePresence custom={direction}>
+          <motion.div
+            key={current}
+            custom={direction}
+            variants={variants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            className="absolute inset-0"
+          >
+            <img
+              src={slides[current].image}
+              alt={slides[current].title}
+              className="w-full h-full object-center rounded-xl"
+            />
+            <div className="absolute inset-0 bg-black/40 flex flex-col justify-center items-start p-6 md:p-10 text-white rounded-2xl">
+              <h2 className="text-2xl ml-12 sm:text-3xl md:text-5xl font-bold mb-4">
+                {slides[current].title}
+              </h2>
+              <p className="max-w-full ml-12 sm:max-w-2xl mb-6 text-base sm:text-lg">
+                {slides[current].desc}
+              </p>
+              <div className="flex gap-3 ml-12 sm:gap-4 flex-wrap">
+                <button
+                  onClick={() => handleNavigate(slides[current].enrollNow)}
+                  className="bg-[var(--primary-color)] cursor-pointer hover:bg-[var(--text-color)] transition-all duration-300 text-white px-4 sm:px-6 py-2 rounded-full font-semibold"
+                >
+                  Enroll Now
+                </button>
+                <button
+                  onClick={() => handleNavigate(slides[current].courses)}
+                  className="border-2 border-white cursor-pointer hover:bg-white hover:text-black transition-all duration-300 px-4 sm:px-6 py-2 rounded-full font-semibold"
+                >
+                  View Courses
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </AnimatePresence>
 
-      {/* Dots */}
-      <div className="absolute bottom-4 sm:bottom-5 w-full flex justify-center gap-2 sm:gap-3 z-20">
-        {slides.map((_, index) => (
-          <div
-            key={index}
-            onClick={() => setCurrent(index)}
-            className={`w-3 h-3 rounded-full cursor-pointer transition-all ${current === index ? "bg-white scale-125" : "bg-gray-400"
+        {/* Arrows */}
+        <button
+          onClick={prevSlide}
+          className="absolute top-1/2 left-1 cursor-pointer -translate-y-1/2 text-[var(--secondary-color)] text-4xl rounded-full p-2 sm:p-3 z-20"
+        >
+          <MdNavigateBefore size={80} />
+        </button>
+        <button
+          onClick={nextSlide}
+          className="absolute right-1 top-1/2 -translate-y-1/2 text-[var(--secondary-color)] text-4xl cursor-pointer p-2 sm:p-3 z-20"
+        >
+          <MdNavigateNext size={80} />
+        </button>
+
+        {/* Dots */}
+        {/* <div className="absolute bottom-4 sm:bottom-5 w-full flex justify-center gap-2 sm:gap-3 z-20">
+          {slides.map((_, index) => (
+            <div
+              key={index}
+              onClick={() => setCurrent(index)}
+              className={`w-3 h-3 rounded-full cursor-pointer transition-all ${
+                current === index ? "bg-white scale-125" : "bg-gray-400"
               }`}
-          />
-        ))}
+            />
+          ))}
+        </div> */}
       </div>
-    </div>
     </div>
   );
 };
