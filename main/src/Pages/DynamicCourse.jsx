@@ -8,6 +8,8 @@ import MeetMentor from "../Component/DynamicPage/MeetYourMentor";
 import QuizandNotes from "../Component/DynamicPage/QuizandNotes";
 import Masterclass from "../Component/DynamicPage/Masterclass";
 import MasterClassCard from "../Component/Card/MasterClassCard";
+import { motion } from "framer-motion";
+import MasterClassSection from "../Component/MasterClassSection";
 
 // Simple Loading Component
 const LoadingScreen = () => (
@@ -37,36 +39,7 @@ const DynamicCourse = () => {
   }, [foundCourse]);
 
 
-  const MasterClassData = [
-    {
-      id: 1,
-      desc1:
-        "This course helps you bridge the gap between theory and practical exam application.",
-      desc2: "Diploma and B.Tech Students (Civil, Mechanical, Electrical)",
-      bgcolor: "#BDAAE4", // deep navy blue
-    },
-    {
-      id: 2,
-      desc1:
-        "You’ll get topic-wise quizzes, structured study notes, and mock tests to assess your progress and improve speed and accuracy with every session.",
-      desc2: "Aspirants Targeting SSC JE 2025 / 2026",
-      bgcolor: "#81B9C4", // rich indigo tone
-    },
-    {
-      id: 3,
-      desc1:
-        "This course includes revision sheets, mock practice sessions, and doubt-solving discussions, helping you revise smarter, not harder before the exam.",
-      desc2: "Full-Course Revision and Smart Practice",
-      bgcolor: "#EC8A2C", // vibrant violet
-    },
-    {
-      id: 4,
-      desc1:
-        "The flexible video lectures, recorded sessions, and quick revision materials allow you to prepare at your own pace — without disturbing your job schedule.",
-      desc2: "Working Professionals Seeking Government Jobs",
-      bgcolor: "#070D2C", // dark blue-cyan tone
-    },
-  ];
+ 
 
 
 
@@ -118,23 +91,12 @@ const DynamicCourse = () => {
         <QuizandNotes />
       </section>
 
-      <section>
-        <div className="grid mt-4 grid-cols-1 place-items-between px-6 min-w-full md:grid-cols-2 gap-4 lg:grid-cols-4">
+     <motion.div
+ 
+>
+  <MasterClassSection/>
+</motion.div>
 
-          {MasterClassData.length > 0 ? MasterClassData.map((e, index) => {
-            return (
-
-              <MasterClassCard
-                key={index}
-                desc1={e.desc1}
-                desc2={e.desc2}
-                bgcolor={e.bgcolor}
-              />
-
-            )
-          }) : "no data"}
-        </div >
-      </section>
 
       {/* =====================  Meet Your Mentor ===================== */}
       <section className="w-full mt-6">
