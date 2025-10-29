@@ -55,19 +55,7 @@ const Quiz = () => {
       <section className="flex flex-col md:flex-row gap-8 items-start">
         {/* Filter Sidebar */}
         <aside className="bg-white p-3 rounded-2xl shadow-md w-full md:w-1/4 border border-gray-100 space-y-6 sticky top-24">
-          {/* Search */}
-          <div>
-            {/* <label className="text-[var(--primary-color)] font-semibold block mb-2">
-              Search
-            </label>
-            <input
-              type="text"
-              placeholder="Search by title or tag"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--secondary-color)]"
-            /> */}
-          </div>
+          
 
           {/* Exam Filter */}
           <div>

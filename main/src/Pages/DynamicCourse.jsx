@@ -39,7 +39,7 @@ const DynamicCourse = () => {
   }, [foundCourse]);
 
 
- 
+
 
 
 
@@ -91,11 +91,11 @@ const DynamicCourse = () => {
         <QuizandNotes />
       </section>
 
-     <motion.div
- 
->
-  <MasterClassSection/>
-</motion.div>
+      <motion.div
+
+      >
+        <MasterClassSection />
+      </motion.div>
 
 
       {/* =====================  Meet Your Mentor ===================== */}
