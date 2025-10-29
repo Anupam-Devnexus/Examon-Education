@@ -30,7 +30,7 @@ const MasterClassCard = ({ desc1, desc2, bgcolor = "#0B2447" }) => {
             className="absolute inset-0 flex flex-col justify-between p-5 rounded-2xl"
             // style={{ backgroundColor: bgcolor }}
           >
-            <p className="text-sm leading-relaxed font-light text-gray-200">
+            <p className="text-sm leading-relaxed font-light text-gray-100">
               {desc1}
             </p>
             <span className="mt-4 bg-white text-sm font-semibold text-[#4C4C4C] py-2 px-3 rounded-xl text-center">
