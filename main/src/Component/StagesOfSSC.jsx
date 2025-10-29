@@ -78,9 +78,9 @@ export const StagesOfSSC = () => {
             <img
               src={Data[activeIndex].image}
               alt={Data[activeIndex].title}
-              className="w-[280px] rounded-xl object-contain mx-auto"
+              className="w-[220px] rounded-xl object-contain mx-auto"
             />
-            <p className="text-center text-[#6D6D6D] mt-4 text-sm max-w-base">
+            <p className="text-center text-[#6D6D6D] mt-4 text-sm max-w-lg">
               {Data[activeIndex].description}
             </p>
           </div>

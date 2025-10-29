@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { GrFormNextLink } from "react-icons/gr";
 import { FaArrowDown } from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Masterclass = () => {
-  const [activeIndex, setActiveIndex] = useState(1);
+  const [activeIndex, setActiveIndex] = useState(null);
 
   const Data = [
     {
@@ -37,69 +38,83 @@ const Masterclass = () => {
     const isActive = activeIndex === id;
 
     return (
-      <div
-        className={`
-          group relative flex flex-col justify-between h-48 rounded-2xl shadow-md p-5 cursor-pointer
-          transition-all duration-500 ease-in-out
+      <motion.div
+        layout
+        transition={{ type: "spring", stiffness: 250, damping: 25 }}
+        className={`flex flex-col justify-between h-56 rounded-2xl p-5 border shadow-md cursor-pointer
           ${
             isActive
-              ? "bg-[var(--primary-color)] text-white"
-              : "bg-[var(--secondary-color)] text-[#333]"
-          }
-          w-full sm:w-[95%] hover:sm:w-[105%]
-        `}
-        onMouseEnter={() => setActiveIndex(id)}
-        onMouseLeave={() => setActiveIndex(null)}
-        onClick={() => setActiveIndex(isActive ? null : id)}
+              ? "bg-[var(--primary-color)] text-white border-transparent z-20"
+              : "bg-[var(--secondary-color)] text-[#333] border-gray-200 sm:hover:bg-[var(--primary-color)] sm:hover:text-white"
+          }`}
+        style={{
+          flex: isActive ? 1.5 : 1,
+          minWidth: "180px",
+          maxWidth: "100%",
+          transition: "flex 0.4s ease",
+        }}
+        onClick={() => {
+          if (window.innerWidth < 640) setActiveIndex(isActive ? null : id);
+        }}
+        onMouseEnter={() => {
+          if (window.innerWidth >= 640) setActiveIndex(id);
+        }}
+        onMouseLeave={() => {
+          if (window.innerWidth >= 640) setActiveIndex(null);
+        }}
       >
         {/* Title + Arrow */}
         <div className="flex items-center justify-between">
           <span className="text-lg font-semibold">{title}</span>
-          <span
-            className={`bg-white text-[var(--primary-color)] p-2 rounded-full transition-transform duration-500 
-            ${isActive ? "rotate-0" : "rotate-0"}`}
+          <motion.span
+            animate={{ rotate: isActive ? 0 : 0 }}
+            transition={{ duration: 0.3 }}
+            className="bg-white text-[var(--primary-color)] p-2 rounded-full"
           >
             {isActive ? <FaArrowDown /> : <GrFormNextLink />}
-          </span>
+          </motion.span>
         </div>
 
-        {/* Description */}
-        <p
-          className={`text-sm font-light leading-relaxed transition-all duration-500 ease-in-out 
-          ${
-            isActive
-              ? "opacity-100 max-h-40"
-              : "opacity-0 max-h-0 overflow-hidden"
-          }`}
-        >
-          {desc}
-        </p>
-      </div>
+        {/* Description (AnimatedPresence for smooth mount/unmount) */}
+        <AnimatePresence>
+          {isActive && (
+            <motion.p
+              key={id}
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.4, ease: "easeInOut" }}
+              className="text-sm font-light leading-relaxed mt-3"
+            >
+              {desc}
+            </motion.p>
+          )}
+        </AnimatePresence>
+      </motion.div>
     );
   };
 
   return (
-    <section className="flex flex-col items-start justify-start py-6 px-6 w-full bg-white">
+    <section className="flex flex-col items-center justify-center py-10 px-4 sm:px-6 md:px-12 bg-white w-full overflow-hidden">
       {/* Header */}
-      <div className="flex flex-col items-start gap-2 mb-8">
-        <span className="text-base text-[var(--text-color)]">
+      <div className="w-full max-w-full mb-8 text-center md:text-left">
+        <p className="text-sm md:text-base text-[var(--text-color)]">
           What You’ll Learn in this
-        </span>
-        <span className="font-bold text-3xl text-[var(--primary-color)]">
+        </p>
+        <h2 className="text-2xl md:text-3xl font-bold text-[var(--primary-color)]">
           SSC JE Masterclass
-        </span>
+        </h2>
       </div>
 
-      {/* Responsive Grid */}
-      <div
-        className="
-        grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 
-        gap-4    w-full transition-all duration-500"
+      {/* Flex container with motion layout for fluid reflow */}
+      <motion.div
+        layout
+        className="flex flex-col sm:flex-row w-full max-w-full transition-all duration-500"
       >
         {Data.map((item) => (
           <Card key={item.id} {...item} />
         ))}
-      </div>
+      </motion.div>
     </section>
   );
 };

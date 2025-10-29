@@ -1,4 +1,5 @@
 import React from "react";
+import { motion } from "framer-motion";
 import Card from "./Card/Card";
 
 const MissionVisionValues = () => {
@@ -30,22 +31,43 @@ const MissionVisionValues = () => {
   ];
 
   return (
-    <section className="min-w-full m py-16 px-6 md:px-8">
-      {/* Header */}
-      <div className="text-left mb-12">
+    <section className="min-w-full py-16 px-6 md:px-8 overflow-hidden">
+      {/* 🔹 Header Animation */}
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        viewport={{ once: true }}
+        className="text-left mb-12"
+      >
         <h2 className="text-lg md:text-xl text-gray-700">
           Examon Education’s
         </h2>
         <h1 className="text-3xl md:text-4xl font-bold text-[var(--primary-color)]">
           Mission, Vision & Values
         </h1>
-        <div className="w-16 h-1 bg-[var(--primary-color)]  mt-3 rounded-full"></div>
-      </div>
+        <motion.div
+          initial={{ width: 0 }}
+          whileInView={{ width: 64 }}
+          transition={{ duration: 1 }}
+          className="h-1 bg-[var(--primary-color)] mt-3 rounded-full"
+        ></motion.div>
+      </motion.div>
 
-      {/* Cards */}
+      {/* 🔹 Animated Cards */}
       <div className="flex flex-wrap justify-center gap-10">
         {cards.map((item, idx) => (
-          <Card key={idx} {...item} />
+          <motion.div
+            key={idx}
+            initial={{ opacity: 0, y: 60 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: idx * 0.2 }}
+            viewport={{ once: true }}
+            whileHover={{ scale: 1.05, rotate: 1 }}
+            className="transition-transform duration-300"
+          >
+            <Card {...item} />
+          </motion.div>
         ))}
       </div>
     </section>

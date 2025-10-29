@@ -1,81 +1,120 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { FaSearch } from "react-icons/fa";
 import ContactSection from "../Component/ContactSection";
 import Data from "../DataStore/Courses.json";
 import CoursesCard from "../Component/Card/CoursesCard";
-import { FaSearch } from "react-icons/fa";
 
 const Courses = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedTerm, setDebouncedTerm] = useState("");
 
-  // 🔹 Debounce search input for smoother UX
+  // Debounce search input for smoother UX
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedTerm(searchTerm.toLowerCase());
     }, 300);
-
     return () => clearTimeout(handler);
   }, [searchTerm]);
 
-  // 🔹 Filter courses efficiently using useMemo
+  //  Memoized filtering for performance
   const filteredCourses = useMemo(() => {
     return Data.filter((course) =>
       course.courseDetails.toLowerCase().includes(debouncedTerm)
     );
   }, [debouncedTerm]);
 
+  // Animation variants
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 40 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+  };
+
   return (
-    <section className="flex flex-col items-center w-full bg-white">
-      {/* 🔹 Header Section */}
-      <div className="relative flex flex-col items-center md:items-start w-full py-20 px-6 md:px-12 bg-[var(--primary-color)] overflow-hidden">
-       
+    <main className="flex flex-col items-center w-full bg-white">
+      {/*  Header Section */}
+      <section className="relative flex flex-col items-center md:items-start w-full py-20 px-6 md:px-12 bg-gradient-to-r from-[var(--primary-color)] to-blue-800 overflow-hidden">
+        {/* Decorative Background */}
+        <div className="absolute inset-0 bg-[url('/pattern.svg')] opacity-10 bg-cover bg-center"></div>
 
-        {/* Header Content */}
-        <div className="relative z-10 flex flex-col gap-4 max-w-7xl w-full text-center md:text-left text-white">
-          <h1 className="font-extrabold text-3xl md:text-5xl leading-tight">
-            Courses
+        {/* Header Text */}
+        <motion.div
+          initial={{ opacity: 0, y: -30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="relative z-10 flex flex-col gap-4 max-w-7xl w-full text-center md:text-left text-white"
+        >
+          <h1 className="font-extrabold text-4xl md:text-5xl leading-tight">
+            Explore Our Courses
           </h1>
-          <p className=" text-sm md:text-base md:w-2/3 text-white/90">
-            Explore our wide range of courses designed to help you excel in your
-            career. Search and find the course that best fits your goals.
+          <p className="text-sm md:text-base md:w-2/3 text-white/90">
+            Build your future with India’s most trusted learning platform.  
+            Explore, learn, and achieve excellence with our curated programs.
           </p>
-        </div>
+        </motion.div>
 
-        {/* 🔹 Search Bar */}
-        <div className="relative z-10 flex justify-center md:justify-start w-full mt-10">
-          <div className="flex items-center gap-3 bg-white rounded-2xl px-4 py-2 shadow-md w-full max-w-md">
+        {/*  Search Bar */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="relative z-10 flex justify-center md:justify-start w-full mt-10"
+        >
+          <div className="flex items-center gap-3 bg-white rounded-2xl px-4 py-2 shadow-lg w-full max-w-md hover:shadow-xl transition-all duration-300">
+            <FaSearch className="text-[var(--primary-color)] text-lg" />
             <input
               type="text"
               placeholder="Search courses..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-grow outline-none text-[var(--primary-color)] placeholder:text-gray-400 text-sm md:text-base"
+              className="flex-grow outline-none text-[var(--primary-color)] placeholder:text-gray-400 text-sm md:text-base bg-transparent"
             />
-            <FaSearch className="text-[var(--primary-color)] text-lg" />
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </section>
 
-      {/* 🔹 Courses Grid */}
-      <div className="w-full bg-[#EEF6FC] px-6 md:px-10 lg:px-14 py-16 flex justify-center">
+      {/*  Courses Grid */}
+      <section className="w-full bg-[#EEF6FC] px-6 md:px-10 lg:px-14 py-16 flex justify-center">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 max-w-7xl w-full">
-          {filteredCourses.length > 0 ? (
-            filteredCourses.map((course) => (
-              <CoursesCard key={course.id} {...course} />
-            ))
-          ) : (
-            <p className="text-center text-gray-500 col-span-full text-sm md:text-base">
-              No courses found matching "{searchTerm}"
-            </p>
-          )}
+          <AnimatePresence>
+            {filteredCourses.length > 0 ? (
+              filteredCourses.map((course, index) => (
+                <motion.div
+                  key={course.id}
+                  variants={fadeInUp}
+                  initial="hidden"
+                  animate="visible"
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <CoursesCard {...course} />
+                </motion.div>
+              ))
+            ) : (
+              <motion.p
+                key="no-result"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center text-gray-500 col-span-full text-sm md:text-base"
+              >
+                No courses found matching "<span className="font-semibold">{searchTerm}</span>"
+              </motion.p>
+            )}
+          </AnimatePresence>
         </div>
-      </div>
+      </section>
 
-      {/* 🔹 Contact Section */}
-      <div className="w-full py-8">
+      {/*  Contact Section */}
+      <motion.section
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        viewport={{ once: true, amount: 0.3 }}
+        className="w-full py-8"
+      >
         <ContactSection />
-      </div>
-    </section>
+      </motion.section>
+    </main>
   );
 };
 
