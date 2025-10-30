@@ -10,7 +10,7 @@ const Quiz = () => {
   useEffect(() => {
     fetchQuiz();
   }, [fetchQuiz]);
-  console.log(quizData)
+  // console.log(quizData)
 
   const filteredQuizzes = quizData.filter((quiz) => {
     const matchesSearch =
@@ -81,7 +81,7 @@ const Quiz = () => {
         </aside>
 
         {/* Quiz Cards */}
-        <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4 bg-[var(--tertiary-color)] rounded-2xl shadow-inner">
+        <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-18 p-2 bg-[var(--tertiary-color)] rounded-2xl shadow-inner">
           {loading ? (
             <p className="col-span-full text-center text-gray-500 py-10 animate-pulse">
               Loading quizzes...
