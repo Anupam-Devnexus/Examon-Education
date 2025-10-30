@@ -19,6 +19,7 @@ export const useCourseStore = create((set, get) => ({
 
   //  Fetch all courses once
   fetchCourses: async () => {
+      if (get().data.length > 0) return;
     try {
       set({ loading: true, error: null });
       const response = await axios.get(`${API_BASE}/course/all`);

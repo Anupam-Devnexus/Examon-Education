@@ -1,13 +1,21 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import StudyMaterialPageCard from "../Component/Card/StudyMaterialPageCard";
 import Data from "../DataStore/StudyMaterials.json";
+import { useNotesStore } from "../Zustand/GetNotes"
 
 const StudyMaterial = () => {
   const [search, setSearch] = useState("");
   const [levelFilter, setLevelFilter] = useState("All");
   const [page, setPage] = useState(1);
 
+  const { loading, error, notesData, fetchNotes } = useNotesStore()
+
   const itemsPerPage = 6;
+
+  useEffect(() => {
+    fetchNotes()
+  }, [])
+  console.log("Notes  ",notesData)
 
   // Filter and search logic
   const filteredData = useMemo(() => {
@@ -30,7 +38,7 @@ const StudyMaterial = () => {
 
   return (
     <div className="flex flex-col md:flex-row gap-6 p-4 md:py-6 mb-14">
-      
+
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col gap-6">
@@ -78,44 +86,44 @@ const StudyMaterial = () => {
           </div>
         </header>
         <div className="flex items-start gap-3 w-full">
-            {/* Sidebar Filter */}
-      <aside className="md:w-1/4 w-full bg-white shadow-md rounded-2xl p-4 h-fit">
-        <h3 className="text-lg font-semibold text-gray-800 mb-3">
-          Filter by Level
-        </h3>
-        <div className="flex md:flex-col flex-wrap gap-3">
-          {["All", "Beginner", "Intermediate", "Advanced"].map((level) => (
-            <label
-              key={level}
-              className="flex items-center gap-2 cursor-pointer text-gray-700"
-            >
-              <input
-                type="radio"
-                name="level"
-                value={level}
-                checked={levelFilter === level}
-                onChange={(e) => {
-                  setLevelFilter(e.target.value);
-                  setPage(1);
-                }}
-              />
-              <span>{level}</span>
-            </label>
-          ))}
-        </div>
-      </aside>
-        {/* Cards Section */}
-        <section className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {paginatedData.length > 0 ? (
-            paginatedData.map((item) => (
-              <StudyMaterialPageCard key={item.id} {...item} />
-            ))
-          ) : (
-            <div className="text-gray-500 col-span-full text-center py-10">
-              No materials found for your search or filter.
+          {/* Sidebar Filter */}
+          <aside className="md:w-1/4 w-full bg-white shadow-md rounded-2xl p-4 h-fit">
+            <h3 className="text-lg font-semibold text-gray-800 mb-3">
+              Filter by Level
+            </h3>
+            <div className="flex md:flex-col flex-wrap gap-3">
+              {["All", "Beginner", "Intermediate", "Advanced"].map((level) => (
+                <label
+                  key={level}
+                  className="flex items-center gap-2 cursor-pointer text-gray-700"
+                >
+                  <input
+                    type="radio"
+                    name="level"
+                    value={level}
+                    checked={levelFilter === level}
+                    onChange={(e) => {
+                      setLevelFilter(e.target.value);
+                      setPage(1);
+                    }}
+                  />
+                  <span>{level}</span>
+                </label>
+              ))}
             </div>
-          )}
-        </section>
+          </aside>
+          {/* Cards Section */}
+          <section className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {paginatedData.length > 0 ? (
+              paginatedData.map((item) => (
+                <StudyMaterialPageCard key={item.id} {...item} />
+              ))
+            ) : (
+              <div className="text-gray-500 col-span-full text-center py-10">
+                No materials found for your search or filter.
+              </div>
+            )}
+          </section>
         </div>
 
 
@@ -125,11 +133,10 @@ const StudyMaterial = () => {
             <button
               onClick={() => setPage((p) => Math.max(p - 1, 1))}
               disabled={page === 1}
-              className={`px-4 py-2 rounded-xl ${
-                page === 1
-                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                  : "bg-white text-gray-700 border hover:bg-gray-50"
-              }`}
+              className={`px-4 py-2 rounded-xl ${page === 1
+                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                : "bg-white text-gray-700 border hover:bg-gray-50"
+                }`}
             >
               Prev
             </button>
@@ -137,11 +144,10 @@ const StudyMaterial = () => {
               <button
                 key={i}
                 onClick={() => setPage(i + 1)}
-                className={`px-4 py-2 rounded-xl ${
-                  page === i + 1
-                    ? "bg-[var(--primary-color)] text-white"
-                    : "bg-white text-gray-700 border hover:bg-gray-50"
-                }`}
+                className={`px-4 py-2 rounded-xl ${page === i + 1
+                  ? "bg-[var(--primary-color)] text-white"
+                  : "bg-white text-gray-700 border hover:bg-gray-50"
+                  }`}
               >
                 {i + 1}
               </button>
@@ -149,11 +155,10 @@ const StudyMaterial = () => {
             <button
               onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
               disabled={page === totalPages}
-              className={`px-4 py-2 rounded-xl ${
-                page === totalPages
-                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                  : "bg-white text-gray-700 border hover:bg-gray-50"
-              }`}
+              className={`px-4 py-2 rounded-xl ${page === totalPages
+                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                : "bg-white text-gray-700 border hover:bg-gray-50"
+                }`}
             >
               Next
             </button>

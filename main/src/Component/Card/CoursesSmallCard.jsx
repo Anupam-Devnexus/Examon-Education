@@ -11,7 +11,6 @@ const CoursesSmallCard = ({
   courseId,
 }) => {
   const navigate = useNavigate();
-
   const handleExplore = () => {
     navigate(`/courses/${courseId}`);
   };

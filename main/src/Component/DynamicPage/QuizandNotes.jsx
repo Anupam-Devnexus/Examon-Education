@@ -8,13 +8,13 @@ const QuizandNotes = () => {
         {
             id: 1,
             btn: "View Notes",
-            path: "/view-notes",
+            path: "/study-material",
             image: "/notes.svg",
         },
         {
             id: 2,
             btn: "Attempt Quiz",
-            path: "/attempt-quiz",
+            path: "/quiz",
             image: "/Quiz.svg",
         },
     ];

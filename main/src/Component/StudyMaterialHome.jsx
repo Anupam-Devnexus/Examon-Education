@@ -28,7 +28,7 @@ const StudyMaterialHome = () => {
       title: "Quizzes",
       description:
         "Interactive quizzes to test your knowledge, reinforce concepts, and track your progress.",
-      link: "/study-material",
+      link: "/quiz",
       image: "./Quiz.svg",
       bgcolor: "#EAFFF7",
       btncolor: "#248972",

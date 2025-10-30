@@ -1,32 +1,41 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
 import { Autoplay } from "swiper/modules";
-import Data from "../DataStore/Courses.json";
 import CoursesSmallCard from "./Card/CoursesSmallCard";
+import { useCourseStore } from "../Zustand/GetAllCourses";
 
 const CoursesYouLike = ({ title = false }) => {
+  const { data, error, loading, fetchCourses } = useCourseStore();
+
+  // Fetch data when component mounts
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  // Swiper breakpoints for responsive design
   const breakpointsConfig = title
     ? {
-      640: { slidesPerView: 1 },
-      768: { slidesPerView: 1 },
-      1024: { slidesPerView: 1 },
-    }
+        640: { slidesPerView: 1 },
+        768: { slidesPerView: 1 },
+        1024: { slidesPerView: 1 },
+      }
     : {
-      640: { slidesPerView: 1 },
-      768: { slidesPerView: 2 },
-      1024: { slidesPerView: 3 },
-      1280: { slidesPerView: 4 },
-    };
+        640: { slidesPerView: 1 },
+        768: { slidesPerView: 2 },
+        1024: { slidesPerView: 3 },
+        1280: { slidesPerView: 4 },
+      };
 
+  // Render Swiper
   const renderCarousel = () => (
     <Swiper
       direction={title ? "vertical" : "horizontal"}
       modules={[Autoplay]}
       slidesPerView={1}
       spaceBetween={25}
-      loop={true}
+      loop
       autoplay={{
         delay: 2800,
         disableOnInteraction: false,
@@ -36,31 +45,30 @@ const CoursesYouLike = ({ title = false }) => {
       breakpoints={breakpointsConfig}
       className={`w-full ${title ? "h-[65vh]" : ""}`}
     >
-      {Array.isArray(Data) && Data.length > 0 ? (
-        Data.map((course) => (
-          <SwiperSlide key={course.id}>
+      {Array.isArray(data) && data.length > 0 ? (
+        data.map((course) => (
+          <SwiperSlide key={course.id || course._id}>
             <div className="transition-all duration-500 ease-out transform rounded-2xl bg-white border border-gray-100">
               <CoursesSmallCard
                 image={course.img}
                 courseName={course.courseDetails}
                 actualPrice={course.actualprice}
-                previousPrice={course.previousprice}
+                previousPrice={course.amount}
                 discount={course.percent}
-                courseId={course.id}
+                courseId={course.id || course._id}
               />
             </div>
           </SwiperSlide>
         ))
       ) : (
         <SwiperSlide>
-          <CoursesSmallCard
-            image={Data.img}
-            courseName={Data.courseDetails}
-            actualPrice={Data.actualprice}
-            previousPrice={Data.previousprice}
-            discount={Data.percent}
-            courseId={Data.id}
-          />
+          <div className="flex justify-center items-center h-40 text-gray-500">
+            {loading
+              ? "Loading courses..."
+              : error
+              ? "Failed to load courses."
+              : "No courses available."}
+          </div>
         </SwiperSlide>
       )}
     </Swiper>
@@ -68,14 +76,16 @@ const CoursesYouLike = ({ title = false }) => {
 
   return (
     <section
-      className={`w-full py-2 ${title ? "bg-gradient-to-b from-[#f9fbff] to-white" : "bg-white"
-        }`}
+      className={`w-full py-2 ${
+        title ? "bg-gradient-to-b from-[#f9fbff] to-white" : "bg-white"
+      }`}
     >
       <div
-        className={`${title
+        className={`${
+          title
             ? "overflow-y-auto max-h-[95vh] shadow-2xl py-2 custom-scrollbar rounded-2xl"
             : ""
-          } max-w-7xl mx-auto px-3`}
+        } max-w-7xl mx-auto px-3`}
       >
         {title ? (
           <div
@@ -87,8 +97,8 @@ const CoursesYouLike = ({ title = false }) => {
               backgroundPosition: "left center",
             }}
           >
-            {/* Sticky Header */}
-            <div className="sticky top-0 z-20 w-full backdrop-blur-sm py-1 flex flex-col items-center gap-2 ">
+            {/* Sticky Header for Sidebar */}
+            <div className="sticky top-0 z-20 w-full backdrop-blur-sm py-1 flex flex-col items-center gap-2">
               <h2 className="text-2xl font-bold text-[var(--primary-color)] leading-snug">
                 Courses You May Like!
               </h2>
@@ -103,7 +113,7 @@ const CoursesYouLike = ({ title = false }) => {
           </div>
         ) : (
           <>
-            {/* Default Horizontal Layout */}
+            {/* Horizontal Layout for homepage */}
             <div className="text-center mb-8">
               <h2 className="text-2xl md:text-4xl font-bold text-gray-800">
                 Courses You Might Like
