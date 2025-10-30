@@ -43,7 +43,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/courses/:id" element={<DynamicCourses />} />
             <Route path="/exams/:id" element={<DynamicExam/>}/>
-            <Route path="/quiz/:id" element={<DynamicQuiz />} />
+            <Route path="/quiz/:_id" element={<DynamicQuiz />} />
             <Route path="/profile" element={<Profile/>}/>
 
 

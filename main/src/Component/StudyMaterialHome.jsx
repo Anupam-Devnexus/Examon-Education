@@ -8,7 +8,7 @@ const StudyMaterialHome = () => {
       title: "Notes",
       description:
         "Comprehensive handwritten notes covering key concepts for quick revision and better understanding.",
-      link: "/notes",
+      link: "/study-material",
       image: "./notes.svg",
       bgcolor: "#ECF3FE",
       btncolor: "#254371",
@@ -18,7 +18,7 @@ const StudyMaterialHome = () => {
       title: "PY Question Paper",
       description:
         "Access previous year question papers to analyze exam patterns and improve performance.",
-      link: "/pyq",
+      link: "/study-material",
       image: "./pyq.svg",
       bgcolor: "#FFF8EB",
       btncolor: "#CB9534",
@@ -28,7 +28,7 @@ const StudyMaterialHome = () => {
       title: "Quizzes",
       description:
         "Interactive quizzes to test your knowledge, reinforce concepts, and track your progress.",
-      link: "/quiz",
+      link: "/study-material",
       image: "./Quiz.svg",
       bgcolor: "#EAFFF7",
       btncolor: "#248972",

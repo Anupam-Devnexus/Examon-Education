@@ -17,7 +17,7 @@ export const useCourseStore = create((set, get) => ({
   loading: false,
   error: null,
 
-  // ✅ Fetch all courses once
+  //  Fetch all courses once
   fetchCourses: async () => {
     try {
       set({ loading: true, error: null });
@@ -59,7 +59,7 @@ export const useCourseStore = create((set, get) => ({
     }
   },
 
-  // ✅ Filter by category
+  // Filter by category
   fetchCoursesByCategory: (category) => {
     const { data, perPage } = get();
 
@@ -75,7 +75,7 @@ export const useCourseStore = create((set, get) => ({
     });
   },
 
-  // ✅ Pagination
+  //  Pagination
   setPage: (page) => {
     const { totalPages } = get();
     if (page >= 1 && page <= totalPages) set({ currentPage: page });
