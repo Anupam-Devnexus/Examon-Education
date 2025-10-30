@@ -1,65 +1,64 @@
 import React, { useState } from "react";
 import { FaArrowRight } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useAuthStore } from "../Zustand/useAuthStore"; // Import Zustand Auth Store
 
 const Register = () => {
   const navigate = useNavigate();
 
+  // Zustand store functions
+  const { register, loading } = useAuthStore();
+
+  // Local form state
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     password: "",
   });
+
+  // Validation errors
   const [errors, setErrors] = useState({});
 
-  // Handle input changes
+  // Handle input changes dynamically
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Validation function
+  // Simple client-side validation
   const validate = () => {
-    let newErrors = {};
+    const newErrors = {};
     if (!formData.fullName.trim()) newErrors.fullName = "Full name is required";
     if (!formData.email.trim()) newErrors.email = "Email is required";
     else if (!/\S+@\S+\.\S+/.test(formData.email))
-      newErrors.email = "Email is invalid";
+      newErrors.email = "Enter a valid email";
     if (!formData.password.trim()) newErrors.password = "Password is required";
     else if (formData.password.length < 6)
       newErrors.password = "Password must be at least 6 characters";
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // Submit handler
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
 
-    console.log("📝 Registration Data:", formData);
+    // Call Zustand `register` function
+    const result = await register(formData);
 
-    try {
-      const response = await axios.post(
-        "http://localhost:5000/api/auth/register",
-        formData
-      );
-
-      toast.success(response.data.message || "Registration successful! 🎉");
-
-      // Optional: navigate to login page
-      // navigate("/login");
-
-    } catch (err) {
-      console.error("Registration Error:", err.response ? err.response.data : err.message);
-      toast.error(
-        err.response?.data?.message || "Server error or invalid data ❌"
-      );
+    if (result.success) {
+      toast.success(result.message);
+      // Optional: redirect to login
+      navigate("/login");
+    } else {
+      toast.error(result.message);
     }
   };
 
+  // For closing the modal if user clicks backdrop
   const handleBackdropClick = (e) => {
     if (e.target.id === "register-backdrop") navigate(-1);
   };
@@ -68,7 +67,7 @@ const Register = () => {
     <div
       id="register-backdrop"
       onClick={handleBackdropClick}
-      className="fixed inset-0 z-999 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+      className="fixed inset-0 z-[999] flex items-center justify-center bg-black/50 backdrop-blur-sm"
     >
       <ToastContainer position="top-right" autoClose={3000} />
 
@@ -109,8 +108,9 @@ const Register = () => {
                 value={formData.fullName}
                 onChange={handleChange}
                 placeholder="Enter your full name"
-                className={`w-full p-2 rounded-full border ${errors.fullName ? "border-red-500" : "border-gray-300"
-                  } focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)]`}
+                className={`w-full p-2 rounded-full border ${
+                  errors.fullName ? "border-red-500" : "border-gray-300"
+                } focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)]`}
               />
               {errors.fullName && (
                 <p className="text-red-500 text-xs mt-1">{errors.fullName}</p>
@@ -126,8 +126,9 @@ const Register = () => {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="Enter your email"
-                className={`w-full p-2 rounded-full border ${errors.email ? "border-red-500" : "border-gray-300"
-                  } focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)]`}
+                className={`w-full p-2 rounded-full border ${
+                  errors.email ? "border-red-500" : "border-gray-300"
+                } focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)]`}
               />
               {errors.email && (
                 <p className="text-red-500 text-xs mt-1">{errors.email}</p>
@@ -143,8 +144,9 @@ const Register = () => {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="Create a password"
-                className={`w-full p-2 rounded-full border ${errors.password ? "border-red-500" : "border-gray-300"
-                  } focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)]`}
+                className={`w-full p-2 rounded-full border ${
+                  errors.password ? "border-red-500" : "border-gray-300"
+                } focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)]`}
               />
               {errors.password && (
                 <p className="text-red-500 text-xs mt-1">{errors.password}</p>
@@ -153,9 +155,12 @@ const Register = () => {
 
             <button
               type="submit"
-              className="mt-3 w-full flex items-center justify-center gap-2 bg-[var(--primary-color)] text-white py-2 rounded-full hover:brightness-95 transition"
+              disabled={loading}
+              className={`mt-3 w-full flex items-center justify-center gap-2 bg-[var(--primary-color)] text-white py-2 rounded-full hover:brightness-95 transition ${
+                loading ? "opacity-70 cursor-not-allowed" : ""
+              }`}
             >
-              Register <FaArrowRight />
+              {loading ? "Registering..." : "Register"} <FaArrowRight />
             </button>
           </form>
 

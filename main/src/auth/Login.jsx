@@ -1,73 +1,81 @@
 import React, { useState } from "react";
 import { FaArrowRight } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
+import { useAuthStore } from "../Zustand/useAuthStore";
 import "react-toastify/dist/ReactToastify.css";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login, loading } = useAuthStore(); // Zustand store methods & state
 
-  const mockData = [{
-    id:"1",
-    username:"Anupam",
-    password:"Anupam"
-  }]
-
-  // Form state
-  const [formData, setFormData] = useState({ username: "", password: "" });
+  // ------------------------------
+  // 🔹 Form State
+  // ------------------------------
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
 
-  // Handle input change
+  // ------------------------------
+  // 🔹 Input Handler
+  // ------------------------------
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  // Validation
+  // ------------------------------
+  // 🔹 Validation
+  // ------------------------------
   const validate = () => {
-    let newErrors = {};
-    if (!formData.username.trim()) newErrors.username = "Username is required";
-    if (!formData.password.trim()) newErrors.password = "Password is required";
+    const newErrors = {};
+    if (!formData.email.trim()) newErrors.email = "Email is required";
+    else if (!/\S+@\S+\.\S+/.test(formData.email))
+      newErrors.email = "Invalid email format";
+
+    if (!formData.password.trim())
+      newErrors.password = "Password is required";
+    else if (formData.password.length < 6)
+      newErrors.password = "Password must be at least 6 characters";
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // Submit handler
+  // ------------------------------
+  // 🔹 Submit Handler
+  // ------------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
-    console.log("Data from Login", formData)
-    try {
-      const response = await axios.post(
-        "http://localhost:5000/api/auth/login",
-        formData
-      );
 
-      toast.success(response.data.message || "Login successful! 🎉");
+    const result = await login(formData);
 
-      console.log("✅ Login Response:", response.data);
+    if (process.env.NODE_ENV === "development") {
+      console.log("🧠 Login result:", result);
+    }
 
-      // Example: store token and navigate
-      // localStorage.setItem("token", response.data.token);
-      // navigate("/dashboard");
-
-    } catch (err) {
-      console.error("❌ Login Error:", err.response ? err.response.data : err.message);
-      toast.error(
-        err.response?.data?.message || "Invalid credentials or server error ❌"
-      );
+    if (result.success) {
+      toast.success(result.message || "Login successful!");
+      navigate("/"); // redirect to home or dashboard
+    } else {
+      toast.error(result.message || "Login failed, please try again.");
     }
   };
 
+  // ------------------------------
+  // 🔹 Backdrop Click (closes modal)
+  // ------------------------------
   const handleBackdropClick = (e) => {
     if (e.target.id === "login-backdrop") navigate(-1);
   };
 
+  // ------------------------------
+  // 🔹 UI
+  // ------------------------------
   return (
     <div
       id="login-backdrop"
       onClick={handleBackdropClick}
-      className="fixed inset-0 z-999 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+      className="fixed inset-0 z-[999] flex items-center justify-center bg-black/50 backdrop-blur-sm"
     >
       <ToastContainer position="top-right" autoClose={3000} />
 
@@ -91,24 +99,29 @@ const Login = () => {
 
         {/* Right Form */}
         <div className="flex flex-col justify-center w-full md:w-1/2 p-8">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Welcome Back 👋</h2>
-          <p className="text-gray-500 mb-6">Enter your credentials to access your account.</p>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">
+            Welcome Back 👋
+          </h2>
+          <p className="text-gray-500 mb-6">
+            Enter your credentials to access your account.
+          </p>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            {/* Username */}
+            {/* Email */}
             <div>
-              <label className="block text-sm font-medium mb-1">Username</label>
+              <label className="block text-sm font-medium mb-1">Email</label>
               <input
-                type="text"
-                name="username"
-                value={formData.username}
+                type="email"
+                name="email"
+                value={formData.email}
                 onChange={handleChange}
-                placeholder="Enter your username"
-                className={`w-full p-2 rounded-full border ${errors.username ? "border-red-500" : "border-gray-300"
-                  } focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)]`}
+                placeholder="Enter your email"
+                className={`w-full p-2 rounded-full border ${
+                  errors.email ? "border-red-500" : "border-gray-300"
+                } focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)]`}
               />
-              {errors.username && (
-                <p className="text-red-500 text-xs mt-1">{errors.username}</p>
+              {errors.email && (
+                <p className="text-red-500 text-xs mt-1">{errors.email}</p>
               )}
             </div>
 
@@ -121,8 +134,9 @@ const Login = () => {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="Enter your password"
-                className={`w-full p-2 rounded-full border ${errors.password ? "border-red-500" : "border-gray-300"
-                  } focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)]`}
+                className={`w-full p-2 rounded-full border ${
+                  errors.password ? "border-red-500" : "border-gray-300"
+                } focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)]`}
               />
               {errors.password && (
                 <p className="text-red-500 text-xs mt-1">{errors.password}</p>
@@ -132,7 +146,10 @@ const Login = () => {
             {/* Remember me */}
             <div className="flex items-center justify-between text-sm text-gray-600">
               <label className="flex items-center gap-2">
-                <input type="checkbox" className="accent-[var(--primary-color)]" />
+                <input
+                  type="checkbox"
+                  className="accent-[var(--primary-color)]"
+                />
                 Remember me
               </label>
               <span className="cursor-pointer hover:text-[var(--primary-color)]">
@@ -140,11 +157,13 @@ const Login = () => {
               </span>
             </div>
 
+            {/* Submit Button */}
             <button
               type="submit"
+              disabled={loading}
               className="mt-3 w-full flex items-center justify-center gap-2 bg-[var(--primary-color)] text-white py-2 rounded-full hover:brightness-95 transition"
             >
-              Login <FaArrowRight />
+              {loading ? "Logging in..." : <>Login <FaArrowRight /></>}
             </button>
           </form>
 
