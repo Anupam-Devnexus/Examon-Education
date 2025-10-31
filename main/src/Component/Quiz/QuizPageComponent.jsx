@@ -1,40 +1,58 @@
-import React, { useState, useEffect } from 'react';
-import Data from '../../DataStore/quizzes.json';
+import React, { useState, useEffect } from "react";
 
 const ResultCard = ({ percentage, qualified }) => {
   const isPassed = qualified;
   return (
-    <div className={`relative flex flex-col items-center rounded-lg p-6 shadow-md ${isPassed ? 'bg-[#ECFEE9] text-[#35B324]' : 'bg-[#FFE6E6] text-[#FF1111]'}`}>
+    <div
+      className={`relative flex flex-col items-center rounded-lg p-6 shadow-md ${
+        isPassed
+          ? "bg-[#ECFEE9] text-[#35B324]"
+          : "bg-[#FFE6E6] text-[#FF1111]"
+      }`}
+    >
       <div className="absolute left-0 top-0">
         <img
-          src={isPassed ? '/greenEllipse.svg' : '/redEllipse.svg'}
+          src={isPassed ? "/greenEllipse.svg" : "/redEllipse.svg"}
           alt="decorative"
           className="hidden md:block md:h-68"
         />
       </div>
-      <img src={isPassed ? '/happy.svg' : "/sad.svg"} alt="result icon" className="w-24 h-24 mb-6" />
+      <img
+        src={isPassed ? "/happy.svg" : "/sad.svg"}
+        alt="result icon"
+        className="w-24 h-24 mb-6"
+      />
       <h3 className="text-xl font-bold">Your Score: {percentage}%</h3>
       <p className="text-lg font-semibold">
-        {isPassed ? 'Well done! You’ve passed the quiz' : 'Better Luck Next Time!'}
+        {isPassed
+          ? "Well done! You’ve passed the quiz"
+          : "Better Luck Next Time!"}
       </p>
       <p className="text-center max-w-md mt-2 text-sm">
         {isPassed
-          ? 'Continue your learning journey by exploring our advanced courses for further improvement.'
-          : 'Strengthen your preparation with our expert-led courses to enhance your performance and achieve success.'}
+          ? "Continue your learning journey by exploring our advanced courses for further improvement."
+          : "Strengthen your preparation with our expert-led courses to enhance your performance and achieve success."}
       </p>
     </div>
   );
 };
 
-const QuizPageComponent = ({ quizId = 'upsc_gs_2025_01' }) => {
-  const quiz = Data.quizzes.find((q) => q.id === quizId);
-  const { questions, title, totalMarks, duration } = quiz;
+const QuizPageComponent = ({ quizData }) => {
+  if (!quizData) return null;
 
+  const {
+    title,
+    duration,
+    questions = [],
+  } = quizData;
+
+  const totalMarks = questions.reduce((sum, q) => sum + (q.marks || 0), 0);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [showReview, setShowReview] = useState(false);
   const [timeLeft, setTimeLeft] = useState(duration);
 
+  // 🕒 Countdown Timer
   useEffect(() => {
     if (timeLeft > 0 && !showReview) {
       const timer = setTimeout(() => setTimeLeft((prev) => prev - 1), 1000);
@@ -45,7 +63,10 @@ const QuizPageComponent = ({ quizId = 'upsc_gs_2025_01' }) => {
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')} min`;
+    return `${String(mins).padStart(2, "0")}:${String(secs).padStart(
+      2,
+      "0"
+    )} min`;
   };
 
   const handleAnswer = (questionId, optionIndex) => {
@@ -68,7 +89,6 @@ const QuizPageComponent = ({ quizId = 'upsc_gs_2025_01' }) => {
     }
   };
 
-
   const calculateScore = () =>
     questions.reduce((score, q) => {
       const userAnswer = answers[q.id];
@@ -83,8 +103,7 @@ const QuizPageComponent = ({ quizId = 'upsc_gs_2025_01' }) => {
   const renderProgressBar = () => {
     const progress = showReview
       ? 100
-      : Math.floor((currentIndex / questions.length) * 100);
-
+      : Math.floor(((currentIndex + 1) / questions.length) * 100);
     return (
       <div className="w-full flex items-center justify-between gap-4 mt-4">
         <div className="flex-1 bg-gray-200 rounded-full h-3 overflow-hidden">
@@ -102,8 +121,13 @@ const QuizPageComponent = ({ quizId = 'upsc_gs_2025_01' }) => {
 
   const renderQuestion = () => (
     <div className="space-y-4">
-      <h4 className="text-lg text-[var(--primary-color)] font-semibold">Question {currentIndex + 1}</h4>
-      <p className="text-lg font-bold text-[var(--primary-color)]">{currentQuestion.question}</p>
+      <h4 className="text-lg text-[var(--primary-color)] font-semibold">
+        Question {currentIndex + 1}
+      </h4>
+      <p className="text-lg font-bold text-[var(--primary-color)]">
+        {currentQuestion.question}
+      </p>
+
       <div className="space-y-2 grid grid-cols-1 md:grid-cols-2 gap-3">
         {currentQuestion.options.map((option, index) => {
           const isSelected = answers[currentQuestion.id] === index;
@@ -111,23 +135,28 @@ const QuizPageComponent = ({ quizId = 'upsc_gs_2025_01' }) => {
             <button
               key={index}
               onClick={() => handleAnswer(currentQuestion.id, index)}
-              className={`w-full text-left px-4 py-2 rounded border ${isSelected ? 'border-blue-600 bg-blue-50' : 'border-gray-300 hover:bg-gray-100'}`}
+              className={`w-full text-left px-4 py-2 rounded border ${
+                isSelected
+                  ? "border-blue-600 bg-blue-50"
+                  : "border-gray-300 hover:bg-gray-100"
+              }`}
             >
               {option}
             </button>
           );
         })}
       </div>
+
       <div className="flex justify-end gap-4">
         <button
           onClick={handleSkip}
-          className="px-4 py-2 bg-gray-200 cursor-pointer text-white rounded hover:bg-yellow-600"
+          className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-yellow-600 transition"
         >
           Skip
         </button>
         <button
           onClick={handleNext}
-          className="px-4 py-2 bg-[var(--primary-color)] cursor-pointer text-white rounded hover:bg-blue-700"
+          className="px-4 py-2 bg-[var(--primary-color)] text-white rounded hover:bg-blue-700 transition"
         >
           Submit & Next
         </button>
@@ -144,31 +173,35 @@ const QuizPageComponent = ({ quizId = 'upsc_gs_2025_01' }) => {
         const isSkipped = userAnswer === undefined;
 
         return (
-          <div key={q.id} className="border rounded p-4 space-y-2 bg-white shadow-sm">
+          <div
+            key={q.id}
+            className="border rounded p-4 space-y-2 bg-white shadow-sm"
+          >
             <p className="font-medium text-gray-800">
               {index + 1}. {q.question}
             </p>
+
             <div className="space-y-1 grid grid-cols-1 md:grid-cols-2 gap-3">
               {q.options.map((option, i) => {
                 const isUserSelected = userAnswer === i;
                 const isCorrectAnswer = q.correctAnswerIndex === i;
 
-                let bgColor = 'bg-white';
-                let borderColor = 'border-gray-300';
-                let icon = '';
+                let bgColor = "bg-white";
+                let borderColor = "border-gray-300";
+                let icon = "";
 
                 if (isSkipped && isCorrectAnswer) {
-                  bgColor = 'bg-yellow-100';
-                  borderColor = 'border-yellow-600';
-                  icon = '⭐';
+                  bgColor = "bg-yellow-100";
+                  borderColor = "border-yellow-600";
+                  icon = "⭐";
                 } else if (isCorrectAnswer) {
-                  bgColor = 'bg-green-100';
-                  borderColor = 'border-green-600';
-                  icon = '✅';
+                  bgColor = "bg-green-100";
+                  borderColor = "border-green-600";
+                  icon = "✅";
                 } else if (isUserSelected && !isCorrectAnswer) {
-                  bgColor = 'bg-red-100';
-                  borderColor = 'border-red-600';
-                  icon = '❌';
+                  bgColor = "bg-red-100";
+                  borderColor = "border-red-600";
+                  icon = "❌";
                 }
 
                 return (
@@ -182,8 +215,11 @@ const QuizPageComponent = ({ quizId = 'upsc_gs_2025_01' }) => {
                 );
               })}
             </div>
+
             {isSkipped && (
-              <p className="text-sm text-gray-400 italic">You skipped this question.</p>
+              <p className="text-sm text-gray-400 italic">
+                You skipped this question.
+              </p>
             )}
           </div>
         );
@@ -194,7 +230,9 @@ const QuizPageComponent = ({ quizId = 'upsc_gs_2025_01' }) => {
   return (
     <div className="flex flex-col w-full justify-between">
       <div className="max-w-full p-2 space-y-6">
-        <h5 className="text-2xl md:text-3xl text-[var(--primary-color)] font-bold">{title}</h5>
+        <h5 className="text-2xl md:text-3xl text-[var(--primary-color)] font-bold">
+          {title}
+        </h5>
         {renderProgressBar()}
       </div>
       {!showReview ? renderQuestion() : renderReview()}

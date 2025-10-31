@@ -11,8 +11,8 @@ const DynamicTest = () => {
   const [quizData, setQuizData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-// console.log(_id)
-  // Fetch quiz by ID
+
+  // ✅ Fetch quiz by ID
   useEffect(() => {
     const fetchQuizById = async () => {
       if (!_id) {
@@ -26,10 +26,10 @@ const DynamicTest = () => {
         const { data } = await axios.get(`${API_BASE}/quizzes/${_id}`);
         setQuizData(data);
       } catch (err) {
-        console.error(" Error fetching quiz:", err);
+        console.error("Error fetching quiz:", err);
         setError(
           err.response?.data?.message ||
-          "Failed to load quiz. Please try again later."
+            "Failed to load quiz. Please try again later."
         );
       } finally {
         setLoading(false);
@@ -72,7 +72,7 @@ const DynamicTest = () => {
     );
   }
 
-  // Main Layout
+  // ✅ Render Main Layout
   return (
     <main className="min-h-screen bg-gradient-to-b from-[#f9fbff] to-white mb-18 md:mb-1 px-4 md:px-8">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 items-start">
@@ -82,7 +82,7 @@ const DynamicTest = () => {
         </section>
 
         {/* Sidebar Recommendation Section */}
-        <aside className="hidden lg:flex bg-white rounded-2xl transition-all duration-300 p-2 justify-center sticky top-24 h-[85vh] overflow-hidden">
+        <aside className="hidden lg:flex bg-white rounded-2xl transition-all duration-300 p-2 justify-center sticky top-24 mb-18 overflow-hidden">
           <CoursesYouLike title={true} />
         </aside>
 
