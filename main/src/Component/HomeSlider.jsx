@@ -1,70 +1,49 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { MdNavigateNext, MdNavigateBefore } from "react-icons/md";
-import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-
-const slides = [
-  {
-    title: "Examon Education",
-    desc: "Examon Education provides comprehensive learning resources to help students excel in their academic pursuits. Learn smart, grow faster.",
-    image:
-      "https://res.cloudinary.com/dt4ohfuwc/image/upload/v1760590838/Picture1_jf6uek.png",
-    enrollNow: "/enroll-now",
-    courses: "/courses",
-  },
-  {
-    title: "Examon 2.0 – Smarter Learning",
-    desc: "Experience a new way of learning with interactive lessons and progress tracking. Tailored for your success.",
-    image:
-      "https://res.cloudinary.com/dt4ohfuwc/image/upload/v1760590838/Picture9_khn89v.png",
-    enrollNow: "/enroll-now",
-    courses: "/courses",
-  },
-  {
-    title: "Achieve More with Examon",
-    desc: "Unlock your academic potential with our expert-designed courses and personalized support.",
-    image:
-      "https://res.cloudinary.com/dt4ohfuwc/image/upload/v1760590837/Picture7_pt4oyf.png",
-    enrollNow: "/enroll-now",
-    courses: "/courses",
-  },
-];
+import { useNavigate } from "react-router-dom";
+import { useBatchesStore } from "../Zustand/GetLiveBatches";
 
 const HomeSlider = () => {
   const navigate = useNavigate();
+  const { loading, error, batchData, fetchBatches } = useBatchesStore();
+
   const [current, setCurrent] = useState(0);
+  const [direction, setDirection] = useState(1);
   const timeoutRef = useRef(null);
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
-  const [direction, setDirection] = useState(1);
 
-  const resetTimeout = () => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-  };
-
+  // Fetch batch data on mount
   useEffect(() => {
-    resetTimeout();
+    fetchBatches();
+  }, [fetchBatches]);
+
+  // Auto-slide every 4s
+  useEffect(() => {
+    if (!batchData.length) return;
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => {
       setDirection(1);
-      setCurrent((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
-    }, 3500);
+      setCurrent((prev) => (prev === batchData.length - 1 ? 0 : prev + 1));
+    }, 4000);
+    return () => clearTimeout(timeoutRef.current);
+  }, [current, batchData.length]);
 
-    return () => resetTimeout();
-  }, [current]);
-
+  // Navigation controls
   const nextSlide = useCallback(() => {
+    if (!batchData.length) return;
     setDirection(1);
-    setCurrent((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
-  }, []);
+    setCurrent((prev) => (prev === batchData.length - 1 ? 0 : prev + 1));
+  }, [batchData.length]);
 
   const prevSlide = useCallback(() => {
+    if (!batchData.length) return;
     setDirection(-1);
-    setCurrent((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
-  }, []);
+    setCurrent((prev) => (prev === 0 ? batchData.length - 1 : prev - 1));
+  }, [batchData.length]);
 
-  const handleNavigate = useCallback((path) => navigate(path), [navigate]);
-
-  // Swipe gestures
+  // Touch gestures for mobile swipe
   const handleTouchStart = (e) => (touchStartX.current = e.touches[0].clientX);
   const handleTouchMove = (e) => (touchEndX.current = e.touches[0].clientX);
   const handleTouchEnd = () => {
@@ -72,6 +51,7 @@ const HomeSlider = () => {
     if (touchStartX.current - touchEndX.current < -50) prevSlide();
   };
 
+  // Framer Motion animation variants
   const variants = {
     enter: (dir) => ({
       x: dir > 0 ? 1000 : -1000,
@@ -92,6 +72,29 @@ const HomeSlider = () => {
     }),
   };
 
+  if (loading)
+    return (
+      <div className="flex justify-center items-center h-[70vh] text-gray-600 text-lg">
+        Loading batches...
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="flex justify-center items-center h-[70vh] text-red-600 text-lg">
+        Failed to load batches: {error}
+      </div>
+    );
+
+  if (!batchData.length)
+    return (
+      <div className="flex justify-center items-center h-[70vh] text-gray-500 text-lg">
+        No batches available.
+      </div>
+    );
+
+  const batch = batchData[current];
+
   return (
     <div className="p-2">
       <div
@@ -111,61 +114,46 @@ const HomeSlider = () => {
             className="absolute inset-0"
           >
             <img
-              src={slides[current].image}
-              alt={slides[current].title}
-              className="w-full h-full object-center rounded-xl"
+              src={batch.image}
+              alt={batch.batchName}
+              className="w-full h-full object-cover rounded-2xl"
             />
-            <div className="absolute inset-0 bg-black/40 flex flex-col justify-center items-start p-6 md:p-10 text-white rounded-2xl">
-              <h2 className="text-2xl ml-12 sm:text-3xl md:text-5xl font-bold mb-4">
-                {slides[current].title}
+            <div className="absolute inset-0 bg-black/40 flex flex-col justify-center items-start p-8 md:p-14 text-white rounded-2xl">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 max-w-2xl leading-tight">
+                {batch.batchName}
               </h2>
-              <p className="max-w-full ml-12 sm:max-w-2xl mb-6 text-base sm:text-lg">
-                {slides[current].desc}
+              <p className="text-lg sm:text-xl mb-3">
+                {batch.syllabus || "Comprehensive syllabus included"}
               </p>
-              <div className="flex gap-3 ml-12 sm:gap-4 flex-wrap">
+              <p className="mb-6 text-sm sm:text-base opacity-90">
+                Duration: {batch.duration} | Price: ₹{batch.price}
+              </p>
+
+              <div className="flex gap-4 flex-wrap">
                 <button
-                  onClick={() => handleNavigate(slides[current].enrollNow)}
-                  className="bg-[var(--primary-color)] cursor-pointer hover:bg-[var(--text-color)] transition-all duration-300 text-white px-4 sm:px-6 py-2 rounded-full font-semibold"
+                  onClick={() => window.open(batch.enrollLink, "_blank")}
+                  className="bg-[var(--primary-color)] hover:bg-[var(--text-color)] transition-all duration-300 text-white px-6 py-2 rounded-full font-semibold"
                 >
                   Enroll Now
-                </button>
-                <button
-                  onClick={() => handleNavigate(slides[current].courses)}
-                  className="border-2 border-white cursor-pointer hover:bg-white hover:text-black transition-all duration-300 px-4 sm:px-6 py-2 rounded-full font-semibold"
-                >
-                  View Courses
                 </button>
               </div>
             </div>
           </motion.div>
         </AnimatePresence>
 
-        {/* Arrows */}
+        {/* Navigation arrows */}
         <button
           onClick={prevSlide}
-          className="absolute top-1/2 left-1 cursor-pointer -translate-y-1/2 text-[var(--secondary-color)] text-4xl rounded-full p-2 sm:p-3 z-20"
+          className="absolute top-1/2 left-1 text-[var(--secondary-color)] text-4xl p-2 sm:p-3 -translate-y-1/2 z-20"
         >
-          <MdNavigateBefore size={80} />
+          <MdNavigateBefore size={60} />
         </button>
         <button
           onClick={nextSlide}
-          className="absolute right-1 top-1/2 -translate-y-1/2 text-[var(--secondary-color)] text-4xl cursor-pointer p-2 sm:p-3 z-20"
+          className="absolute top-1/2 right-1 text-[var(--secondary-color)] text-4xl p-2 sm:p-3 -translate-y-1/2 z-20"
         >
-          <MdNavigateNext size={80} />
+          <MdNavigateNext size={60} />
         </button>
-
-        {/* Dots */}
-        {/* <div className="absolute bottom-4 sm:bottom-5 w-full flex justify-center gap-2 sm:gap-3 z-20">
-          {slides.map((_, index) => (
-            <div
-              key={index}
-              onClick={() => setCurrent(index)}
-              className={`w-3 h-3 rounded-full cursor-pointer transition-all ${
-                current === index ? "bg-white scale-125" : "bg-gray-400"
-              }`}
-            />
-          ))}
-        </div> */}
       </div>
     </div>
   );
