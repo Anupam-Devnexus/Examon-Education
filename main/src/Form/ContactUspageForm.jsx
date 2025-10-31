@@ -7,14 +7,24 @@ import "react-phone-input-2/lib/style.css";
 import axios from "axios";
 
 const ContactUspageForm = () => {
+  // ✅ Centralized state for form fields
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
-    phone: "",
+    phoneNo: "",
     message: "",
   });
 
+  // ✅ Email validation regex
+  const validateEmail = (email) => /\S+@\S+\.\S+/.test(email);
+
+  // ✅ Phone number validation (basic length & numeric)
+  const validatePhone = (phone) => {
+    return phone && phone.replace(/\D/g, "").length >= 10;
+  };
+
+  // ✅ Input change handler
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -22,14 +32,17 @@ const ContactUspageForm = () => {
     });
   };
 
-  const validateEmail = (email) => /\S+@\S+\.\S+/.test(email);
+  // ✅ API base URL (for maintainability)
+  const API_BASE = "http://194.238.18.1:3004/api";
 
+  // ✅ Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const { firstName, lastName, email, phone, message } = formData;
+    const { firstName, lastName, email, phoneNo, message } = formData;
 
-    if (!firstName || !lastName || !email || !phone || !message) {
+    // 🔍 Validation
+    if (!firstName || !lastName || !email || !phoneNo || !message) {
       toast.error("Please fill all fields before submitting.");
       return;
     }
@@ -39,51 +52,56 @@ const ContactUspageForm = () => {
       return;
     }
 
+    if (!validatePhone(phoneNo)) {
+      toast.error("Please enter a valid phone number (at least 10 digits).");
+      return;
+    }
+
     try {
-      // 🌐 Send form data to API endpoint
-      const response = await axios.post("https://api.example.com/contact", {
-        first_name: firstName,
-        last_name: lastName,
+      // 🌐 Send data to backend API
+      const response = await axios.post(`${API_BASE}/contact-us`, {
+        fname: firstName,
+        lname: lastName,
         email,
-        phone,
+        phoneNo,
         message,
       });
 
       if (response.status === 200 || response.status === 201) {
-        toast.success("Message sent successfully!");
+        toast.success("✅ Message sent successfully!");
+        // 🔄 Reset form after success
         setFormData({
           firstName: "",
           lastName: "",
           email: "",
-          phone: "",
+          phoneNo: "",
           message: "",
         });
       } else {
         toast.error("Something went wrong. Please try again later.");
       }
     } catch (error) {
-      console.error(error);
+      console.error("❌ Contact form error:", error);
       toast.error("Failed to send message. Please check your connection.");
     }
   };
 
   return (
-    <div className="flex flex-col rounded-2xl shadow-md overflow-hidden gap-8 p-6 bg-white max-w-6xl mx-auto lg:flex-row  ">
-      {/* Toast */}
+    <div className="flex flex-col rounded-2xl shadow-md overflow-hidden gap-8 p-6 bg-white max-w-6xl mx-auto lg:flex-row">
+      {/* ✅ Toast Notifications */}
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
 
-      {/* Left - Contact Form */}
-      <div className="flex-1 ">
+      {/* ================== Left Section: Contact Form ================== */}
+      <div className="flex-1">
         <h2 className="text-2xl font-semibold text-[#003366] mb-2">
           Send us a message
         </h2>
         <p className="text-gray-500 mb-6 text-sm leading-relaxed">
-          Lorem ipsum dolor sit amet consectetur adipiscing elit tortor eu
-          egestas morbi sem vulputate etiam facilisis pellentesque ut quis.
+          We'd love to hear from you. Please fill out the form below and our team will respond as soon as possible.
         </p>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-          {/* Row 1 */}
+          {/* 👥 Row 1: Name Inputs */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -113,7 +131,7 @@ const ContactUspageForm = () => {
             </div>
           </div>
 
-          {/* Row 2 */}
+          {/* 📧 Row 2: Email & Phone */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -130,29 +148,28 @@ const ContactUspageForm = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Phone No.
+                Phone Number
               </label>
               <PhoneInput
                 country={"in"}
-                value={formData.phone}
-                placeholder="Enter the Phone Details"
+                value={formData.phoneNo}
+                placeholder="Enter your phone number"
                 onChange={(value) =>
-                  setFormData({ ...formData, phone: value })
+                  setFormData({ ...formData, phoneNo: value })
                 }
                 inputProps={{
-                  name: "phone",
+                  name: "phoneNo",
                   required: true,
                 }}
                 containerClass="!rounded-full"
                 inputClass="!w-full !rounded-full !border !border-gray-300 !px-4 !py-2 !focus:border-[#003366] !focus:ring-[#003366] !outline-none"
                 buttonClass="!rounded-l-full"
                 dropdownClass="!rounded-xl"
-                
               />
             </div>
           </div>
 
-          {/* Message */}
+          {/* 📝 Message Box */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Message
@@ -167,17 +184,17 @@ const ContactUspageForm = () => {
             ></textarea>
           </div>
 
-          {/* Submit */}
+          {/* 🚀 Submit Button */}
           <button
             type="submit"
-            className="bg-[#003366] text-white  rounded-full px-8 py-2 font-medium hover:bg-[#002244] transition self-end cursor-pointer"
+            className="bg-[#003366] text-white rounded-full px-8 py-2 font-medium hover:bg-[#002244] transition self-end cursor-pointer"
           >
             Submit
           </button>
         </form>
       </div>
 
-      {/* Right - QuickConnect */}
+      {/* ================== Right Section: Quick Connect ================== */}
       <div className="flex justify-center lg:justify-end">
         <QuickConnect />
       </div>

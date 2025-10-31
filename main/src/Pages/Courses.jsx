@@ -28,7 +28,7 @@ const Courses = () => {
   // Fetch all courses on mount
   useEffect(() => {
     fetchCourses();
-  }, [fetchCourses]);
+  }, []);
 
   // Debounce search term to reduce re-renders
   useEffect(() => {

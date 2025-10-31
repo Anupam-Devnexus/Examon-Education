@@ -17,9 +17,10 @@ const HomeTestimonial = () => {
     fetchReviews();
   }, []);
 
+
   // Filter only approved (active) reviews for display
   const approvedReviews = useMemo(
-    () => reviewData?.filter((r) => r.status === "true"),
+    () => reviewData?.filter((r) => r.status === true),
     [reviewData]
   );
 
