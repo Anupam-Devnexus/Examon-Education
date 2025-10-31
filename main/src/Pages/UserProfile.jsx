@@ -1,39 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { FaEdit, FaSave, FaTimes, FaEye, FaEyeSlash } from "react-icons/fa";
-import ProfileQuizCard from "../Component/Card/ProfleQuizCard";
-import Datas from "../DataStore/User.json";
 import { motion } from "framer-motion";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ProfileQuizCard from "../Component/Card/ProfleQuizCard";
+import Datas from "../DataStore/User.json";
+import { useAuthStore } from "../Zustand/useAuthStore";
 
-/**
- * UserProfile
- * - editable except email and phone (phone is always read-only)
- * - image upload preview
- * - password change (optional) with validation
- * - client-side validation for names, passed/failed counts
- * - toasts for feedback
- * - responsive via Tailwind classes
- *
- * NOTE: Replace the `saveProfileToServer` placeholder with your real API call.
- */
-
+/* --------------------------------------------------------------------------
+ *  INITIAL HELPER: Fallback user data for initial render
+ * -------------------------------------------------------------------------- */
 const initialUserFromData = () => {
-  // If Datas exists and has userProfile, use it; otherwise fallback
-  const src = Datas?.userProfile;
-  if (!src) {
-    return {
-      firstName: "Vansh",
-      lastName: "Kaushik",
-      email: "vanshkaushik0012@gmail.com",
-      phone: "9711034055",
-      countryCode: "+91",
-      passed: 10,
-      failed: 2,
-      profileImg: "/logo2.svg",
-    };
-  }
+  const src = Datas?.userProfile || {};
   return {
     firstName: src.firstName ?? "Vansh",
     lastName: src.lastName ?? "Kaushik",
@@ -46,130 +25,164 @@ const initialUserFromData = () => {
   };
 };
 
+/* --------------------------------------------------------------------------
+ *  MAIN COMPONENT
+ * -------------------------------------------------------------------------- */
 const UserProfile = () => {
   const [editMode, setEditMode] = useState(false);
   const [user, setUser] = useState(initialUserFromData());
-  const [draft, setDraft] = useState(user); // draft for edits
-  const [chartData, setChartData] = useState([]);
-  const [attemptedQuizzes, setAttemptedQuizzes] = useState([]);
+  const [draft, setDraft] = useState(user);
   const [loadingSave, setLoadingSave] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
-  // Password fields (not stored in actual user object here)
   const [passwords, setPasswords] = useState({ password: "", confirmPassword: "" });
 
-  useEffect(() => {
-    setChartData([
+  const { user: authUser, accessToken } = useAuthStore();
+
+  // Derived data
+  const chartData = useMemo(
+    () => [
       { name: "Passed", value: Number(user.passed || 0), color: "#16A34A" },
       { name: "Failed", value: Number(user.failed || 0), color: "#EF4444" },
-    ]);
-  }, [user.passed, user.failed]);
+    ],
+    [user.passed, user.failed]
+  );
 
-  useEffect(() => {
-    setAttemptedQuizzes(Datas?.userProfile?.previousExams ?? []);
-  }, []);
+  const attemptedQuizzes = useMemo(
+    () => Datas?.userProfile?.previousExams ?? [],
+    []
+  );
 
-  const totalQuiz = Number(user.passed || 0) + Number(user.failed || 0);
+  const totalQuiz = useMemo(
+    () => Number(user.passed || 0) + Number(user.failed || 0),
+    [user.passed, user.failed]
+  );
 
-  // Validation
-  const validateDraft = () => {
+  /* --------------------------------------------------------------------------
+   *  VALIDATION
+   * -------------------------------------------------------------------------- */
+  const validateDraft = useCallback(() => {
     const errors = [];
-    if (!draft.firstName || draft.firstName.trim().length < 1) errors.push("First name is required.");
-    if (!draft.lastName || draft.lastName.trim().length < 1) errors.push("Last name is required.");
+    if (!draft.firstName?.trim()) errors.push("First name is required.");
+    if (!draft.lastName?.trim()) errors.push("Last name is required.");
+
     const passed = Number(draft.passed);
     const failed = Number(draft.failed);
-    if (Number.isNaN(passed) || passed < 0 || !Number.isInteger(passed)) errors.push("Passed must be a non-negative integer.");
-    if (Number.isNaN(failed) || failed < 0 || !Number.isInteger(failed)) errors.push("Failed must be a non-negative integer.");
+    if (Number.isNaN(passed) || passed < 0) errors.push("Passed must be a non-negative number.");
+    if (Number.isNaN(failed) || failed < 0) errors.push("Failed must be a non-negative number.");
+
     if (passwords.password || passwords.confirmPassword) {
-      if (passwords.password.length < 8) errors.push("Password must be at least 8 characters.");
+      if (passwords.password.length < 8) errors.push("Password must be at least 8 characters long.");
       if (passwords.password !== passwords.confirmPassword) errors.push("Passwords do not match.");
     }
+
     return errors;
-  };
+  }, [draft, passwords]);
 
-  const showErrorsToast = (errs) => {
-    errs.forEach((e) => toast.error(e));
-  };
-
-  // Simulated save function - replace with real API call
-  const saveProfileToServer = async (payload) => {
-    // Example:
-    // const resp = await fetch("/api/user/update", { method: "POST", body: JSON.stringify(payload) });
-    // return resp.json();
-    // Simulate latency:
-    return new Promise((resolve) => setTimeout(() => resolve({ ok: true, data: payload }), 700));
-  };
-
-  const handleSave = async () => {
-    const errs = validateDraft();
-    if (errs.length) {
-      showErrorsToast(errs);
-      return;
-    }
-
-    setLoadingSave(true);
-    toast.info("Saving profile...");
+  /* --------------------------------------------------------------------------
+   *  SAVE FUNCTION (Replace with API call)
+   * -------------------------------------------------------------------------- */
+  const saveProfileToServer = useCallback(async (payload) => {
     try {
-      const payload = { ...draft };
-      if (passwords.password) payload.password = passwords.password; // send only if user changed
-      const res = await saveProfileToServer(payload);
-      if (res?.ok) {
-        setUser(draft);
-        setEditMode(false);
-        setPasswords({ password: "", confirmPassword: "" });
-        toast.success("Profile updated successfully!");
-      } else {
-        toast.error("Failed to save profile. Try again.");
-      }
-    } catch (err) {
-      toast.error("An error occurred while saving.");
-      // optionally console.log(err);
-    } finally {
-      setLoadingSave(false);
+      // Example API call:
+      // const response = await axios.post("/api/user/update", payload, { headers: { Authorization: `Bearer ${accessToken}` } });
+      // return response.data;
+
+      // Simulated latency for demo
+      return await new Promise((resolve) =>
+        setTimeout(() => resolve({ ok: true, data: payload }), 700)
+      );
+    } catch (error) {
+      console.error("Save failed:", error);
+      return { ok: false };
     }
-  };
+  }, []);
 
-  const handleCancel = () => {
-    setDraft(user);
-    setPasswords({ password: "", confirmPassword: "" });
-    setEditMode(false);
-    toast.info("Edits cancelled.");
-  };
-
-  const handleInputChange = (e) => {
+  /* --------------------------------------------------------------------------
+   *  EVENT HANDLERS
+   * -------------------------------------------------------------------------- */
+  const handleInputChange = useCallback((e) => {
     const { name, value } = e.target;
-    // Keep numeric fields as numbers when possible
-    if (name === "passed" || name === "failed") {
-      // allow empty input, otherwise parse integer
+    if (["passed", "failed"].includes(name)) {
       const parsed = value === "" ? "" : parseInt(value.replace(/\D/g, ""), 10);
-      setDraft((p) => ({ ...p, [name]: isNaN(parsed) ? "" : parsed }));
+      setDraft((prev) => ({ ...prev, [name]: isNaN(parsed) ? "" : parsed }));
     } else {
-      setDraft((p) => ({ ...p, [name]: value }));
+      setDraft((prev) => ({ ...prev, [name]: value }));
     }
-  };
+  }, []);
 
-  const handleImageChange = (e) => {
+  const handlePasswordChange = useCallback((e) => {
+    const { name, value } = e.target;
+    setPasswords((p) => ({ ...p, [name]: value }));
+  }, []);
+
+  const handleImageChange = useCallback((e) => {
     const file = e.target.files?.[0];
     if (file) {
       const imageURL = URL.createObjectURL(file);
       setDraft((p) => ({ ...p, profileImg: imageURL }));
       toast.success("Preview updated. Save to persist.");
-      // If you'd like to upload immediately, do that here.
     }
-  };
+  }, []);
 
-  const handlePasswordChange = (e) => {
-    const { name, value } = e.target;
-    setPasswords((p) => ({ ...p, [name]: value }));
-  };
+  const handleSave = useCallback(async () => {
+    const errs = validateDraft();
+    if (errs.length) {
+      errs.forEach((e) => toast.error(e));
+      return;
+    }
 
+    setLoadingSave(true);
+    toast.info("Saving profile...");
+
+    const payload = { ...draft };
+    if (passwords.password) payload.password = passwords.password;
+
+    const res = await saveProfileToServer(payload);
+
+    if (res.ok) {
+      setUser(draft);
+      setEditMode(false);
+      setPasswords({ password: "", confirmPassword: "" });
+      toast.success("Profile updated successfully!");
+    } else {
+      toast.error("Failed to save profile. Try again.");
+    }
+
+    setLoadingSave(false);
+  }, [draft, passwords, validateDraft, saveProfileToServer]);
+
+  const handleCancel = useCallback(() => {
+    setDraft(user);
+    setPasswords({ password: "", confirmPassword: "" });
+    setEditMode(false);
+    toast.info("Edits cancelled.");
+  }, [user]);
+
+  /* --------------------------------------------------------------------------
+   *  DEVELOPMENT LOGGING (disabled in production)
+   * -------------------------------------------------------------------------- */
+  useEffect(() => {
+    if (import.meta.env.MODE === "development") {
+      console.group("👤 User Profile Debug Info");
+      console.log("User:", user);
+      console.log("Draft:", draft);
+      console.log("Auth User:", authUser);
+      console.log("Access Token:", accessToken ? accessToken.slice(0, 30) + "..." : "None");
+      console.log("Attempted Quizzes:", attemptedQuizzes);
+      console.groupEnd();
+    }
+  }, [user, draft, authUser, accessToken, attemptedQuizzes]);
+
+  /* --------------------------------------------------------------------------
+   *  UI RENDER
+   * -------------------------------------------------------------------------- */
   return (
     <>
       <ToastContainer position="top-right" autoClose={2500} />
 
       <div className="max-w-full mb-18 mx-auto p-4">
         <div className="flex flex-col md:flex-row justify-between items-start gap-6 bg-white p-6 rounded-2xl shadow-md">
-          {/* Left: Avatar */}
+          {/* ------------------- LEFT: PROFILE IMAGE ------------------- */}
           <div className="flex flex-col items-center gap-3 w-full md:w-1/4">
             <div className="w-32 h-32 md:w-36 md:h-36 rounded-full overflow-hidden border border-gray-200">
               <img
@@ -210,7 +223,7 @@ const UserProfile = () => {
             )}
           </div>
 
-          {/* Middle: Form */}
+          {/* ------------------- MIDDLE: FORM ------------------- */}
           <div className="flex-1 w-full">
             <div className="flex items-start justify-between">
               <div>
@@ -223,12 +236,8 @@ const UserProfile = () => {
               <div className="flex gap-2">
                 {!editMode ? (
                   <button
-                    onClick={() => {
-                      setDraft(user);
-                      setEditMode(true);
-                    }}
+                    onClick={() => setEditMode(true)}
                     className="flex items-center gap-2 text-sm bg-white border px-3 py-2 rounded-xl hover:shadow-md transition"
-                    aria-label="Edit profile"
                   >
                     <FaEdit /> Edit
                   </button>
@@ -252,40 +261,26 @@ const UserProfile = () => {
               </div>
             </div>
 
+            {/* ------------------- INPUT GRID ------------------- */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
-              {/* First Name */}
-              <div className="flex flex-col">
-                <label className="text-gray-600 text-sm mb-1">First Name</label>
-                <input
-                  name="firstName"
-                  value={draft.firstName}
-                  onChange={handleInputChange}
-                  disabled={!editMode}
-                  className={`border rounded-xl px-3 py-2 text-gray-800 w-full ${
-                    editMode
-                      ? "border-[var(--primary-color)] focus:ring-1 focus:ring-[var(--primary-color)] bg-white"
-                      : "border-gray-200 bg-gray-50"
-                  }`}
-                />
-              </div>
+              {["firstName", "lastName"].map((field) => (
+                <div key={field} className="flex flex-col">
+                  <label className="text-gray-600 text-sm mb-1 capitalize">{field}</label>
+                  <input
+                    name={field}
+                    value={draft[field]}
+                    onChange={handleInputChange}
+                    disabled={!editMode}
+                    className={`border rounded-xl px-3 py-2 text-gray-800 w-full ${
+                      editMode
+                        ? "border-[var(--primary-color)] focus:ring-1 focus:ring-[var(--primary-color)] bg-white"
+                        : "border-gray-200 bg-gray-50"
+                    }`}
+                  />
+                </div>
+              ))}
 
-              {/* Last Name */}
-              <div className="flex flex-col">
-                <label className="text-gray-600 text-sm mb-1">Last Name</label>
-                <input
-                  name="lastName"
-                  value={draft.lastName}
-                  onChange={handleInputChange}
-                  disabled={!editMode}
-                  className={`border rounded-xl px-3 py-2 text-gray-800 w-full ${
-                    editMode
-                      ? "border-[var(--primary-color)] focus:ring-1 focus:ring-[var(--primary-color)] bg-white"
-                      : "border-gray-200 bg-gray-50"
-                  }`}
-                />
-              </div>
-
-              {/* Email (read-only) */}
+              {/* Read-only fields */}
               <div className="flex flex-col">
                 <label className="text-gray-600 text-sm mb-1">Email</label>
                 <input
@@ -293,67 +288,47 @@ const UserProfile = () => {
                   value={draft.email}
                   readOnly
                   className="border rounded-xl px-3 py-2 text-gray-600 w-full border-gray-200 bg-gray-50 cursor-not-allowed"
-                  title="Email cannot be changed here"
                 />
               </div>
 
-              {/* Phone (read-only) */}
               <div className="flex flex-col">
                 <label className="text-gray-600 text-sm mb-1">Phone</label>
                 <div className="flex gap-2">
                   <input
                     name="countryCode"
                     value={draft.countryCode}
-                    onChange={handleInputChange}
-                    disabled={true} // per request: phone can't be changed
+                    disabled
                     className="w-20 border rounded-xl px-3 py-2 text-gray-600 border-gray-200 bg-gray-50 cursor-not-allowed"
-                    title="Phone country code cannot be changed here"
                   />
                   <input
                     name="phone"
                     value={draft.phone}
                     readOnly
                     className="flex-1 border rounded-xl px-3 py-2 text-gray-600 border-gray-200 bg-gray-50 cursor-not-allowed"
-                    title="Phone number cannot be changed here"
                   />
                 </div>
               </div>
 
-              {/* Passed */}
-              <div className="flex flex-col">
-                <label className="text-gray-600 text-sm mb-1">Passed</label>
-                <input
-                  name="passed"
-                  value={draft.passed === "" ? "" : draft.passed}
-                  onChange={handleInputChange}
-                  disabled={!editMode}
-                  inputMode="numeric"
-                  className={`border rounded-xl px-3 py-2 text-gray-800 w-full ${
-                    editMode
-                      ? "border-[var(--primary-color)] focus:ring-1 focus:ring-[var(--primary-color)] bg-white"
-                      : "border-gray-200 bg-gray-50"
-                  }`}
-                />
-              </div>
+              {/* Numeric fields */}
+              {["passed", "failed"].map((field) => (
+                <div key={field} className="flex flex-col">
+                  <label className="text-gray-600 text-sm mb-1 capitalize">{field}</label>
+                  <input
+                    name={field}
+                    value={draft[field] === "" ? "" : draft[field]}
+                    onChange={handleInputChange}
+                    disabled={!editMode}
+                    inputMode="numeric"
+                    className={`border rounded-xl px-3 py-2 text-gray-800 w-full ${
+                      editMode
+                        ? "border-[var(--primary-color)] focus:ring-1 focus:ring-[var(--primary-color)] bg-white"
+                        : "border-gray-200 bg-gray-50"
+                    }`}
+                  />
+                </div>
+              ))}
 
-              {/* Failed */}
-              <div className="flex flex-col">
-                <label className="text-gray-600 text-sm mb-1">Failed</label>
-                <input
-                  name="failed"
-                  value={draft.failed === "" ? "" : draft.failed}
-                  onChange={handleInputChange}
-                  disabled={!editMode}
-                  inputMode="numeric"
-                  className={`border rounded-xl px-3 py-2 text-gray-800 w-full ${
-                    editMode
-                      ? "border-[var(--primary-color)] focus:ring-1 focus:ring-[var(--primary-color)] bg-white"
-                      : "border-gray-200 bg-gray-50"
-                  }`}
-                />
-              </div>
-
-              {/* Password Change (optional) - full width on small screens */}
+              {/* Password Fields */}
               <div className="sm:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="flex flex-col">
                   <label className="text-gray-600 text-sm mb-1">New Password (optional)</label>
@@ -375,7 +350,6 @@ const UserProfile = () => {
                       type="button"
                       onClick={() => setShowPassword((s) => !s)}
                       className="absolute right-2 top-2 text-gray-500"
-                      tabIndex={-1}
                     >
                       {showPassword ? <FaEyeSlash /> : <FaEye />}
                     </button>
@@ -402,7 +376,7 @@ const UserProfile = () => {
             </div>
           </div>
 
-          {/* Right: Chart & Stats */}
+          {/* ------------------- RIGHT: PIE CHART ------------------- */}
           <div className="w-full md:w-1/4 flex flex-col items-center gap-4">
             <div className="w-full h-44 md:h-52">
               <ResponsiveContainer width="100%" height="100%">
@@ -424,7 +398,7 @@ const UserProfile = () => {
               </ResponsiveContainer>
             </div>
 
-            <div className="text-center ">
+            <div className="text-center">
               <p className="text-sm text-gray-500">Total Quizzes</p>
               <p className="text-2xl font-bold text-gray-800">{totalQuiz}</p>
             </div>
@@ -440,10 +414,10 @@ const UserProfile = () => {
           </div>
         </div>
 
-        {/* Attempted Quizzes */}
+        {/* ------------------- ATTEMPTED QUIZZES ------------------- */}
         <div className="mt-8">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Attempted Quizzes</h2>
-          {attemptedQuizzes && attemptedQuizzes.length > 0 ? (
+          {attemptedQuizzes.length > 0 ? (
             <div className="flex gap-5 mb-6 overflow-x-auto pb-4 px-1 snap-x snap-mandatory scroll-smooth">
               {attemptedQuizzes.map((item, idx) => (
                 <motion.div
@@ -453,14 +427,7 @@ const UserProfile = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.08, duration: 0.4 }}
                 >
-                  <ProfileQuizCard
-                    examName={item.examName}
-                    year={item.year}
-                    score={item.score}
-                    rank={item.rank}
-                    result={item.result}
-                    icon="/icons/quiz.svg"
-                  />
+                  <ProfileQuizCard {...item} icon="/icons/quiz.svg" />
                 </motion.div>
               ))}
             </div>

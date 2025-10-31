@@ -7,23 +7,24 @@ import "react-toastify/dist/ReactToastify.css";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login, loading } = useAuthStore(); // Zustand store methods & state
+  const { login, loading } = useAuthStore();
 
   // ------------------------------
-  // 🔹 Form State
+  //  Form State
   // ------------------------------
+
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
 
   // ------------------------------
-  // 🔹 Input Handler
+  //  Input Handler
   // ------------------------------
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   // ------------------------------
-  // 🔹 Validation
+  //  Validation
   // ------------------------------
   const validate = () => {
     const newErrors = {};
@@ -41,7 +42,7 @@ const Login = () => {
   };
 
   // ------------------------------
-  // 🔹 Submit Handler
+  //  Submit Handler
   // ------------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -50,7 +51,7 @@ const Login = () => {
     const result = await login(formData);
 
     if (process.env.NODE_ENV === "development") {
-      console.log("🧠 Login result:", result);
+      console.log(" Login result:", result);
     }
 
     if (result.success) {
@@ -62,14 +63,14 @@ const Login = () => {
   };
 
   // ------------------------------
-  // 🔹 Backdrop Click (closes modal)
+  //  Backdrop Click (closes modal)
   // ------------------------------
   const handleBackdropClick = (e) => {
     if (e.target.id === "login-backdrop") navigate(-1);
   };
 
   // ------------------------------
-  // 🔹 UI
+  //  UI
   // ------------------------------
   return (
     <div
