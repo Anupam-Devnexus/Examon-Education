@@ -42,7 +42,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/courses/:courseId" element={<DynamicCourses />} />
-            <Route path="/exams/:id" element={<DynamicExam/>}/>
+            <Route path="/exams/:_id" element={<DynamicExam/>}/>
             <Route path="/quiz/:_id" element={<DynamicQuiz />} />
             <Route path="/profile" element={<Profile/>}/>
 
