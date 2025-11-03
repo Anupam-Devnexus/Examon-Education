@@ -1,152 +1,153 @@
-// ------------------------------------------------------
-// 🔐 AUTH STORE (Production-Ready)
-// Using Zustand + Axios + Secure Cookie-Based Sessions
-// ------------------------------------------------------
-
+// src/Zustand/useAuthStore.js
 import { create } from "zustand";
 import axios from "axios";
 
-// ------------------------------------------------------
-// 🌐 API Configuration
-// ------------------------------------------------------
-// ✅ Use HTTPS in production (never send tokens over HTTP)
-const API_BASE = "http://194.238.18.1:3004/api";
+/**
+ * Simple helper to safely parse stored session.
+ * - First tries JSON.parse (for plain JSON).
+ * - If that fails and CryptoJS is available, you can extend this to decrypt.
+ */
+const safeParseStored = (str) => {
+  if (!str) return null;
 
-// ✅ Allow backend to send/receive cookies (refresh tokens, session cookies, etc.)
-axios.defaults.withCredentials = true;
+  try {
+    return JSON.parse(str);
+  } catch (e) {
+    // If you store encrypted data (CryptoJS AES), you'd decrypt here.
+    // For example:
+    // try {
+    //   const bytes = CryptoJS.AES.decrypt(str, SECRET_KEY);
+    //   const json = bytes.toString(CryptoJS.enc.Utf8);
+    //   return JSON.parse(json);
+    // } catch (err) { return null; }
+    return null;
+  }
+};
 
-// ✅ Set default content type
-axios.defaults.headers["Content-Type"] = "application/json";
-
-// ------------------------------------------------------
-// 🧠 Zustand Auth Store
-// ------------------------------------------------------
 export const useAuthStore = create((set, get) => ({
-  // ------------------------------------------------------
-  // 🔹 Global State
-  // ------------------------------------------------------
-  user: null,             // Current logged-in user (object)
-  accessToken: null,      // Short-lived JWT (kept in memory only)
-  loading: false,         // Tracks async request state
-  initialized: false,     // App init flag (used after refresh)
+  user: null,
+  token: null,
+  loading: false,
+  error: null,
+  isAuthenticated: false,
+  initialized: false,
 
-  // ------------------------------------------------------
-  // 🚀 Initialize Session on App Load
-  // ------------------------------------------------------
-  initialize: async () => {
-    set({ loading: true });
-
+  /**
+   * initialize / restoreSession
+   * - Should be called once on app boot.
+   * - Restores session (if any) from localStorage/sessionStorage.
+   */
+  initialize: () => {
     try {
-      // ✅ Attempt to refresh session using HttpOnly cookie (securely stored by backend)
-      const { data } = await axios.get(`${API_BASE}/auth/refresh`);
+      // Try the common key used in your Login component
+      const raw = localStorage.getItem("userData"); // previously: JSON.stringify({ token, user })
+      let session = safeParseStored(raw);
 
-      // Backend should return { user, accessToken }
-      set({
-        user: data.user,
-        accessToken: data.accessToken,
-        loading: false,
-        initialized: true,
-      });
+      // If your roadmap used separate keys, try them too
+      if (!session) {
+        const storedUser = localStorage.getItem("app_user");
+        const storedToken = localStorage.getItem("app_token");
+        const parsedUser = safeParseStored(storedUser);
+        const parsedToken = safeParseStored(storedToken);
+        if (parsedUser || parsedToken) {
+          session = { user: parsedUser || null, token: parsedToken || null };
+        }
+      }
+
+      // session may be { token, user } or null
+      if (session?.token || session?.user) {
+        set({
+          user: session.user || null,
+          token: session.token || null,
+          isAuthenticated: !!session.token,
+        });
+      }
     } catch (err) {
-      // ❌ Session invalid or expired — reset to logged-out state
-      console.error("Session init failed:", err.response?.data || err.message);
-      set({ user: null, accessToken: null, loading: false, initialized: true });
-    }
-  },
-
-  // ------------------------------------------------------
-  // 🧾 Register New User
-  // ------------------------------------------------------
-  register: async ({ fullname, email, password }) => {
-    set({ loading: true });
-    try {
-      const { data } = await axios.post(`${API_BASE}/signup`, {
-        fullname,
-        email,
-        password,
-      });
-
-      set({ loading: false });
-
-      // ✅ Backend may auto-login or require manual login
-      return {
-        success: true,
-        message: data.message || "Registration successful. Please log in.",
-      };
-    } catch (err) {
-      set({ loading: false });
-      console.error("Registration error:", err.response?.data || err.message);
-
-      return {
-        success: false,
-        message: err.response?.data?.message || "Registration failed.",
-      };
-    }
-  },
-
-  // ------------------------------------------------------
-  // 🔑 Login User
-  // ------------------------------------------------------
-  login: async ({ email, password }) => {
-    set({ loading: true });
-
-    try {
-      const { data } = await axios.post(`${API_BASE}/Signin`, { email, password });
-
-      // ✅ Backend should return { user, accessToken }
-      set({
-        user: data.user,
-        accessToken: data.accessToken,
-        loading: false,
-      });
-
-      // 🧠 NOTE:
-      // The backend should set a secure HttpOnly refresh cookie (for persistence)
-      // The accessToken is short-lived and stored only in memory for security.
-
-      return {
-        success: true,
-        message: data.message || "Login successful.",
-      };
-    } catch (err) {
-      set({ loading: false });
-      console.error("Login error:", err.response?.data || err.message);
-
-      return {
-        success: false,
-        message: err.response?.data?.message || "Invalid credentials.",
-      };
-    }
-  },
-
-  // ------------------------------------------------------
-  // 🚪 Logout User
-  // ------------------------------------------------------
-  logout: async () => {
-    try {
-      // ✅ Ask backend to clear HttpOnly cookie
-      await axios.post(`${API_BASE}/auth/logout`);
-    } catch (err) {
-      console.warn("Logout warning:", err.response?.data || err.message);
+      console.error("Failed to restore session:", err);
     } finally {
-      // ✅ Clear user and accessToken from memory
-      set({ user: null, accessToken: null });
+      // mark initialized always so the app doesn't hang waiting forever
+      set({ initialized: true });
     }
   },
 
-  // ------------------------------------------------------
-  // ♻️ Manually Refresh Access Token (optional)
-  // ------------------------------------------------------
-  refreshToken: async () => {
+  // alias for backward compatibility
+  restoreSession: () => {
+    // simply call initialize
+    get().initialize();
+  },
+
+  // signin (login)
+  signin: async (credentials) => {
+    set({ loading: true, error: null });
     try {
-      // ✅ Request new access token using secure refresh cookie
-      const { data } = await axios.get(`${API_BASE}/auth/refresh`);
-      set({ accessToken: data.accessToken });
-      return true;
+      const res = await axios.post("http://194.238.18.1:3004/api/signin", credentials, {
+        headers: { "Content-Type": "application/json" },
+        withCredentials: true,
+      });
+
+      const { token, user } = res.data || {};
+
+      // Store plain JSON for now (you can encrypt using CryptoJS before storing)
+      localStorage.setItem("userData", JSON.stringify({ token, user }));
+      // optionally: sessionStorage.setItem("accessToken", token);
+
+      set({
+        user: user || null,
+        token: token || null,
+        isAuthenticated: !!token,
+        loading: false,
+      });
+
+      return { success: true, message: res.data?.message || "Login successful" };
     } catch (err) {
-      console.error("Token refresh failed:", err.response?.data || err.message);
-      set({ user: null, accessToken: null });
-      return false;
+      console.error("signin error:", err);
+      set({
+        loading: false,
+        error: err.response?.data?.message || "Login failed",
+      });
+      return { success: false, message: err.response?.data?.message || "Login failed" };
     }
   },
+
+  // signup
+  signup: async (payload) => {
+    set({ loading: true, error: null });
+    try {
+      const res = await axios.post("http://194.238.18.1:3004/api/signup", payload, {
+        headers: { "Content-Type": "application/json" },
+      });
+
+      // Optional: auto-login if API returns token+user
+      const { token, user } = res.data || {};
+      if (token || user) {
+        localStorage.setItem("userData", JSON.stringify({ token, user }));
+        set({ user: user || null, token: token || null, isAuthenticated: !!token });
+      }
+
+      set({ loading: false });
+      return { success: true, message: res.data?.message || "Signup successful" };
+    } catch (err) {
+      console.error("signup error:", err);
+      set({ loading: false, error: err.response?.data?.message || "Signup failed" });
+      return { success: false, message: err.response?.data?.message || "Signup failed" };
+    }
+  },
+
+  // logout
+  logout: () => {
+    localStorage.removeItem("userData");
+    localStorage.removeItem("app_user");
+    localStorage.removeItem("app_token");
+    sessionStorage.removeItem("accessToken");
+
+    set({
+      user: null,
+      token: null,
+      isAuthenticated: false,
+      loading: false,
+      error: null,
+    });
+  },
+
+  clearError: () => set({ error: null }),
 }));

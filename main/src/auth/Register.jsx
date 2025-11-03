@@ -3,13 +3,13 @@ import { FaArrowRight } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useAuthStore } from "../Zustand/useAuthStore"; // Import Zustand Auth Store
+import { useAuthStore } from "../Zustand/useAuthStore";
 
 const Register = () => {
   const navigate = useNavigate();
 
-  // Zustand store functions
-  const { register, loading } = useAuthStore();
+  // Zustand store methods
+  const { signup, loading } = useAuthStore();
 
   // Local form state
   const [formData, setFormData] = useState({
@@ -21,18 +21,18 @@ const Register = () => {
   // Validation errors
   const [errors, setErrors] = useState({});
 
-  // Handle input changes dynamically
+  // Handle input change
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  // Simple client-side validation
+  // Simple validation
   const validate = () => {
     const newErrors = {};
     if (!formData.fullName.trim()) newErrors.fullName = "Full name is required";
     if (!formData.email.trim()) newErrors.email = "Email is required";
     else if (!/\S+@\S+\.\S+/.test(formData.email))
-      newErrors.email = "Enter a valid email";
+      newErrors.email = "Enter a valid email address";
     if (!formData.password.trim()) newErrors.password = "Password is required";
     else if (formData.password.length < 6)
       newErrors.password = "Password must be at least 6 characters";
@@ -41,24 +41,29 @@ const Register = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Handle form submission
+  // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
 
-    // Call Zustand `register` function
-    const result = await register(formData);
+    const payload = {
+      fullname: formData.fullName,
+      email: formData.email,
+      password: formData.password,
+    };
+
+    const result = await signup(payload);
 
     if (result.success) {
-      toast.success(result.message);
-      // Optional: redirect to login
-      navigate("/login");
+      toast.success(result.message || "Registration successful!");
+      // Delay navigation slightly to let toast show
+      setTimeout(() => navigate("/login"), 1200);
     } else {
-      toast.error(result.message);
+      toast.error(result.message || "Registration failed");
     }
   };
 
-  // For closing the modal if user clicks backdrop
+  // Close on backdrop click
   const handleBackdropClick = (e) => {
     if (e.target.id === "register-backdrop") navigate(-1);
   };
@@ -69,10 +74,11 @@ const Register = () => {
       onClick={handleBackdropClick}
       className="fixed inset-0 z-[999] flex items-center justify-center bg-black/50 backdrop-blur-sm"
     >
-      <ToastContainer position="top-right" autoClose={3000} />
+      {/* Toast Notifications */}
+      <ToastContainer position="top-right" autoClose={3000} theme="colored" />
 
       <div className="bg-white rounded-2xl shadow-2xl w-[90%] max-w-3xl overflow-hidden flex flex-col md:flex-row relative animate-fadeIn">
-        {/* Close button */}
+        {/* Close Button */}
         <button
           onClick={() => navigate(-1)}
           className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-xl"
@@ -80,7 +86,7 @@ const Register = () => {
           ✕
         </button>
 
-        {/* Left Image */}
+        {/* Left Side Image */}
         <div className="hidden md:block md:w-1/2">
           <img
             src="https://images.pexels.com/photos/34063100/pexels-photo-34063100.jpeg"
@@ -89,10 +95,10 @@ const Register = () => {
           />
         </div>
 
-        {/* Right Form */}
+        {/* Right Side Form */}
         <div className="flex flex-col justify-center w-full md:w-1/2 p-8">
           <h2 className="text-2xl font-bold text-gray-800 mb-2">
-            Create Your Account 🚀
+            Create Your Account
           </h2>
           <p className="text-gray-500 mb-6">
             Register to start your learning journey with Examon Education.
@@ -101,7 +107,9 @@ const Register = () => {
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             {/* Full Name */}
             <div>
-              <label className="block text-sm font-medium mb-1">Full Name</label>
+              <label className="block text-sm font-medium mb-1">
+                Full Name
+              </label>
               <input
                 type="text"
                 name="fullName"
@@ -137,7 +145,9 @@ const Register = () => {
 
             {/* Password */}
             <div>
-              <label className="block text-sm font-medium mb-1">Password</label>
+              <label className="block text-sm font-medium mb-1">
+                Password
+              </label>
               <input
                 type="password"
                 name="password"
@@ -153,6 +163,7 @@ const Register = () => {
               )}
             </div>
 
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
@@ -164,6 +175,7 @@ const Register = () => {
             </button>
           </form>
 
+          {/* Redirect to Login */}
           <div className="mt-6 text-center text-sm text-gray-600">
             Already have an account?{" "}
             <button

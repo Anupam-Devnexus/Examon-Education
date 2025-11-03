@@ -1,7 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 import Stats from "./Stats";
+import { useAchievementStore } from "../Zustand/GetAchievement";
 
+/**
+ * 🎯 Animation Utility
+ * Generates consistent fade-in variants for Framer Motion
+ */
 const fadeIn = (direction = "up", delay = 0) => ({
   hidden: {
     opacity: 0,
@@ -16,6 +21,9 @@ const fadeIn = (direction = "up", delay = 0) => ({
   },
 });
 
+/**
+ * 🧱 Left Component - About Text & Quote
+ */
 const LeftComp = () => (
   <motion.div
     variants={fadeIn("right", 0.2)}
@@ -38,6 +46,9 @@ const LeftComp = () => (
   </motion.div>
 );
 
+/**
+ * 🧱 Right Component - Text & Stats
+ */
 const RightComp = ({ data }) => (
   <motion.div
     variants={fadeIn("left", 0.4)}
@@ -64,14 +75,47 @@ const RightComp = ({ data }) => (
   </motion.div>
 );
 
+/**
+ * 🚀 Main AboutNumber Component
+ */
 const AboutNumber = () => {
+  const { fetchAchievements, loading, error, achievements } = useAchievementStore();
+
+  // Fetch Achievements on Mount (only once)
+  useEffect(() => {
+    fetchAchievements();
+  }, [fetchAchievements]);
+  console.log(achievements);
+
+  // Extract first item safely
+  const achievement = achievements?.[0] || {};
+
+  // Prepare safe data for Stats component
   const data = [
-    { num: 5, unit: "M+", title: "Students" },
-    { num: 50, unit: "+", title: "Courses" },
-    { num: 20, unit: "%", title: "Instructors" },
-    { num: 10, unit: "K+", title: "Alumni" },
+    { num: achievement.activeUser || 0, unit: "M+", title: "Students" },
+    { num: achievement.courses || 0, unit: "+", title: "Courses" },
+    { num: achievement.instructors || 20, unit: "%", title: "Instructors" },
+    { num: achievement.satisfyUser || 0, unit: "K+", title: "Alumni" },
   ];
 
+  // Loading / Error UI
+  if (loading) {
+    return (
+      <section className="flex justify-center items-center min-h-[50vh] bg-[var(--tertiary-color)] text-gray-600">
+        <p>Loading achievements...</p>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="flex justify-center items-center min-h-[50vh] bg-[var(--tertiary-color)] text-red-500">
+        <p>Failed to load achievements: {error}</p>
+      </section>
+    );
+  }
+
+  // ✅ Main UI
   return (
     <section className="bg-[var(--tertiary-color)] flex flex-col md:flex-row justify-between items-stretch min-h-[60vh] overflow-hidden">
       <LeftComp />

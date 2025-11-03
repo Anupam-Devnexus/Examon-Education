@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaHeart } from "react-icons/fa";
+import { FaShoppingCart, FaTrashAlt } from "react-icons/fa";
+import { useCourseStore } from "../../Zustand/GetAllCourses";
 
 const CoursesSmallCard = ({
   image,
@@ -11,8 +12,33 @@ const CoursesSmallCard = ({
   courseId,
 }) => {
   const navigate = useNavigate();
-  const handleExplore = () => {
-    navigate(`/courses/${courseId}`);
+
+  // Zustand store functions
+  const { addToCart, removeFromCart, cart } = useCourseStore();
+
+  // Check if the course is already in the cart
+  const isInCart = useMemo(
+    () => cart.some((item) => item.id === courseId),
+    [cart, courseId]
+  );
+
+  // Handle navigation to course details
+  const handleExplore = () => navigate(`/courses/${courseId}`);
+
+  // Handle cart add/remove
+  const handleCartToggle = () => {
+    if (isInCart) {
+      removeFromCart(courseId);
+    } else {
+      addToCart({
+        id: courseId,
+        img: image,
+        courseDetails: courseName,
+        actualprice: actualPrice,
+        previousprice: previousPrice,
+        discount,
+      });
+    }
   };
 
   return (
@@ -66,13 +92,25 @@ const CoursesSmallCard = ({
           >
             Explore
           </button>
+
           <button
-            className="flex cursor-pointer items-center justify-center gap-1 px-4 py-2 rounded-lg 
-                       text-[var(--primary-color)] border border-[var(--primary-color)] 
-                       hover:bg-[var(--tertiary-color)] transition w-1/2 text-sm sm:text-base"
+            onClick={handleCartToggle}
+            className={`flex items-center justify-center gap-2 px-2 py-2 rounded-lg font-semibold  text-sm transition
+              ${
+                isInCart
+                  ? "bg-red-500 text-white hover:bg-red-600"
+                  : "border border-[var(--primary-color)] text-[var(--primary-color)] hover:bg-[var(--tertiary-color)]"
+              }`}
           >
-            <FaHeart size={14} />
-            Favourite
+            {isInCart ? (
+              <>
+                <FaTrashAlt size={14} /> Remove
+              </>
+            ) : (
+              <>
+                <FaShoppingCart size={14} /> Add to Cart
+              </>
+            )}
           </button>
         </div>
       </div>

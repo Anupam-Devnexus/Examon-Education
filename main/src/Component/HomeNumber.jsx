@@ -1,15 +1,37 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { useInView } from "react-intersection-observer"; // ✅ Correct import
+import { useInView } from "react-intersection-observer";
+import { useAchievementStore } from "../Zustand/GetAchievement";
 
 const HomeNumber = () => {
-  const stats = [
-    { num: 3, unit: "M", text: "Active Users" },
-    { num: 99, unit: "%", text: "Customer Satisfaction" },
-    { num: 50, unit: "+", text: "Courses" },
-    { num: 240, unit: "%", text: "Passing Rate" },
-  ];
+  const { loading, error, achievements, fetchAchievements } = useAchievementStore();
 
+  useEffect(() => {
+    fetchAchievements();
+  }, [fetchAchievements]);
+// console.log(achievements);
+  //  If multiple entries exist, take the latest one
+  const latestAchievement = useMemo(() => {
+    if (!achievements?.length) return null;
+    return achievements[achievements.length - 1];
+  }, [achievements]);
+
+  //  Fallback if no API data
+  const stats = latestAchievement
+    ? [
+        { num: latestAchievement.activeUser || 0, unit: "K", text: "Active Users" },
+        { num: Number(latestAchievement.satisfyUser) || 0, unit: "%", text: "Customer Satisfaction" },
+        { num: latestAchievement.courses || 0, unit: "+", text: "Courses" },
+        { num: latestAchievement.passingRate || 0, unit: "%", text: "Passing Rate" },
+      ]
+    : [
+        { num: 0, unit: "K", text: "Active Users" },
+        { num: 0, unit: "%", text: "Customer Satisfaction" },
+        { num: 0, unit: "+", text: "Courses" },
+        { num: 0, unit: "%", text: "Passing Rate" },
+      ];
+
+  // Framer motion animation variants
   const containerVariants = {
     hidden: { opacity: 0, y: 40 },
     visible: {
@@ -28,7 +50,7 @@ const HomeNumber = () => {
     },
   };
 
-  //  Count-up animation when visible
+  //  Count-Up Animation
   const CountUp = ({ target }) => {
     const [count, setCount] = useState(0);
     const { ref, inView } = useInView({ triggerOnce: true });
@@ -36,8 +58,8 @@ const HomeNumber = () => {
     useEffect(() => {
       if (inView) {
         let start = 0;
-        const duration = 1500; // total animation time in ms
-        const stepTime = 20; // ms between increments
+        const duration = 1500;
+        const stepTime = 20;
         const increment = target / (duration / stepTime);
 
         const timer = setInterval(() => {
@@ -60,12 +82,13 @@ const HomeNumber = () => {
     );
   };
 
+  //  Individual Stat Component
   const NumbCompo = ({ num, unit, text, isLast }) => (
     <motion.div
       variants={itemVariants}
       className="flex items-center justify-center relative"
     >
-      <div className="flex flex-col items-center text-center p-4 ">
+      <div className="flex flex-col items-center text-center p-4">
         <div className="flex items-center justify-center gap-1 text-3xl sm:text-4xl font-extrabold">
           <CountUp target={num} />
           {unit}
@@ -74,13 +97,26 @@ const HomeNumber = () => {
           {text}
         </span>
       </div>
-
-      {/* Divider line (hidden on mobile) */}
       {!isLast && (
         <div className="hidden md:block h-12 w-[2px] bg-[var(--primary-color)] mx-4"></div>
       )}
     </motion.div>
   );
+
+  //  Render States
+  if (loading)
+    return (
+      <div className="w-full flex justify-center items-center py-10 text-gray-500">
+        Loading achievements...
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="w-full flex justify-center items-center py-10 text-red-500">
+        Failed to load data: {error}
+      </div>
+    );
 
   return (
     <motion.div

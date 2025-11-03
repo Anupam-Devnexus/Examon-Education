@@ -8,6 +8,7 @@ axios.defaults.withCredentials = true;
 axios.defaults.headers.common["Content-Type"] = "application/json";
 
 export const useCourseStore = create((set, get) => ({
+  // --- STATE ---
   data: [],
   categories: [],
   selectedCategory: "All",
@@ -16,16 +17,18 @@ export const useCourseStore = create((set, get) => ({
   perPage: 8,
   loading: false,
   error: null,
+  cart: JSON.parse(localStorage.getItem("cart")) || [], // persist cart
 
-  //  Fetch all courses once
+  // --- FETCH COURSES ---
   fetchCourses: async () => {
-      if (get().data.length > 0) return;
+    if (get().data.length > 0) return; // avoid refetch if already cached
+
     try {
       set({ loading: true, error: null });
       const response = await axios.get(`${API_BASE}/course/all`);
       const apiData = response.data;
 
-      // Flatten courses
+      // Flatten nested structure
       const formattedCourses = apiData.data.flatMap((category) =>
         category.courses.map((course) => ({
           id: course._id,
@@ -54,16 +57,16 @@ export const useCourseStore = create((set, get) => ({
       console.error("Fetch courses failed:", err);
       set({
         error:
-          err.response?.data?.message || "Failed to fetch courses. Please try again.",
+          err.response?.data?.message ||
+          "Failed to fetch courses. Please try again.",
         loading: false,
       });
     }
   },
 
-  // Filter by category
+  // --- FILTER BY CATEGORY ---
   fetchCoursesByCategory: (category) => {
     const { data, perPage } = get();
-
     const filtered =
       category === "All"
         ? data
@@ -76,12 +79,38 @@ export const useCourseStore = create((set, get) => ({
     });
   },
 
-  //  Pagination
+  // --- PAGINATION ---
   setPage: (page) => {
     const { totalPages } = get();
     if (page >= 1 && page <= totalPages) set({ currentPage: page });
   },
 
+  // --- ADD TO CART ---
+  addToCart: (course) => {
+    const { cart } = get();
+    const exists = cart.some((item) => item.id === course.id);
+    if (exists) return; // avoid duplicates
+
+    const updatedCart = [...cart, course];
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+    set({ cart: updatedCart });
+  },
+
+  // --- REMOVE FROM CART ---
+  removeFromCart: (courseId) => {
+    const { cart } = get();
+    const updatedCart = cart.filter((item) => item.id !== courseId);
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+    set({ cart: updatedCart });
+  },
+
+  // --- CLEAR CART ---
+  clearCart: () => {
+    localStorage.removeItem("cart");
+    set({ cart: [] });
+  },
+
+  // --- RESET ALL COURSES ---
   resetCourses: () =>
     set({
       data: [],

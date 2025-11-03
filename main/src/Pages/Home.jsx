@@ -12,6 +12,9 @@ import HomeQuiz from '../Component/Quiz/HomeQuiz'
 import CoursesYouLike from '../Component/CoursesYouLike'
 
 const Home = () => {
+
+
+
   return (
     <div className='flex flex-col '>
 
