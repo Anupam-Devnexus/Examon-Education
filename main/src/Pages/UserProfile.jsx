@@ -7,7 +7,7 @@ import {
   FaEyeSlash,
   FaSignOutAlt,
 } from "react-icons/fa";
-import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { motion } from "framer-motion";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -23,7 +23,10 @@ const UserProfile = () => {
   const [user, setUser] = useState({});
   const [editMode, setEditMode] = useState(false);
   const [draft, setDraft] = useState({});
-  const [passwords, setPasswords] = useState({ password: "", confirmPassword: "" });
+  const [passwords, setPasswords] = useState({
+    password: "",
+    confirmPassword: "",
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -43,14 +46,25 @@ const UserProfile = () => {
   }, [navigate]);
 
   /* --------------------------------------------------------------------------
-   *  QUIZ CHART (FAKE DATA UNTIL REAL DATA AVAILABLE)
+   *  DUMMY QUIZ DATA (Replace with API Later)
+   * -------------------------------------------------------------------------- */
+  const quizStats = useMemo(() => {
+    const passed = user.passed ?? 7;
+    const failed = user.failed ?? 3;
+    const total = passed + failed;
+    const percentage = total ? ((passed / total) * 100).toFixed(1) : 0;
+    return { passed, failed, total, percentage };
+  }, [user]);
+
+  /* --------------------------------------------------------------------------
+   *  PIE CHART DATA
    * -------------------------------------------------------------------------- */
   const chartData = useMemo(
     () => [
-      { name: "Passed", value: user.passed || 0, color: "#16A34A" },
-      { name: "Failed", value: user.failed || 0, color: "#EF4444" },
+      { name: "Passed", value: quizStats.passed, color: "#16A34A" },
+      { name: "Failed", value: quizStats.failed, color: "#EF4444" },
     ],
-    [user]
+    [quizStats]
   );
 
   /* --------------------------------------------------------------------------
@@ -77,19 +91,16 @@ const UserProfile = () => {
 
     setLoading(true);
     try {
-      // simulate update — just localStorage update
       const updatedUser = {
         ...user,
         fullname: draft.fullname,
         ...(passwords.password && { password: passwords.password }),
       };
-
       const stored = JSON.parse(localStorage.getItem("auth")) || {};
       localStorage.setItem("auth", JSON.stringify({ ...stored, user: updatedUser }));
       setUser(updatedUser);
       setEditMode(false);
       setPasswords({ password: "", confirmPassword: "" });
-
       toast.success("Profile updated successfully!");
     } catch (err) {
       toast.error("Failed to update profile.");
@@ -113,7 +124,8 @@ const UserProfile = () => {
   return (
     <>
       <ToastContainer position="top-right" autoClose={2500} />
-      <div className="max-w-7xl p-6 mb-10">
+      <div className="max-w-7xl mx-auto p-6 mb-10">
+        {/* MAIN PROFILE BOX */}
         <div className="flex flex-col md:flex-row justify-between gap-6 bg-white p-6 rounded-2xl shadow-md">
           {/* LEFT PROFILE IMAGE + INFO */}
           <div className="flex flex-col items-center gap-3 w-full md:w-1/4">
@@ -251,45 +263,63 @@ const UserProfile = () => {
           </div>
         </div>
 
-        {/* CHART + QUIZ */}
+        {/* QUIZ PERFORMANCE SECTION */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
           className="mt-8 bg-white rounded-2xl shadow-md p-6"
         >
           <h2 className="text-lg font-semibold text-gray-800 mb-4">
             Quiz Performance
           </h2>
-          <div className="flex items-center gap-10">
-            <ResponsiveContainer width="30%" height={200}>
+
+          <div className="flex flex-col md:flex-row items-center gap-10">
+            {/* Pie Chart */}
+            <ResponsiveContainer width="100%" height={250}>
               <PieChart>
                 <Pie
                   data={chartData}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  outerRadius={80}
+                  outerRadius={90}
                   dataKey="value"
+                  label={({ name, value }) => `${name}: ${value}`}
                 >
                   {chartData.map((entry, index) => (
                     <Cell key={index} fill={entry.color} />
                   ))}
                 </Pie>
+                <Tooltip />
               </PieChart>
             </ResponsiveContainer>
-            <div>
-              {chartData.map((d) => (
-                <p key={d.name} className="text-gray-600 text-sm">
-                  <span
-                    className="inline-block w-3 h-3 rounded-full mr-2"
-                    style={{ backgroundColor: d.color }}
-                  ></span>
-                  {d.name}: {d.value}
-                </p>
+
+            {/* Cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full md:w-auto">
+              {[
+                { label: "Total Quizzes", value: quizStats.total, color: "text-blue-600" },
+                { label: "Passed", value: quizStats.passed, color: "text-green-600" },
+                { label: "Failed", value: quizStats.failed, color: "text-red-600" },
+                { label: "Percentage", value: `${quizStats.percentage}%`, color: "text-yellow-600" },
+              ].map((stat, i) => (
+                <motion.div
+                  key={i}
+                  whileHover={{ scale: 1.05 }}
+                  className="border rounded-xl p-4 bg-gray-50 text-center shadow-sm hover:shadow-md transition-all"
+                >
+                  <p className={`text-sm font-medium text-gray-500`}>{stat.label}</p>
+                  <p className={`text-xl font-bold ${stat.color}`}>{stat.value}</p>
+                </motion.div>
               ))}
             </div>
           </div>
         </motion.div>
+
+        {/* Optional: Last attempted quiz cards */}
+        <div className="mt-10">
+          <ProfileQuizCard />
+        </div>
       </div>
     </>
   );
