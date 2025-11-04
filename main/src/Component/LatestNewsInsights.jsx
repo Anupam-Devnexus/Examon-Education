@@ -7,7 +7,7 @@ const LatestNewsInsights = () => {
   /** 🔹 Fetch news on mount */
   useEffect(() => {
     fetchNews();
-  }, [fetchNews]);
+  }, []);
 
   /** 🔹 Fallback static data */
   const fallbackNews = useMemo(
@@ -78,7 +78,7 @@ const LatestNewsInsights = () => {
   }
 
   if (error) {
-    console.error("❌ News Fetch Error:", error);
+    console.error(" News Fetch Error:", error);
   }
 
   return (

@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaShoppingCart, FaTrashAlt } from "react-icons/fa";
+import { toast } from "react-toastify";
 import { useCourseStore } from "../../Zustand/GetAllCourses";
 
 const CoursesSmallCard = ({
@@ -12,23 +13,38 @@ const CoursesSmallCard = ({
   courseId,
 }) => {
   const navigate = useNavigate();
-
-  // Zustand store functions
   const { addToCart, removeFromCart, cart } = useCourseStore();
 
-  // Check if the course is already in the cart
+  // ✅ Fetch token from localStorage
+  const authData = JSON.parse(localStorage.getItem("auth"));
+  const token = authData?.token || null;
+
+  // ✅ Check if course already in cart
   const isInCart = useMemo(
     () => cart.some((item) => item.id === courseId),
     [cart, courseId]
   );
 
-  // Handle navigation to course details
+  // ✅ Navigate to course details
   const handleExplore = () => navigate(`/courses/${courseId}`);
 
-  // Handle cart add/remove
+  // ✅ Handle Add/Remove Cart with Login Check
   const handleCartToggle = () => {
+    if (!token) {
+      toast.warning("Please login first to add items to your cart.", {
+        position: "top-center",
+        autoClose: 3000,
+      });
+      navigate("/login");
+      return;
+    }
+
     if (isInCart) {
       removeFromCart(courseId);
+      toast.info("Course removed from cart.", {
+        position: "top-center",
+        autoClose: 2000,
+      });
     } else {
       addToCart({
         id: courseId,
@@ -38,6 +54,10 @@ const CoursesSmallCard = ({
         previousprice: previousPrice,
         discount,
       });
+      toast.success("Course added to cart!", {
+        position: "top-center",
+        autoClose: 2000,
+      });
     }
   };
 
@@ -46,7 +66,7 @@ const CoursesSmallCard = ({
       className="flex flex-col bg-white rounded-2xl shadow-md hover:shadow-xl 
                  transition-all duration-300 overflow-hidden h-full max-h-[420px]"
     >
-      {/* Course Image */}
+      {/* 🖼️ Course Image */}
       <div className="relative w-full h-40">
         <img
           src={image}
@@ -61,7 +81,7 @@ const CoursesSmallCard = ({
         )}
       </div>
 
-      {/* Course Info */}
+      {/* 📘 Course Info */}
       <div className="flex flex-col flex-grow p-4">
         <h3
           className="text-black text-base sm:text-lg font-semibold line-clamp-2 min-h-[48px]"
@@ -83,7 +103,7 @@ const CoursesSmallCard = ({
           </div>
         </div>
 
-        {/* Buttons */}
+        {/* 🛒 Buttons */}
         <div className="mt-auto flex items-center gap-2 pt-4">
           <button
             onClick={handleExplore}
@@ -95,7 +115,7 @@ const CoursesSmallCard = ({
 
           <button
             onClick={handleCartToggle}
-            className={`flex items-center justify-center gap-2 px-2 py-2 rounded-lg font-semibold  text-sm transition
+            className={`flex items-center justify-center gap-2 px-2 py-2 rounded-lg font-semibold text-sm transition
               ${
                 isInCart
                   ? "bg-red-500 text-white hover:bg-red-600"
