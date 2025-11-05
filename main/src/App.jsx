@@ -1,4 +1,5 @@
-import React, { Suspense, lazy, useEffect } from "react";
+// src/App.jsx
+import React, { Suspense, lazy, useEffect, useCallback } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -12,10 +13,10 @@ import "slick-carousel/slick/slick-theme.css";
 import "./App.css";
 
 import { useAuthStore } from "./Zustand/useAuthStore";
-import Footer from "./Component/Footer";
 import Navbar from "./Component/Navbar/Navbar";
+import Footer from "./Component/Footer";
 
-/* ✅ Lazy-loaded pages */
+/* 🔹 Lazy-loaded pages for better performance */
 const Home = lazy(() => import("./Pages/Home"));
 const Aboutus = lazy(() => import("./Pages/Aboutus"));
 const ContactUs = lazy(() => import("./Pages/ContactUs"));
@@ -35,38 +36,41 @@ const ProtectedRoute = ({ children }) => {
   const storedAuth = JSON.parse(localStorage.getItem("auth"));
   const token = storedAuth?.user?.refreshToken || storedAuth?.token;
 
-  // If no token, redirect to login
-  if (!token) {
-    return <Navigate to="/login" replace />;
-  }
-
-  // Otherwise, render protected component
-  return children;
+  return token ? children : <Navigate to="/login" replace />;
 };
 
+/* 🌍 Main App */
 function App() {
-  const { restoreSession, initialized } = useAuthStore();
+  const initialized = useAuthStore((state) => state.initialized);
+  const restoreSession = useAuthStore((state) => state.restoreSession);
 
-  /* Initialize Zustand auth session on first load */
-  useEffect(() => {
-    if (!initialized) restoreSession();
+  
+  const initializeAuth = useCallback(() => {
+    if (!initialized && typeof restoreSession === "function") {
+      restoreSession();
+    }
   }, [initialized, restoreSession]);
+
+  useEffect(() => {
+    initializeAuth();
+  }, [initializeAuth]);
 
   return (
     <Router>
-      <div className="App min-h-screen flex flex-col">
+      <div className="App flex flex-col min-h-screen bg-white text-gray-900">
+        {/* 🌐 Global Navbar */}
         <Navbar />
 
-        {/* Page Suspense loader */}
+        {/* ⚡ Lazy-load route components */}
         <Suspense
           fallback={
-            <div className="flex justify-center items-center h-[50vh] text-lg text-gray-500 animate-pulse">
-              Loading page...
+            <div className="flex justify-center items-center h-[60vh] text-gray-500 animate-pulse text-lg font-medium">
+              Loading page…
             </div>
           }
         >
           <Routes>
-            {/* 🔹 Public Routes */}
+            {/* 🔓 Public Routes */}
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<Aboutus />} />
             <Route path="/courses" element={<Courses />} />
@@ -76,12 +80,12 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
 
-            {/* 🔹 Dynamic Routes */}
+            {/* 🔸 Dynamic Routes */}
             <Route path="/courses/:courseId" element={<DynamicCourses />} />
             <Route path="/exams/:_id" element={<DynamicExam />} />
             <Route path="/quiz/:_id" element={<DynamicQuiz />} />
 
-            {/* 🔐 Protected Routes (Require Token) */}
+            {/* 🔒 Protected Routes */}
             <Route
               path="/profile"
               element={
@@ -99,7 +103,7 @@ function App() {
               }
             />
 
-            {/* 🔸 404 Fallback */}
+            {/* 🚫 Fallback 404 */}
             <Route
               path="*"
               element={
@@ -111,6 +115,7 @@ function App() {
           </Routes>
         </Suspense>
 
+        {/* 🌍 Global Footer */}
         <Footer />
 
         {/* 🔔 Toast Notifications */}
@@ -118,6 +123,7 @@ function App() {
           position="top-right"
           autoClose={3000}
           hideProgressBar={false}
+          newestOnTop={false}
           closeOnClick
           pauseOnHover
           draggable

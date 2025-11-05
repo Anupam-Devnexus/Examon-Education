@@ -31,30 +31,50 @@ const UserProfile = () => {
   const [loading, setLoading] = useState(false);
 
   /* --------------------------------------------------------------------------
-   *  LOAD USER FROM LOCALSTORAGE
+   *  LOAD USER + QUIZ DATA FROM LOCALSTORAGE
    * -------------------------------------------------------------------------- */
   useEffect(() => {
-    const stored = localStorage.getItem("auth");
-    if (stored) {
-      const { user } = JSON.parse(stored);
-      setUser(user);
-      setDraft(user);
-    } else {
-      toast.error("User not logged in.");
+    try {
+      const stored = localStorage.getItem("auth");
+      if (stored) {
+        const { user } = JSON.parse(stored);
+        setUser(user);
+        setDraft(user);
+      } else {
+        toast.error("User not logged in.");
+        navigate("/login");
+      }
+    } catch (err) {
+      console.error("Invalid auth data in localStorage");
       navigate("/login");
     }
   }, [navigate]);
 
+  const attemptedQuizzes = useMemo(
+    () => user?.attemptedQuizzes || [],
+    [user?.attemptedQuizzes]
+  );
+
   /* --------------------------------------------------------------------------
-   *  DUMMY QUIZ DATA (Replace with API Later)
+   *  QUIZ STATS (Passed / Failed / Total / %)
    * -------------------------------------------------------------------------- */
   const quizStats = useMemo(() => {
-    const passed = user.passed ?? 7;
-    const failed = user.failed ?? 3;
+    if (!attemptedQuizzes.length)
+      return { passed: 0, failed: 0, total: 0, percentage: 0 };
+
+    let passed = 0;
+    let failed = 0;
+
+    attemptedQuizzes.forEach((quiz) => {
+      const percentage = (quiz.score / quiz.totalQuestions) * 100;
+      if (percentage >= 40) passed++;
+      else failed++;
+    });
+
     const total = passed + failed;
     const percentage = total ? ((passed / total) * 100).toFixed(1) : 0;
     return { passed, failed, total, percentage };
-  }, [user]);
+  }, [attemptedQuizzes]);
 
   /* --------------------------------------------------------------------------
    *  PIE CHART DATA
@@ -124,7 +144,7 @@ const UserProfile = () => {
   return (
     <>
       <ToastContainer position="top-right" autoClose={2500} />
-      <div className="max-w-7xl mx-auto p-6 mb-10">
+      <div className="max-w-full p-6 mb-10">
         {/* MAIN PROFILE BOX */}
         <div className="flex flex-col md:flex-row justify-between gap-6 bg-white p-6 rounded-2xl shadow-md">
           {/* LEFT PROFILE IMAGE + INFO */}
@@ -162,7 +182,7 @@ const UserProfile = () => {
                   <button
                     onClick={handleSave}
                     disabled={loading}
-                    className="flex items-center gap-2 text-sm bg-[var(--primary-color)] text-white px-4 py-2 rounded-xl hover:opacity-90 disabled:opacity-70"
+                    className="flex items-center gap-2 text-sm bg-blue-600 text-white px-4 py-2 rounded-xl hover:opacity-90 disabled:opacity-70"
                   >
                     <FaSave />
                     {loading ? "Saving..." : "Save"}
@@ -194,7 +214,7 @@ const UserProfile = () => {
                   disabled={!editMode}
                   className={`border rounded-xl px-3 py-2 text-gray-800 ${
                     editMode
-                      ? "border-[var(--primary-color)] bg-white"
+                      ? "border-blue-500 bg-white"
                       : "border-gray-200 bg-gray-50"
                   }`}
                 />
@@ -228,7 +248,7 @@ const UserProfile = () => {
                       onChange={(e) =>
                         setPasswords((p) => ({ ...p, password: e.target.value }))
                       }
-                      className="border rounded-xl px-3 py-2 pr-10 border-[var(--primary-color)]"
+                      className="border rounded-xl px-3 py-2 pr-10 border-blue-500"
                       placeholder="Enter new password"
                     />
                     <button
@@ -253,7 +273,7 @@ const UserProfile = () => {
                           confirmPassword: e.target.value,
                         }))
                       }
-                      className="border rounded-xl px-3 py-2 border-[var(--primary-color)]"
+                      className="border rounded-xl px-3 py-2 border-blue-500"
                       placeholder="Re-enter password"
                     />
                   </div>
@@ -295,13 +315,13 @@ const UserProfile = () => {
               </PieChart>
             </ResponsiveContainer>
 
-            {/* Cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full md:w-auto">
+            {/* Stats Cards */}
+            <div className="grid grid-cols-2 gap-4 w-full md:w-auto">
               {[
-                { label: "Total Quizzes", value: quizStats.total, color: "text-blue-600" },
+                // { label: "Total Quizzes", value: quizStats.total, color: "text-blue-600" },
                 { label: "Passed", value: quizStats.passed, color: "text-green-600" },
                 { label: "Failed", value: quizStats.failed, color: "text-red-600" },
-                { label: "Percentage", value: `${quizStats.percentage}%`, color: "text-yellow-600" },
+                // { label: "Percentage", value: `${quizStats.percentage}%`, color: "text-yellow-600" },
               ].map((stat, i) => (
                 <motion.div
                   key={i}
@@ -316,10 +336,30 @@ const UserProfile = () => {
           </div>
         </motion.div>
 
-        {/* Optional: Last attempted quiz cards */}
-        <div className="mt-10">
-          <ProfileQuizCard />
-        </div>
+        {/* ATTEMPTED QUIZZES SECTION */}
+        {attemptedQuizzes.length > 0 && (
+          <div className="mt-10 mb-10">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">
+              Attempted Quizzes
+            </h2>
+            <div className="flex flex-wrap gap-6">
+              {attemptedQuizzes.map((quiz, index) => {
+                const percentage = (quiz.score / quiz.totalQuestions) * 100;
+                const result = percentage >= 40 ? "Passed" : "Failed";
+                return (
+                  <ProfileQuizCard
+                    key={index}
+                    examName={quiz.quizTitle}
+                    year={new Date(quiz.attemptedAt).getFullYear() || "2025"}
+                    result={result}
+                    score={`${quiz.score}/${quiz.totalQuestions}`}
+                    rank={quiz.rank || "-"}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

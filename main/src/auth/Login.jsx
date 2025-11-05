@@ -2,18 +2,18 @@ import React, { useState, useCallback } from "react";
 import { FaArrowRight } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { toast } from "react-hot-toast"; // ✅ Correct toast import
+import { toast } from "react-hot-toast";
 
 const Login = () => {
   const navigate = useNavigate();
 
-  // ✅ States
+  // 🔐 Form state
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  /** 🔹 Input change handler */
+  /** 🧠 Input change handler */
   const handleChange = useCallback(
     (e) => {
       const { name, value } = e.target;
@@ -23,49 +23,46 @@ const Login = () => {
     [errors]
   );
 
-  /** 🔹 Validate fields */
+  /** ✅ Field validation */
   const validate = useCallback(() => {
     const newErrors = {};
     if (!formData.email.trim()) newErrors.email = "Email is required.";
     if (!formData.password.trim()) newErrors.password = "Password is required.";
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }, [formData]);
 
-  /** 🔹 Submit form */
+  /** 🚀 Submit handler */
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
 
     setLoading(true);
     try {
-      const baseURL = "http://194.238.18.1:3004/api";
-
-      const response = await axios.post(`${baseURL}/signin`, formData, {
+      const { data } = await axios.post("http://194.238.18.1:3004/api/signin", formData, {
         headers: { "Content-Type": "application/json" },
         timeout: 10000,
       });
 
-      console.log("✅ API Response:", response.data);
-
-      const { user, message, accessToken } = response.data;
+      const { user, message, accessToken } = data;
       if (!accessToken || !user) throw new Error("Invalid server response");
 
-      // ✅ Save token and user info
+      // 🧩 Save session
       localStorage.setItem("auth", JSON.stringify({ token: accessToken, user }));
 
-      toast.success(message || "Login successful!", { duration: 3000 });
-      navigate("/", { replace: true });
-    } catch (error) {
-      console.error("❌ Login Error:", error);
+      toast.success( "Login successful!", { duration: 1500 });
 
+      // 🔄 Refresh app state and redirect
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 1000);
+    } catch (err) {
+      console.error("Login Error:", err);
       const msg =
-        error.response?.data?.message ||
-        (error.code === "ECONNABORTED"
+        err.response?.data?.message ||
+        (err.code === "ECONNABORTED"
           ? "Request timed out. Please try again."
           : "Invalid email or password.");
-
       toast.error(msg, { duration: 3000 });
     } finally {
       setLoading(false);
@@ -122,9 +119,7 @@ const Login = () => {
                     : "border-gray-300 dark:border-gray-700 focus:ring-blue-400"
                 } focus:outline-none focus:ring-2 dark:bg-gray-800 dark:text-white`}
               />
-              {errors.email && (
-                <p className="text-red-500 text-xs mt-1">{errors.email}</p>
-              )}
+              {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
             </div>
 
             {/* Password */}
@@ -154,9 +149,7 @@ const Login = () => {
                   {showPassword ? "Hide" : "Show"}
                 </button>
               </div>
-              {errors.password && (
-                <p className="text-red-500 text-xs mt-1">{errors.password}</p>
-              )}
+              {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
             </div>
 
             {/* Submit Button */}
@@ -164,9 +157,7 @@ const Login = () => {
               type="submit"
               disabled={loading}
               className={`mt-3 w-full flex items-center justify-center gap-2 text-white py-2 rounded-full transition ${
-                loading
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700"
+                loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
               }`}
             >
               {loading ? "Logging in..." : <>Login <FaArrowRight /></>}
