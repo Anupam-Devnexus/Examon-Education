@@ -8,11 +8,18 @@ import { IoClose } from "react-icons/io5";
 const StudyMaterialPageCard = ({ title, level, language, pdfUrl }) => {
     const [showModal, setShowModal] = useState(false);
 
+    const token = JSON.parse(localStorage.getItem("auth"))?.token;
+
     const handleDownload = () => {
-        const link = document.createElement("a");
-        link.href = pdfUrl;
-        link.download = `${title}.pdf`;
-        link.click();
+        if(!token){
+alert("Please login to download the PDF.");
+        }else{
+
+            const link = document.createElement("a");
+            link.href = pdfUrl;
+            link.download = `${title}.pdf`;
+            link.click();
+        }
     };
 
     return (

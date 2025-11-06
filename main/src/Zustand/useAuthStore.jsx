@@ -111,7 +111,7 @@ export const useAuthStore = create((set) => ({
     }
   },
 
-  /** 🚪 Logout handler */
+  /**  Logout handler */
   logout: () => {
     localStorage.removeItem("userData");
     set({
@@ -120,7 +120,7 @@ export const useAuthStore = create((set) => ({
       isAuthenticated: false,
       error: null,
     });
-
+window.refresh();
     window.dispatchEvent(new Event("auth-changed"));
   },
 }));
