@@ -6,7 +6,6 @@ import {
   FaEye,
   FaEyeSlash,
   FaSignOutAlt,
-  FaStar,
 } from "react-icons/fa";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { motion } from "framer-motion";
@@ -19,14 +18,7 @@ import ProfileQuizCard from "../Component/Card/ProfleQuizCard";
 import { useAuthStore } from "../Zustand/useAuthStore";
 import { useCourseStore } from "../Zustand/GetAllCourses";
 import ViewQuizPop from "../Component/ViewQuizPop";
-
-/**
- * UserProfile (Production-Level)
- * - Editable full name, phone, password, review, course
- * - Email read-only, role removed
- * - Profile image upload with preview and multipart/form-data POST
- * - Smooth edit/save UX and quiz performance view
- */
+import { ReviewSection } from "../Component/Review/ReivewSection";
 
 const UserProfile = () => {
   const navigate = useNavigate();
@@ -42,13 +34,10 @@ const UserProfile = () => {
   const [selectedQuiz, setSelectedQuiz] = useState(null);
   const [isQuizPopOpen, setIsQuizPopOpen] = useState(false);
 
-  // Image handling
+  // Image upload
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-
-  // Course and review
   const [selectedCourse, setSelectedCourse] = useState("");
-  const [review, setReview] = useState(0);
 
   /* ---------------------- Load user + courses ---------------------- */
   useEffect(() => {
@@ -57,24 +46,20 @@ const UserProfile = () => {
       if (!stored) return navigate("/login");
 
       fetchCourses?.();
-
       const parsed = JSON.parse(stored);
       const u = parsed?.user || {};
+
       setUser(u);
       setDraft(u);
       setImagePreview(u.profileImg || null);
       setSelectedCourse(u.course || "");
-      setReview(u.review || 0);
     } catch (err) {
       console.error("Auth load failed:", err);
       navigate("/login");
     }
   }, [navigate, fetchCourses]);
 
-  const attemptedQuizzes = useMemo(
-    () => user?.attemptedQuizzes || [],
-    [user?.attemptedQuizzes]
-  );
+  const attemptedQuizzes = useMemo(() => user?.attemptedQuizzes || [], [user]);
 
   /* ---------------------- Quiz Stats ---------------------- */
   const quizStats = useMemo(() => {
@@ -92,13 +77,10 @@ const UserProfile = () => {
     );
   }, [attemptedQuizzes]);
 
-  const chartData = useMemo(
-    () => [
-      { name: "Passed", value: quizStats.passed, color: "#16A34A" },
-      { name: "Failed", value: quizStats.failed, color: "#EF4444" },
-    ],
-    [quizStats]
-  );
+  const chartData = [
+    { name: "Passed", value: quizStats.passed, color: "#16A34A" },
+    { name: "Failed", value: quizStats.failed, color: "#EF4444" },
+  ];
 
   /* ---------------------- Image selection ---------------------- */
   const onImageInputChange = useCallback((e) => {
@@ -132,26 +114,13 @@ const UserProfile = () => {
 
     setLoading(true);
     try {
-      // Prepare FormData
       const formData = new FormData();
       formData.append("fullname", draft.fullname?.trim() || "");
       formData.append("email", user.email || "");
       formData.append("phone", draft.phone || "");
       formData.append("course", selectedCourse || "");
-      formData.append("review", review?.toString() || "0");
       if (passwords.password) formData.append("password", passwords.password);
       if (imageFile) formData.append("profileImage", imageFile);
-
-      // Log payload (safe, no password/image)
-      console.log("📤 Submitting profile update:", {
-        fullname: draft.fullname,
-        email: user.email,
-        phone: draft.phone,
-        course: selectedCourse,
-        review,
-        hasNewImage: !!imageFile,
-        willUpdatePassword: !!passwords.password,
-      });
 
       const res = await axios.post("/api/update", formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -162,11 +131,9 @@ const UserProfile = () => {
         fullname: draft.fullname?.trim(),
         phone: draft.phone,
         course: selectedCourse,
-        review,
         profileImg: imagePreview || user.profileImg,
       };
 
-      // Persist in localStorage
       const stored = JSON.parse(localStorage.getItem("auth")) || {};
       localStorage.setItem("auth", JSON.stringify({ ...stored, user: updatedUser }));
 
@@ -182,18 +149,8 @@ const UserProfile = () => {
     } finally {
       setLoading(false);
     }
-  }, [
-    draft,
-    user,
-    imageFile,
-    imagePreview,
-    passwords,
-    selectedCourse,
-    review,
-    validate,
-  ]);
+  }, [draft, user, imageFile, imagePreview, passwords, selectedCourse, validate]);
 
-  /* ---------------------- Logout ---------------------- */
   const handleLogout = useCallback(() => {
     logout();
     toast.success("Logged out successfully!");
@@ -222,7 +179,6 @@ const UserProfile = () => {
                       className="w-12 h-12"
                       viewBox="0 0 24 24"
                       fill="currentColor"
-                      aria-hidden
                     >
                       <path d="M12 12c2.761 0 5-2.239 5-5S14.761 2 12 2 7 4.239 7 7s2.239 5 5 5zm0 2c-3.866 0-7 3.134-7 7h2c0-2.761 2.239-5 5-5s5 2.239 5 5h2c0-3.866-3.134-7-7-7z" />
                     </svg>
@@ -284,7 +240,6 @@ const UserProfile = () => {
                       setImageFile(null);
                       setImagePreview(user.profileImg || null);
                       setSelectedCourse(user.course || "");
-                      setReview(user.review || 0);
                     }}
                     className="flex items-center gap-2 text-sm bg-white border px-4 py-2 rounded-xl hover:shadow-md"
                   >
@@ -302,14 +257,10 @@ const UserProfile = () => {
                 <input
                   name="fullname"
                   value={draft.fullname || ""}
-                  onChange={(e) =>
-                    setDraft((p) => ({ ...p, fullname: e.target.value }))
-                  }
+                  onChange={(e) => setDraft((p) => ({ ...p, fullname: e.target.value }))}
                   disabled={!editMode}
                   className={`border rounded-full px-4 py-2 text-gray-800 ${
-                    editMode
-                      ? "border-blue-500 bg-white"
-                      : "border-gray-200 bg-gray-50"
+                    editMode ? "border-blue-500 bg-white" : "border-gray-200 bg-gray-50"
                   }`}
                 />
               </div>
@@ -320,14 +271,10 @@ const UserProfile = () => {
                 <input
                   name="phone"
                   value={draft.phone || ""}
-                  onChange={(e) =>
-                    setDraft((p) => ({ ...p, phone: e.target.value }))
-                  }
+                  onChange={(e) => setDraft((p) => ({ ...p, phone: e.target.value }))}
                   disabled={!editMode}
                   className={`border rounded-full px-4 py-2 text-gray-800 ${
-                    editMode
-                      ? "border-blue-500 bg-white"
-                      : "border-gray-200 bg-gray-50"
+                    editMode ? "border-blue-500 bg-white" : "border-gray-200 bg-gray-50"
                   }`}
                 />
               </div>
@@ -342,7 +289,7 @@ const UserProfile = () => {
                 />
               </div>
 
-              {/* Course select */}
+              {/* Course Dropdown */}
               {editMode && (
                 <div className="flex flex-col">
                   <label className="text-gray-600 text-sm mb-1">Course</label>
@@ -365,32 +312,11 @@ const UserProfile = () => {
                 </div>
               )}
 
-              {/* Review */}
-              {editMode && (
-                <div className="flex flex-col">
-                  <label className="text-gray-600 text-sm mb-1">Review (1–5)</label>
-                  <div className="flex gap-2 mt-1">
-                    {[1, 2, 3, 4, 5].map((s) => (
-                      <FaStar
-                        key={s}
-                        size={18}
-                        className={`cursor-pointer ${
-                          s <= review ? "text-yellow-400" : "text-gray-300"
-                        }`}
-                        onClick={() => setReview(s)}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-
               {/* Passwords */}
               {editMode && (
                 <>
                   <div className="flex flex-col relative">
-                    <label className="text-gray-600 text-sm mb-1">
-                      New Password
-                    </label>
+                    <label className="text-gray-600 text-sm mb-1">New Password</label>
                     <input
                       type={showPassword ? "text" : "password"}
                       value={passwords.password}
@@ -432,84 +358,113 @@ const UserProfile = () => {
           </div>
         </div>
 
-        {/* QUIZ STATS */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mt-8 bg-white rounded-2xl shadow-md p-6"
-        >
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">
-            Quiz Performance
-          </h2>
-          <div className="flex flex-col md:flex-row items-center gap-10">
-            <ResponsiveContainer width="100%" height={250}>
-              <PieChart>
-                <Pie
-                  data={chartData}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={90}
-                  dataKey="value"
-                  label={({ name, value }) => `${name}: ${value}`}
-                >
-                  {chartData.map((entry, i) => (
-                    <Cell key={i} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
+     {/* QUIZ STATS + REVIEW SECTION */}
+<motion.div
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.5 }}
+  className="mt-8 bg-white rounded-2xl shadow-md p-6"
+>
+  <div className="flex flex-col gap-10 lg:gap-16">
+    {/* QUIZ PERFORMANCE SECTION */}
+    <div>
+      <h2 className="text-xl font-semibold text-gray-800 mb-6 text-center md:text-left">
+        Quiz Performance
+      </h2>
 
-            <div className="grid grid-cols-2 gap-4 w-full md:w-auto">
-              {[
-                { label: "Passed", value: quizStats.passed, color: "text-green-600" },
-                { label: "Failed", value: quizStats.failed, color: "text-red-600" },
-              ].map((stat, i) => (
-                <motion.div
-                  key={i}
-                  whileHover={{ scale: 1.05 }}
-                  className="border rounded-xl p-4 bg-gray-50 text-center shadow-sm hover:shadow-md transition-all"
-                >
-                  <p className="text-sm font-medium text-gray-500">
-                    {stat.label}
-                  </p>
-                  <p className={`text-xl font-bold ${stat.color}`}>
-                    {stat.value}
-                  </p>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </motion.div>
+      <div className="flex flex-col lg:flex-row items-center justify-center lg:justify-between gap-8">
+        {/* Pie Chart */}
+        <div className="w-full md:w-2/3 lg:w-1/2 h-[250px] md:h-[300px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={chartData}
+                cx="50%"
+                cy="50%"
+                outerRadius="80%"
+                dataKey="value"
+                label={({ name, value }) => `${name}: ${value}`}
+              >
+                {chartData.map((entry, i) => (
+                  <Cell key={i} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
 
-          {/* ATTEMPTED QUIZZES (untouched) */}
-          {attemptedQuizzes.length > 0 ? (
-            <div className="mt-10 mb-10">
-              <h2 className="text-lg font-semibold text-gray-800 mb-4">
-                Attempted Quizzes ({attemptedQuizzes.length})
-              </h2>
-              <div className="flex flex-wrap gap-6">
+        {/* Stats Boxes */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 gap-4 w-full lg:w-1/3">
+          {[
+            { label: "Passed", value: quizStats.passed, color: "text-green-600" },
+            { label: "Failed", value: quizStats.failed, color: "text-red-600" },
+          ].map((stat, i) => (
+            <motion.div
+              key={i}
+              whileHover={{ scale: 1.05 }}
+              className="border rounded-xl p-5 bg-gray-50 text-center shadow-sm hover:shadow-md transition-all"
+            >
+              <p className="text-sm font-medium text-gray-500">{stat.label}</p>
+              <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    {/* REVIEW SECTION */}
+    <div className="border-t border-gray-200 pt-6">
+      <ReviewSection />
+    </div>
+  </div>
+</motion.div>
+
+
+        {/* ATTEMPTED QUIZZES */}
+        {attemptedQuizzes.length > 0 ? (
+          <div className="mt-10 mb-10">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">
+              Attempted Quizzes ({attemptedQuizzes.length})
+            </h2>
+
+            <div className="relative">
+              <div
+                className="flex overflow-x-auto gap-5 pb-4 scrollbar-hide snap-x snap-mandatory scroll-smooth"
+                style={{ scrollBehavior: "smooth" }}
+              >
                 {attemptedQuizzes.map((quiz, i) => (
-                  <ProfileQuizCard
-                    key={i}
-                    quiz={quiz}
-                    onView={() => {
-                      setSelectedQuiz(quiz);
-                      setIsQuizPopOpen(true);
-                    }}
-                  />
+                  <div key={i} className="min-w-[260px] flex-shrink-0 snap-start">
+                    <ProfileQuizCard
+                      quiz={quiz}
+                      onView={() => {
+                        setSelectedQuiz(quiz);
+                        setIsQuizPopOpen(true);
+                      }}
+                    />
+                  </div>
                 ))}
               </div>
+
+              {/* Gradient edges */}
+              <div className="absolute top-0 left-0 w-12 h-full bg-gradient-to-r from-white to-transparent pointer-events-none" />
+              <div className="absolute top-0 right-0 w-12 h-full bg-gradient-to-l from-white to-transparent pointer-events-none" />
             </div>
-          ) : (
-            <p className="mt-8 text-center text-gray-500 text-sm">No test attempted yet!</p>
-          )}
+          </div>
+        ) : (
+          <p className="mt-8 text-center text-gray-500 text-sm">
+            No test attempted yet!
+          </p>
+        )}
 
-          <ViewQuizPop isOpen={isQuizPopOpen} onClose={() => setIsQuizPopOpen(false)} quiz={selectedQuiz} />
-        </div>
-      </>
-    );
-  };
+        <ViewQuizPop
+          isOpen={isQuizPopOpen}
+          onClose={() => setIsQuizPopOpen(false)}
+          quiz={selectedQuiz}
+        />
+      </div>
+    </>
+  );
+};
 
-  export default React.memo(UserProfile);
+export default React.memo(UserProfile);

@@ -13,12 +13,6 @@ export const useExamStore = create((set, get) => ({
 
   baseApi: "http://194.238.18.1:3004/api",
 
-  /**
-   * ✅ Fetch all exams with pagination support
-   * - Handles paginated API responses
-   * - Graceful loading/error states
-   * - Avoids redundant re-fetches
-   */
   fetchAllExams: async (page = 1, forceRefresh = false) => {
     const { exams, baseApi } = get();
 
@@ -28,7 +22,7 @@ export const useExamStore = create((set, get) => ({
     set({ loading: true, error: null });
 
     try {
-      const response = await axios.get(`${baseApi}/exams/details?page=${page}`);
+      const response = await axios.get(`${baseApi}/exams/details`);
 
       // Validate structure
       if (!response.data || !Array.isArray(response.data.data)) {
@@ -38,7 +32,7 @@ export const useExamStore = create((set, get) => ({
       const { data, currentPage, totalPages, totalCount } = response.data;
 
       set({
-        exams: data, // ✅ Now stores the "data" array
+        exams: data, // Now stores the "data" array
         currentPage: currentPage || 1,
         totalPages: totalPages || 1,
         totalCount: totalCount || data.length,
