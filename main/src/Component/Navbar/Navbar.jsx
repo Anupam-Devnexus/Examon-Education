@@ -308,7 +308,7 @@ const Navbar = () => {
                 <div className="border-t my-2" />
 
                 {token ? (
-                  <div className="flex flex-col gap-2">
+                  <div className="flex justify-around gap-2">
                     <button
                       onClick={() => handleNavigate("/cart")}
                       className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-100"

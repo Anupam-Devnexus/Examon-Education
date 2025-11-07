@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import axios from "axios";
 
-/** 🔒 Utility: Safe JSON parse for localStorage */
+/**  Utility: Safe JSON parse for localStorage */
 const safeParse = (str) => {
   try {
     return str ? JSON.parse(str) : null;
@@ -11,7 +11,10 @@ const safeParse = (str) => {
   }
 };
 
-/** 🧠 Zustand Auth Store */
+/**  Base API URL */
+const API_BASE = "http://194.238.18.1:3004/api";
+
+/**  Zustand Auth Store */
 export const useAuthStore = create((set) => ({
   user: null,
   token: null,
@@ -20,7 +23,7 @@ export const useAuthStore = create((set) => ({
   isAuthenticated: false,
   initialized: false,
 
-  /** 🚀 Initialize auth state from localStorage */
+  /**  Initialize auth state from localStorage */
   initialize: () => {
     const stored = safeParse(localStorage.getItem("userData"));
     if (stored?.token && stored?.user) {
@@ -33,27 +36,23 @@ export const useAuthStore = create((set) => ({
     set({ initialized: true });
   },
 
-  /** 🔑 Login handler */
+  /**  Signin Handler */
   signin: async (credentials) => {
     set({ loading: true, error: null });
 
     try {
-      const { data } = await axios.post(
-        "http://194.238.18.1:3004/api/signin",
-        credentials,
-        {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        }
-      );
+      const { data } = await axios.post(`${API_BASE}/signin`, credentials, {
+        headers: { "Content-Type": "application/json" },
+        withCredentials: true,
+      });
 
       const { token, user, message } = data;
       if (!token || !user) throw new Error("Invalid login response");
 
-      // Persist session
+      //  Save both token + user in localStorage
       localStorage.setItem("userData", JSON.stringify({ token, user }));
 
-      // Update state
+      //  Update Zustand state
       set({
         user,
         token,
@@ -62,8 +61,12 @@ export const useAuthStore = create((set) => ({
         error: null,
       });
 
-      // Broadcast to other tabs/components
       window.dispatchEvent(new Event("auth-changed"));
+
+      //  Hard reload to clear stale state & navigate home
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 300);
 
       return { success: true, message: message || "Login successful" };
     } catch (err) {
@@ -74,53 +77,59 @@ export const useAuthStore = create((set) => ({
     }
   },
 
-  /** 🧍 Signup handler (auto-login on success) */
+  /**  Signup Handler */
   signup: async (payload) => {
     set({ loading: true, error: null });
 
     try {
-      const { data } = await axios.post(
-        "http://194.238.18.1:3004/api/signup",
-        payload,
-        {
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-
-      const { token, user, message } = data;
-      if (!token || !user) throw new Error("Invalid signup response");
-
-      localStorage.setItem("userData", JSON.stringify({ token, user }));
-
-      set({
-        user,
-        token,
-        isAuthenticated: true,
-        loading: false,
-        error: null,
+      const { data } = await axios.post(`${API_BASE}/signup`, payload, {
+        headers: { "Content-Type": "application/json" },
       });
 
+
+
+      const { token, user, data: userData, message } = data;
+      const finalUser = user || userData;
+      console.log("Final User Data:", finalUser);
+
+      if (!token && !finalUser)
+        throw new Error("Invalid signup response: missing token or user");
+
+      // localStorage.setItem("userData", JSON.stringify({ token, user: finalUser }));
+      set({ user: finalUser, token, isAuthenticated: true });
       window.dispatchEvent(new Event("auth-changed"));
 
+
+      set({ loading: false, error: null });
+      //  Hard reload to clear stale state & navigate home
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 300);
+      console.log("Final User Data:", finalUser);
       return { success: true, message: message || "Signup successful" };
     } catch (err) {
+      console.error("Signup Error:", err.response?.data || err.message);
       const msg = err.response?.data?.message || err.message || "Signup failed";
-      console.error("Signup Error:", msg);
       set({ loading: false, error: msg });
       return { success: false, message: msg };
     }
   },
 
-  /**  Logout handler */
+  /** 🚪 Logout Handler */
   logout: () => {
-    localStorage.removeItem("userData");
+    localStorage.removeItem("auth");
+    //  Reload to reset app state & navigate home
+    setTimeout(() => {
+      window.location.href = "/";
+    }, 300);
     set({
       user: null,
       token: null,
       isAuthenticated: false,
       error: null,
     });
-window.refresh();
     window.dispatchEvent(new Event("auth-changed"));
+
+
   },
 }));

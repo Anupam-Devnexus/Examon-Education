@@ -10,24 +10,24 @@ const Register = () => {
   const { signup, loading } = useAuthStore();
 
   const [formData, setFormData] = useState({
-    fullName: "",
+    fullname: "",
     email: "",
     password: "",
   });
 
   const [errors, setErrors] = useState({});
 
-  /** 🧠 Input change handler */
+  /** Input change handler */
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value.trimStart() }));
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   }, [errors]);
 
-  /** ✅ Field validation */
+  /**  Field validation */
   const validate = useCallback(() => {
     const newErrors = {};
-    if (!formData.fullName.trim()) newErrors.fullName = "Full name is required";
+    if (!formData.fullname.trim()) newErrors.fullName = "Full name is required";
     if (!formData.email.trim()) newErrors.email = "Email is required";
     else if (!/\S+@\S+\.\S+/.test(formData.email))
       newErrors.email = "Enter a valid email address";
@@ -39,16 +39,17 @@ const Register = () => {
     return Object.keys(newErrors).length === 0;
   }, [formData]);
 
-  /** 🚀 Submit handler */
+  /** Submit handler */
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
 
     const payload = {
-      fullname: formData.fullName,
+      fullname: formData.fullname,
       email: formData.email,
       password: formData.password,
     };
+    console.log("Register Payload:", payload);
 
     const result = await signup(payload);
 
@@ -62,7 +63,7 @@ const Register = () => {
     }
   };
 
-  /** 🧼 Backdrop click to close */
+  /**  Backdrop click to close */
   const handleBackdropClick = (e) => {
     if (e.target.id === "register-backdrop") navigate(-1);
   };
@@ -75,8 +76,8 @@ const Register = () => {
     >
       <ToastContainer position="top-right" autoClose={3000} theme="colored" />
 
-      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-[90%] max-w-3xl overflow-hidden flex flex-col md:flex-row relative animate-fadeIn">
-        {/* ❌ Close Button */}
+      <div className="bg-white cursor-pointer dark:bg-gray-900 rounded-2xl shadow-2xl w-[90%] max-w-3xl overflow-hidden flex flex-col md:flex-row relative animate-fadeIn">
+        {/* Close Button */}
         <button
           onClick={() => navigate(-1)}
           aria-label="Close Register"
@@ -107,21 +108,20 @@ const Register = () => {
           <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
             {/* Full Name */}
             <div>
-              <label htmlFor="fullName" className="block text-sm font-medium mb-1">
+              <label htmlFor="fullname" className="block text-sm font-medium mb-1">
                 Full Name
               </label>
               <input
-                id="fullName"
-                name="fullName"
+                id="fullname"
+                name="fullname"
                 type="text"
-                value={formData.fullName}
+                value={formData.fullname}
                 onChange={handleChange}
                 placeholder="Enter your full name"
-                className={`w-full p-2 rounded-full border ${
-                  errors.fullName ? "border-red-500 focus:ring-red-400" : "border-gray-300 dark:border-gray-700 focus:ring-blue-400"
-                } focus:outline-none focus:ring-2 dark:bg-gray-800 dark:text-white`}
+                className={`w-full p-2 rounded-full border ${errors.fullname ? "border-red-500 focus:ring-red-400" : "border-gray-300 dark:border-gray-700 focus:ring-blue-400"
+                  } focus:outline-none focus:ring-2 dark:bg-gray-800 dark:text-white`}
               />
-              {errors.fullName && <p className="text-red-500 text-xs mt-1">{errors.fullName}</p>}
+              {errors.fullname && <p className="text-red-500 text-xs mt-1">{errors.fullname}</p>}
             </div>
 
             {/* Email */}
@@ -136,9 +136,8 @@ const Register = () => {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="Enter your email"
-                className={`w-full p-2 rounded-full border ${
-                  errors.email ? "border-red-500 focus:ring-red-400" : "border-gray-300 dark:border-gray-700 focus:ring-blue-400"
-                } focus:outline-none focus:ring-2 dark:bg-gray-800 dark:text-white`}
+                className={`w-full p-2 rounded-full border ${errors.email ? "border-red-500 focus:ring-red-400" : "border-gray-300 dark:border-gray-700 focus:ring-blue-400"
+                  } focus:outline-none focus:ring-2 dark:bg-gray-800 dark:text-white`}
               />
               {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
             </div>
@@ -155,9 +154,8 @@ const Register = () => {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="Create a password"
-                className={`w-full p-2 rounded-full border ${
-                  errors.password ? "border-red-500 focus:ring-red-400" : "border-gray-300 dark:border-gray-700 focus:ring-blue-400"
-                } focus:outline-none focus:ring-2 dark:bg-gray-800 dark:text-white`}
+                className={`w-full p-2 rounded-full border ${errors.password ? "border-red-500 focus:ring-red-400" : "border-gray-300 dark:border-gray-700 focus:ring-blue-400"
+                  } focus:outline-none focus:ring-2 dark:bg-gray-800 dark:text-white`}
               />
               {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
             </div>
@@ -166,9 +164,8 @@ const Register = () => {
             <button
               type="submit"
               disabled={loading}
-              className={`mt-3 w-full flex items-center justify-center gap-2 text-white py-2 rounded-full transition ${
-                loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
-              }`}
+              className={`mt-3 w-full flex items-center justify-center gap-2 text-white py-2 rounded-full transition ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
+                }`}
             >
               {loading ? "Registering..." : <>Register <FaArrowRight /></>}
             </button>

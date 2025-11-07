@@ -101,8 +101,8 @@ const StudyMaterial = () => {
               <button
                 onClick={() => setViewMode("notes")}
                 className={`px-4 cursor-pointer py-2 text-sm font-medium transition-all ${viewMode === "notes"
-                    ? "bg-[var(--primary-color)] text-white"
-                    : "text-gray-800 hover:bg-gray-100"
+                  ? "bg-[var(--primary-color)] text-white"
+                  : "text-gray-800 hover:bg-gray-100"
                   }`}
               >
                 Notes
@@ -110,8 +110,8 @@ const StudyMaterial = () => {
               <button
                 onClick={() => setViewMode("pyq")}
                 className={`px-4 cursor-pointer py-2 text-sm font-medium transition-all ${viewMode === "pyq"
-                    ? "bg-[var(--primary-color)] text-white"
-                    : "text-gray-800 hover:bg-gray-100"
+                  ? "bg-[var(--primary-color)] text-white"
+                  : "text-gray-800 hover:bg-gray-100"
                   }`}
               >
                 PYQ
@@ -268,8 +268,8 @@ const StudyMaterial = () => {
               onClick={() => setPage((p) => Math.max(p - 1, 1))}
               disabled={page === 1}
               className={`px-4 py-2 rounded-xl ${page === 1
-                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                  : "bg-white text-gray-700 border hover:bg-gray-50"
+                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                : "bg-white text-gray-700 border hover:bg-gray-50"
                 }`}
             >
               Prev
@@ -279,8 +279,8 @@ const StudyMaterial = () => {
                 key={i}
                 onClick={() => setPage(i + 1)}
                 className={`px-4 py-2 rounded-xl ${page === i + 1
-                    ? "bg-[var(--primary-color)] text-white"
-                    : "bg-white text-gray-700 border hover:bg-gray-50"
+                  ? "bg-[var(--primary-color)] text-white"
+                  : "bg-white text-gray-700 border hover:bg-gray-50"
                   }`}
               >
                 {i + 1}
@@ -290,8 +290,8 @@ const StudyMaterial = () => {
               onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
               disabled={page === totalPages}
               className={`px-4 py-2 rounded-xl ${page === totalPages
-                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                  : "bg-white text-gray-700 border hover:bg-gray-50"
+                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                : "bg-white text-gray-700 border hover:bg-gray-50"
                 }`}
             >
               Next

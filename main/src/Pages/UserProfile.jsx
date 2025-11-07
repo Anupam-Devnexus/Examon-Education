@@ -13,7 +13,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import ProfileQuizCard from "../Component/Card/ProfleQuizCard";
-
+import { useAuthStore } from '../Zustand/useAuthStore'
 /* ==========================================================================
    USER PROFILE COMPONENT
    ========================================================================== */
@@ -133,10 +133,14 @@ const UserProfile = () => {
    *  LOGOUT HANDLER
    * -------------------------------------------------------------------------- */
   const handleLogout = useCallback(() => {
-    localStorage.removeItem("auth");
+    const { logout } = useAuthStore.getState(); // Direct access to store function
+
+    // Trigger global logout
+    logout();
+
+    // Toast feedback
     toast.success("Logged out successfully!");
-    navigate("/login");
-  }, [navigate]);
+  }, []);
 
   /* --------------------------------------------------------------------------
    *  UI RENDER
@@ -212,11 +216,10 @@ const UserProfile = () => {
                     setDraft((prev) => ({ ...prev, fullname: e.target.value }))
                   }
                   disabled={!editMode}
-                  className={`border rounded-xl px-3 py-2 text-gray-800 ${
-                    editMode
-                      ? "border-blue-500 bg-white"
-                      : "border-gray-200 bg-gray-50"
-                  }`}
+                  className={`border rounded-xl px-3 py-2 text-gray-800 ${editMode
+                    ? "border-blue-500 bg-white"
+                    : "border-gray-200 bg-gray-50"
+                    }`}
                 />
               </div>
 
