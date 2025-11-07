@@ -4,6 +4,7 @@ import { SiLevelsdotfyi } from "react-icons/si";
 import { FaLanguage } from "react-icons/fa6";
 import { BsDownload } from "react-icons/bs";
 import { IoClose } from "react-icons/io5";
+import { toast } from "react-toastify";
 
 const StudyMaterialPageCard = ({ title, level, language, pdfUrl }) => {
     const [showModal, setShowModal] = useState(false);
@@ -11,9 +12,9 @@ const StudyMaterialPageCard = ({ title, level, language, pdfUrl }) => {
     const token = JSON.parse(localStorage.getItem("auth"))?.token;
 
     const handleDownload = () => {
-        if(!token){
-alert("Please login to download the PDF.");
-        }else{
+        if (!token) {
+            toast.info("Please login to download the PDF.");
+        } else {
 
             const link = document.createElement("a");
             link.href = pdfUrl;

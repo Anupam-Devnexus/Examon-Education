@@ -46,7 +46,7 @@ export const useExamStore = create((set, get) => ({
         error: null,
       });
     } catch (error) {
-      console.error("❌ Error fetching exams:", error);
+      console.error(" Error fetching exams:", error);
       set({
         error: error.response?.data?.message || error.message || "Failed to fetch exams",
         loading: false,
