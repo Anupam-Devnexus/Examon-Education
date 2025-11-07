@@ -150,7 +150,7 @@ const DynamicTest = () => {
   return (
     <main className="min-h-screen bg-gradient-to-b from-[#f9fbff] to-white mb-18 md:mb-1 px-4 md:px-8">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 items-start">
-        {/* 🎯 Main Quiz Section */}
+        {/*  Main Quiz Section */}
         <section className="lg:col-span-2 mb-18 bg-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 p-4 mt-4 md:p-6">
           <QuizPageComponent
             quizData={quizData}

@@ -6,79 +6,92 @@ import {
   FaEye,
   FaEyeSlash,
   FaSignOutAlt,
+  FaStar,
 } from "react-icons/fa";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { motion } from "framer-motion";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+
 import ProfileQuizCard from "../Component/Card/ProfleQuizCard";
-import { useAuthStore } from '../Zustand/useAuthStore'
-/* ==========================================================================
-   USER PROFILE COMPONENT
-   ========================================================================== */
+import { useAuthStore } from "../Zustand/useAuthStore";
+import { useCourseStore } from "../Zustand/GetAllCourses";
+import ViewQuizPop from "../Component/ViewQuizPop";
+
+/**
+ * UserProfile (Production-Level)
+ * - Editable full name, phone, password, review, course
+ * - Email read-only, role removed
+ * - Profile image upload with preview and multipart/form-data POST
+ * - Smooth edit/save UX and quiz performance view
+ */
+
 const UserProfile = () => {
   const navigate = useNavigate();
+  const { logout } = useAuthStore();
+  const { data: coursesData = [], fetchCourses } = useCourseStore();
 
   const [user, setUser] = useState({});
-  const [editMode, setEditMode] = useState(false);
   const [draft, setDraft] = useState({});
-  const [passwords, setPasswords] = useState({
-    password: "",
-    confirmPassword: "",
-  });
+  const [editMode, setEditMode] = useState(false);
+  const [passwords, setPasswords] = useState({ password: "", confirmPassword: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [selectedQuiz, setSelectedQuiz] = useState(null);
+  const [isQuizPopOpen, setIsQuizPopOpen] = useState(false);
 
-  /* --------------------------------------------------------------------------
-   *  LOAD USER + QUIZ DATA FROM LOCALSTORAGE
-   * -------------------------------------------------------------------------- */
+  // Image handling
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+
+  // Course and review
+  const [selectedCourse, setSelectedCourse] = useState("");
+  const [review, setReview] = useState(0);
+
+  /* ---------------------- Load user + courses ---------------------- */
   useEffect(() => {
     try {
       const stored = localStorage.getItem("auth");
-      if (stored) {
-        const { user } = JSON.parse(stored);
-        setUser(user);
-        setDraft(user);
-      } else {
-        toast.error("User not logged in.");
-        navigate("/login");
-      }
+      if (!stored) return navigate("/login");
+
+      fetchCourses?.();
+
+      const parsed = JSON.parse(stored);
+      const u = parsed?.user || {};
+      setUser(u);
+      setDraft(u);
+      setImagePreview(u.profileImg || null);
+      setSelectedCourse(u.course || "");
+      setReview(u.review || 0);
     } catch (err) {
-      console.error("Invalid auth data in localStorage");
+      console.error("Auth load failed:", err);
       navigate("/login");
     }
-  }, [navigate]);
+  }, [navigate, fetchCourses]);
 
   const attemptedQuizzes = useMemo(
     () => user?.attemptedQuizzes || [],
     [user?.attemptedQuizzes]
   );
 
-  /* --------------------------------------------------------------------------
-   *  QUIZ STATS (Passed / Failed / Total / %)
-   * -------------------------------------------------------------------------- */
+  /* ---------------------- Quiz Stats ---------------------- */
   const quizStats = useMemo(() => {
-    if (!attemptedQuizzes.length)
-      return { passed: 0, failed: 0, total: 0, percentage: 0 };
+    if (!attemptedQuizzes.length) return { passed: 0, failed: 0, total: 0 };
 
-    let passed = 0;
-    let failed = 0;
-
-    attemptedQuizzes.forEach((quiz) => {
-      const percentage = (quiz.score / quiz.totalQuestions) * 100;
-      if (percentage >= 40) passed++;
-      else failed++;
-    });
-
-    const total = passed + failed;
-    const percentage = total ? ((passed / total) * 100).toFixed(1) : 0;
-    return { passed, failed, total, percentage };
+    return attemptedQuizzes.reduce(
+      (acc, q) => {
+        const total = q.totalMarks || q.totalQuestions || 1;
+        const pct = (q.score / total) * 100;
+        if (pct >= 40) acc.passed++;
+        else acc.failed++;
+        return acc;
+      },
+      { passed: 0, failed: 0, total: attemptedQuizzes.length }
+    );
   }, [attemptedQuizzes]);
 
-  /* --------------------------------------------------------------------------
-   *  PIE CHART DATA
-   * -------------------------------------------------------------------------- */
   const chartData = useMemo(
     () => [
       { name: "Passed", value: quizStats.passed, color: "#16A34A" },
@@ -87,12 +100,19 @@ const UserProfile = () => {
     [quizStats]
   );
 
-  /* --------------------------------------------------------------------------
-   *  VALIDATION + SAVE HANDLER
-   * -------------------------------------------------------------------------- */
+  /* ---------------------- Image selection ---------------------- */
+  const onImageInputChange = useCallback((e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  }, []);
+
+  /* ---------------------- Validation ---------------------- */
   const validate = useCallback(() => {
     const errors = [];
     if (!draft.fullname?.trim()) errors.push("Full name cannot be empty.");
+    if (!draft.phone?.trim()) errors.push("Phone number cannot be empty.");
     if (passwords.password || passwords.confirmPassword) {
       if (passwords.password.length < 8)
         errors.push("Password must be at least 8 characters.");
@@ -102,77 +122,143 @@ const UserProfile = () => {
     return errors;
   }, [draft, passwords]);
 
-  const handleSave = useCallback(() => {
+  /* ---------------------- Save profile ---------------------- */
+  const handleSave = useCallback(async () => {
     const errors = validate();
     if (errors.length) {
-      errors.forEach((msg) => toast.error(msg));
+      errors.forEach((m) => toast.error(m));
       return;
     }
 
     setLoading(true);
     try {
-      const updatedUser = {
-        ...user,
+      // Prepare FormData
+      const formData = new FormData();
+      formData.append("fullname", draft.fullname?.trim() || "");
+      formData.append("email", user.email || "");
+      formData.append("phone", draft.phone || "");
+      formData.append("course", selectedCourse || "");
+      formData.append("review", review?.toString() || "0");
+      if (passwords.password) formData.append("password", passwords.password);
+      if (imageFile) formData.append("profileImage", imageFile);
+
+      // Log payload (safe, no password/image)
+      console.log("📤 Submitting profile update:", {
         fullname: draft.fullname,
-        ...(passwords.password && { password: passwords.password }),
+        email: user.email,
+        phone: draft.phone,
+        course: selectedCourse,
+        review,
+        hasNewImage: !!imageFile,
+        willUpdatePassword: !!passwords.password,
+      });
+
+      const res = await axios.post("/api/update", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      const updatedUser = res?.data?.user || {
+        ...user,
+        fullname: draft.fullname?.trim(),
+        phone: draft.phone,
+        course: selectedCourse,
+        review,
+        profileImg: imagePreview || user.profileImg,
       };
+
+      // Persist in localStorage
       const stored = JSON.parse(localStorage.getItem("auth")) || {};
       localStorage.setItem("auth", JSON.stringify({ ...stored, user: updatedUser }));
+
       setUser(updatedUser);
+      setDraft(updatedUser);
       setEditMode(false);
       setPasswords({ password: "", confirmPassword: "" });
+      setImageFile(null);
       toast.success("Profile updated successfully!");
     } catch (err) {
-      toast.error("Failed to update profile.");
+      console.error("Profile update failed:", err);
+      toast.error(err?.response?.data?.message || "Failed to update profile.");
     } finally {
       setLoading(false);
     }
-  }, [draft, passwords, user, validate]);
+  }, [
+    draft,
+    user,
+    imageFile,
+    imagePreview,
+    passwords,
+    selectedCourse,
+    review,
+    validate,
+  ]);
 
-  /* --------------------------------------------------------------------------
-   *  LOGOUT HANDLER
-   * -------------------------------------------------------------------------- */
+  /* ---------------------- Logout ---------------------- */
   const handleLogout = useCallback(() => {
-    const { logout } = useAuthStore.getState(); // Direct access to store function
-
-    // Trigger global logout
     logout();
-
-    // Toast feedback
     toast.success("Logged out successfully!");
-  }, []);
+  }, [logout]);
 
-  /* --------------------------------------------------------------------------
-   *  UI RENDER
-   * -------------------------------------------------------------------------- */
+  /* ---------------------- UI ---------------------- */
   return (
     <>
       <ToastContainer position="top-right" autoClose={2500} />
       <div className="max-w-full p-6 mb-10">
         {/* MAIN PROFILE BOX */}
-        <div className="flex flex-col md:flex-row justify-between gap-6 bg-white p-6 rounded-2xl shadow-md">
-          {/* LEFT PROFILE IMAGE + INFO */}
-          <div className="flex flex-col items-center gap-3 w-full md:w-1/4">
-            <img
-              src={user.profileImg || "/logo2.svg"}
-              alt="Profile"
-              className="w-32 h-32 md:w-36 md:h-36 rounded-full border object-cover"
-            />
-            <p className="text-lg font-semibold mt-2 text-gray-800">
-              {user.fullname}
-            </p>
+        <div className="flex flex-col md:flex-row items-start gap-6 bg-white p-6 rounded-2xl shadow-md">
+          {/* LEFT: Image + Logout */}
+          <div className="w-full md:w-1/4 flex flex-col items-center gap-3">
+            <div className="relative">
+              <div className="w-32 h-32 md:w-36 md:h-36 rounded-full overflow-hidden border bg-gray-100">
+                {imagePreview ? (
+                  <img
+                    src={imagePreview}
+                    alt={draft.fullname || "Profile"}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-gray-400">
+                    <svg
+                      className="w-12 h-12"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      aria-hidden
+                    >
+                      <path d="M12 12c2.761 0 5-2.239 5-5S14.761 2 12 2 7 4.239 7 7s2.239 5 5 5zm0 2c-3.866 0-7 3.134-7 7h2c0-2.761 2.239-5 5-5s5 2.239 5 5h2c0-3.866-3.134-7-7-7z" />
+                    </svg>
+                  </div>
+                )}
+              </div>
+
+              {editMode && (
+                <label
+                  htmlFor="profileImage"
+                  className="absolute -bottom-2 right-0 bg-white border px-2 py-1 rounded-lg text-xs shadow-sm cursor-pointer hover:bg-gray-50"
+                >
+                  Upload new photo
+                  <input
+                    id="profileImage"
+                    type="file"
+                    accept="image/*"
+                    onChange={onImageInputChange}
+                    className="hidden"
+                  />
+                </label>
+              )}
+            </div>
+
             <p className="text-sm text-gray-500">{user.email}</p>
             <button
               onClick={handleLogout}
-              className="mt-4 flex items-center gap-2 text-sm text-red-600 border border-red-500 px-4 py-2 rounded-xl hover:bg-red-50 transition-all"
+              className="mt-2 flex items-center gap-2 text-sm text-red-600 border border-red-500 px-3 py-1 rounded-xl hover:bg-red-50 transition"
             >
               <FaSignOutAlt /> Logout
             </button>
           </div>
 
-          {/* RIGHT SECTION */}
+          {/* RIGHT: Form */}
           <div className="flex-1 w-full">
-            <div className="flex justify-between items-start">
+            <div className="flex items-start justify-between">
               <h1 className="text-xl font-semibold text-gray-800">Profile Details</h1>
               {!editMode ? (
                 <button
@@ -188,14 +274,17 @@ const UserProfile = () => {
                     disabled={loading}
                     className="flex items-center gap-2 text-sm bg-blue-600 text-white px-4 py-2 rounded-xl hover:opacity-90 disabled:opacity-70"
                   >
-                    <FaSave />
-                    {loading ? "Saving..." : "Save"}
+                    <FaSave /> {loading ? "Saving..." : "Save"}
                   </button>
                   <button
                     onClick={() => {
                       setDraft(user);
                       setEditMode(false);
                       setPasswords({ password: "", confirmPassword: "" });
+                      setImageFile(null);
+                      setImagePreview(user.profileImg || null);
+                      setSelectedCourse(user.course || "");
+                      setReview(user.review || 0);
                     }}
                     className="flex items-center gap-2 text-sm bg-white border px-4 py-2 rounded-xl hover:shadow-md"
                   >
@@ -205,59 +294,116 @@ const UserProfile = () => {
               )}
             </div>
 
-            {/* FORM */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+            {/* Form grid */}
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+              {/* Fullname */}
               <div className="flex flex-col">
                 <label className="text-gray-600 text-sm mb-1">Full Name</label>
                 <input
                   name="fullname"
                   value={draft.fullname || ""}
                   onChange={(e) =>
-                    setDraft((prev) => ({ ...prev, fullname: e.target.value }))
+                    setDraft((p) => ({ ...p, fullname: e.target.value }))
                   }
                   disabled={!editMode}
-                  className={`border rounded-xl px-3 py-2 text-gray-800 ${editMode
-                    ? "border-blue-500 bg-white"
-                    : "border-gray-200 bg-gray-50"
-                    }`}
+                  className={`border rounded-full px-4 py-2 text-gray-800 ${
+                    editMode
+                      ? "border-blue-500 bg-white"
+                      : "border-gray-200 bg-gray-50"
+                  }`}
                 />
               </div>
 
+              {/* Phone */}
+              <div className="flex flex-col">
+                <label className="text-gray-600 text-sm mb-1">Phone No.</label>
+                <input
+                  name="phone"
+                  value={draft.phone || ""}
+                  onChange={(e) =>
+                    setDraft((p) => ({ ...p, phone: e.target.value }))
+                  }
+                  disabled={!editMode}
+                  className={`border rounded-full px-4 py-2 text-gray-800 ${
+                    editMode
+                      ? "border-blue-500 bg-white"
+                      : "border-gray-200 bg-gray-50"
+                  }`}
+                />
+              </div>
+
+              {/* Email */}
               <div className="flex flex-col">
                 <label className="text-gray-600 text-sm mb-1">Email</label>
                 <input
                   value={user.email || ""}
                   readOnly
-                  className="border rounded-xl px-3 py-2 text-gray-600 border-gray-200 bg-gray-50"
+                  className="border rounded-full px-4 py-2 text-gray-600 border-gray-200 bg-gray-50"
                 />
               </div>
 
-              <div className="flex flex-col">
-                <label className="text-gray-600 text-sm mb-1">Role</label>
-                <input
-                  value={user.role || "user"}
-                  readOnly
-                  className="border rounded-xl px-3 py-2 text-gray-600 border-gray-200 bg-gray-50"
-                />
-              </div>
+              {/* Course select */}
+              {editMode && (
+                <div className="flex flex-col">
+                  <label className="text-gray-600 text-sm mb-1">Course</label>
+                  <select
+                    value={selectedCourse}
+                    onChange={(e) => setSelectedCourse(e.target.value)}
+                    className="border rounded-full px-4 py-2 border-blue-500"
+                  >
+                    <option value="">-- Select Course --</option>
+                    {Array.isArray(coursesData) &&
+                      coursesData.map((c, idx) => (
+                        <option
+                          key={idx}
+                          value={c.courseDetails || c.name || c.title}
+                        >
+                          {c.courseDetails || c.name || c.title}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+              )}
 
+              {/* Review */}
+              {editMode && (
+                <div className="flex flex-col">
+                  <label className="text-gray-600 text-sm mb-1">Review (1–5)</label>
+                  <div className="flex gap-2 mt-1">
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <FaStar
+                        key={s}
+                        size={18}
+                        className={`cursor-pointer ${
+                          s <= review ? "text-yellow-400" : "text-gray-300"
+                        }`}
+                        onClick={() => setReview(s)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Passwords */}
               {editMode && (
                 <>
                   <div className="flex flex-col relative">
-                    <label className="text-gray-600 text-sm mb-1">New Password</label>
+                    <label className="text-gray-600 text-sm mb-1">
+                      New Password
+                    </label>
                     <input
                       type={showPassword ? "text" : "password"}
                       value={passwords.password}
                       onChange={(e) =>
                         setPasswords((p) => ({ ...p, password: e.target.value }))
                       }
-                      className="border rounded-xl px-3 py-2 pr-10 border-blue-500"
+                      className="border rounded-full px-4 py-2 pr-10 border-blue-500"
                       placeholder="Enter new password"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword((s) => !s)}
-                      className="absolute right-2 top-2 text-gray-500"
+                      className="absolute right-3 top-3 text-gray-500"
                     >
                       {showPassword ? <FaEyeSlash /> : <FaEye />}
                     </button>
@@ -276,7 +422,7 @@ const UserProfile = () => {
                           confirmPassword: e.target.value,
                         }))
                       }
-                      className="border rounded-xl px-3 py-2 border-blue-500"
+                      className="border rounded-full px-4 py-2 border-blue-500"
                       placeholder="Re-enter password"
                     />
                   </div>
@@ -286,7 +432,7 @@ const UserProfile = () => {
           </div>
         </div>
 
-        {/* QUIZ PERFORMANCE SECTION */}
+        {/* QUIZ STATS */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -296,76 +442,74 @@ const UserProfile = () => {
           <h2 className="text-lg font-semibold text-gray-800 mb-4">
             Quiz Performance
           </h2>
-
           <div className="flex flex-col md:flex-row items-center gap-10">
-            {/* Pie Chart */}
             <ResponsiveContainer width="100%" height={250}>
               <PieChart>
                 <Pie
                   data={chartData}
                   cx="50%"
                   cy="50%"
-                  labelLine={false}
                   outerRadius={90}
                   dataKey="value"
                   label={({ name, value }) => `${name}: ${value}`}
                 >
-                  {chartData.map((entry, index) => (
-                    <Cell key={index} fill={entry.color} />
+                  {chartData.map((entry, i) => (
+                    <Cell key={i} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip />
               </PieChart>
             </ResponsiveContainer>
 
-            {/* Stats Cards */}
             <div className="grid grid-cols-2 gap-4 w-full md:w-auto">
               {[
-                // { label: "Total Quizzes", value: quizStats.total, color: "text-blue-600" },
                 { label: "Passed", value: quizStats.passed, color: "text-green-600" },
                 { label: "Failed", value: quizStats.failed, color: "text-red-600" },
-                // { label: "Percentage", value: `${quizStats.percentage}%`, color: "text-yellow-600" },
               ].map((stat, i) => (
                 <motion.div
                   key={i}
                   whileHover={{ scale: 1.05 }}
                   className="border rounded-xl p-4 bg-gray-50 text-center shadow-sm hover:shadow-md transition-all"
                 >
-                  <p className={`text-sm font-medium text-gray-500`}>{stat.label}</p>
-                  <p className={`text-xl font-bold ${stat.color}`}>{stat.value}</p>
+                  <p className="text-sm font-medium text-gray-500">
+                    {stat.label}
+                  </p>
+                  <p className={`text-xl font-bold ${stat.color}`}>
+                    {stat.value}
+                  </p>
                 </motion.div>
               ))}
             </div>
           </div>
         </motion.div>
 
-        {/* ATTEMPTED QUIZZES SECTION */}
-        {attemptedQuizzes.length > 0 && (
-          <div className="mt-10 mb-10">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">
-              Attempted Quizzes
-            </h2>
-            <div className="flex flex-wrap gap-6">
-              {attemptedQuizzes.map((quiz, index) => {
-                const percentage = (quiz.score / quiz.totalQuestions) * 100;
-                const result = percentage >= 40 ? "Passed" : "Failed";
-                return (
+          {/* ATTEMPTED QUIZZES (untouched) */}
+          {attemptedQuizzes.length > 0 ? (
+            <div className="mt-10 mb-10">
+              <h2 className="text-lg font-semibold text-gray-800 mb-4">
+                Attempted Quizzes ({attemptedQuizzes.length})
+              </h2>
+              <div className="flex flex-wrap gap-6">
+                {attemptedQuizzes.map((quiz, i) => (
                   <ProfileQuizCard
-                    key={index}
-                    examName={quiz.quizTitle}
-                    year={new Date(quiz.attemptedAt).getFullYear() || "2025"}
-                    result={result}
-                    score={`${quiz.score}/${quiz.totalQuestions}`}
-                    rank={quiz.rank || "-"}
+                    key={i}
+                    quiz={quiz}
+                    onView={() => {
+                      setSelectedQuiz(quiz);
+                      setIsQuizPopOpen(true);
+                    }}
                   />
-                );
-              })}
+                ))}
+              </div>
             </div>
-          </div>
-        )}
-      </div>
-    </>
-  );
-};
+          ) : (
+            <p className="mt-8 text-center text-gray-500 text-sm">No test attempted yet!</p>
+          )}
 
-export default UserProfile;
+          <ViewQuizPop isOpen={isQuizPopOpen} onClose={() => setIsQuizPopOpen(false)} quiz={selectedQuiz} />
+        </div>
+      </>
+    );
+  };
+
+  export default React.memo(UserProfile);

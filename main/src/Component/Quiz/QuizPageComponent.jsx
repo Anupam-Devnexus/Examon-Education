@@ -45,7 +45,7 @@ const DynamicTest = ({ quizData }) => {
   const handleSubmit = useCallback(async () => {
     const hasAnyAnswer = answers.some((a) => a.selectedIndex !== null);
     if (!hasAnyAnswer)
-      return toast.warn("⚠️ Please answer or skip at least one question!");
+      return toast.warn(" Please answer or skip at least one question!");
 
     const storedAuth = localStorage.getItem("auth");
     if (!storedAuth) return toast.warn("⚠️ Please login before submitting!");
@@ -66,6 +66,7 @@ const DynamicTest = ({ quizData }) => {
           timeout: 10000,
         }
       );
+      console.log("✅ Quiz submitted successfully", answers);
       toast.success("✅ Quiz submitted successfully!");
       setHasSubmitted(true);
     } catch (err) {
@@ -124,11 +125,10 @@ const DynamicTest = ({ quizData }) => {
                     onClick={() =>
                       handleOptionSelect(currentQuestionIndex, optionIndex)
                     }
-                    className={`cursor-pointer flex items-center gap-3 border p-3 rounded-xl transition-all ${
-                      isSelected
+                    className={`cursor-pointer flex items-center gap-3 border p-3 rounded-xl transition-all ${isSelected
                         ? "bg-[var(--primary-color)] text-white border-[var(--primary-color)]"
                         : "bg-gray-50 hover:bg-gray-100 border-gray-200"
-                    }`}
+                      }`}
                   >
                     <input
                       type="radio"
@@ -172,11 +172,10 @@ const DynamicTest = ({ quizData }) => {
       {hasSubmitted && (
         <div className="mt-10 space-y-8">
           <div
-            className={`text-center border rounded-xl p-6 shadow-sm ${
-              isFail
+            className={`text-center border rounded-xl p-6 shadow-sm ${isFail
                 ? "bg-red-50 border-red-300 text-red-700"
                 : "bg-green-50 border-green-300 text-green-700"
-            }`}
+              }`}
           >
             <h3 className="text-2xl font-bold mb-2">
               {isFail ? "❌ You Failed" : "🎉 You Passed!"}
