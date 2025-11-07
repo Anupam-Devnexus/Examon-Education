@@ -33,6 +33,7 @@ const Navbar = () => {
   useEffect(() => {
     if (exams.length === 0) fetchAllExams();
   }, [fetchAllExams, exams.length]);
+  console.log(exams)
 
   /** ------------------ Token & Decryption ------------------ **/
   const getDecryptedUser = useCallback(() => {
@@ -196,7 +197,7 @@ const Navbar = () => {
                           onClick={() => handleExamClick(exam._id)}
                           className="px-3 py-2 hover:bg-gray-100 cursor-pointer transition text-gray-700"
                         >
-                          {exam.name}
+                          {exam.title}
                         </div>
                       ))}
                   </motion.div>
