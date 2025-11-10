@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { useExamStore } from "../Zustand/GetAllExams";
 import ContactSection from "../Component/ContactSection";
 import DOMPurify from "dompurify";
+import FAQ from "../Component/Faq/FAQ";
 
 /**
  * DynamicExam Page
@@ -57,7 +58,7 @@ const DynamicExam = () => {
     <div
 
 
-      className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-12">
+      className="min-h-screen  bg-gray-50 py-8 px-4 sm:px-6 lg:px-12">
 
       {/* =============== HEADER SECTION =============== */}
       <section className="bg-white rounded-2xl shadow-md border border-gray-200 p-6 mb-8 text-center">
@@ -165,6 +166,8 @@ const DynamicExam = () => {
           </div>
         </section>
       )}
+
+      <FAQ/>
 
       {/* =============== CONTACT SECTION =============== */}
       <section className="pt-10 border-t border-gray-200">
