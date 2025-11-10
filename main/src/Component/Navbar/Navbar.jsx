@@ -148,13 +148,13 @@ const Navbar = () => {
           {/* Logo + Exam Dropdown */}
           <div className="flex items-center gap-5">
             <img
-              src="/logo2.svg"
+              src="/examon_logo.svg"
               alt="Logo"
               className="h-12 w-auto cursor-pointer select-none"
               onClick={() => handleNavigate("/")}
             />
 
-            <div className="h-8 w-px bg-gray-300" />
+            <div className="h-12 w-px bg-gray-300" />
 
             <div className="relative">
               <button

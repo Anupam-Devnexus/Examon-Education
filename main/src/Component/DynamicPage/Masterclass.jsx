@@ -1,9 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { GrFormNextLink } from "react-icons/gr";
 import { FaArrowDown } from "react-icons/fa";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 
-const Masterclass = () => {
+/**
+ * Masterclass Component
+ * -------------------------------------------------------
+ * Responsive, animated info cards section for displaying
+ * the key highlights of a course masterclass.
+ *
+ * - Fully responsive (stacked on mobile, fluid flex on desktop)
+ * - Smooth transitions using Framer Motion layout animations
+ * - Accessible button-based interactions
+ * - Optimized for re-renders and event handling
+ */
+
+const Masterclass = ({ item }) => {
   const [activeIndex, setActiveIndex] = useState(null);
 
   const Data = [
@@ -34,87 +46,109 @@ const Masterclass = () => {
     },
   ];
 
-  const Card = ({ id, title, desc }) => {
-    const isActive = activeIndex === id;
+  /**
+   * Toggle handler — responsive for both hover and click.
+   */
+  const handleToggle = useCallback((id) => {
+    if (window.innerWidth < 768) {
+      setActiveIndex((prev) => (prev === id ? null : id));
+    }
+  }, []);
 
-    return (
-      <motion.div
-        layout
-        transition={{ type: "spring", stiffness: 250, damping: 25 }}
-        className={`flex flex-col justify-between h-56 rounded-2xl p-5 border shadow-md cursor-pointer
-          ${
-            isActive
-              ? "bg-[var(--primary-color)] text-white border-transparent z-20"
-              : "bg-[#E9F6FF] text-[#333] border-gray-200 sm:hover:bg-[var(--primary-color)] sm:hover:text-white"
-          }`}
-        style={{
-          flex: isActive ? 1.5 : 1,
-          minWidth: "180px",
-          maxWidth: "100%",
-          transition: "flex 0.4s ease",
-        }}
-        onClick={() => {
-          if (window.innerWidth < 640) setActiveIndex(isActive ? null : id);
-        }}
-        onMouseEnter={() => {
-          if (window.innerWidth >= 640) setActiveIndex(id);
-        }}
-        onMouseLeave={() => {
-          if (window.innerWidth >= 640) setActiveIndex(null);
-        }}
-      >
-        {/* Title + Arrow */}
-        <div className="flex items-center justify-between">
-          <span className="text-lg font-semibold">{title}</span>
-          <motion.span
-            animate={{ rotate: isActive ? 0 : 0 }}
-            transition={{ duration: 0.3 }}
-            className="bg-white text-[var(--primary-color)] p-2 rounded-full"
-          >
-            {isActive ? <FaArrowDown /> : <GrFormNextLink />}
-          </motion.span>
-        </div>
+  const handleHover = useCallback((id) => {
+    if (window.innerWidth >= 768) {
+      setActiveIndex(id);
+    }
+  }, []);
 
-        {/* Description (AnimatedPresence for smooth mount/unmount) */}
-        <AnimatePresence>
-          {isActive && (
-            <motion.p
-              key={id}
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.4, ease: "easeInOut" }}
-              className="text-sm font-light leading-relaxed mt-3"
-            >
-              {desc}
-            </motion.p>
-          )}
-        </AnimatePresence>
-      </motion.div>
-    );
-  };
+  const handleLeave = useCallback(() => {
+    if (window.innerWidth >= 768) {
+      setActiveIndex(null);
+    }
+  }, []);
 
   return (
-    <section className="flex flex-col items-center justify-center py-10 px-4 sm:px-6 md:px-12 bg-white w-full overflow-hidden">
-      {/* Header */}
-      <div className="w-full max-w-full mb-8 text-center md:text-left">
-        <p className="text-sm md:text-base text-[var(--text-color)]">
+    <section className="flex flex-col items-center justify-center py-12 px-4 sm:px-6 md:px-12 bg-white w-full overflow-hidden">
+      {/* ================= Header ================= */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        viewport={{ once: true }}
+        className="w-full max-w-full mb-10 text-center md:text-left"
+      >
+        <p className="text-sm md:text-base text-gray-600">
           What You’ll Learn in this
         </p>
-        <h2 className="text-2xl md:text-3xl font-bold text-[var(--primary-color)]">
-          SSC JE Masterclass
+        <h2 className="text-2xl md:text-4xl font-bold text-[var(--primary-color)] leading-snug">
+          {item?.examCategory || "SSC JE"} Masterclass
         </h2>
-      </div>
-
-      {/* Flex container with motion layout for fluid reflow */}
-      <motion.div
-        layout
-        className="flex flex-col sm:flex-row w-full gap-2 max-w-full transition-all duration-500"
-      >
-        {Data.map((item) => (
-          <Card key={item.id} {...item} />
-        ))}
       </motion.div>
+
+      {/* ================= Animated Cards ================= */}
+      <LayoutGroup>
+        <motion.div
+          layout
+          className="flex flex-col sm:flex-row flex-wrap w-full max-w-full gap-1 justify-center transition-all duration-300"
+        >
+          {Data.map(({ id, title, desc }) => {
+            const isActive = activeIndex === id;
+
+            return (
+              <motion.button
+                key={id}
+                layout
+                // whileHover={{ scale: 1.03 }}
+                // whileTap={{ scale: 0.98 }}
+                transition={{ type: "spring", stiffness: 250, damping: 20 }}
+                onClick={() => handleToggle(id)}
+                onMouseEnter={() => handleHover(id)}
+                onMouseLeave={handleLeave}
+                className={`relative group text-left h-52 flex flex-col justify-between p-5 rounded-2xl shadow-md border transition-all duration-300 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+                  isActive
+                    ? "bg-[var(--primary-color)] text-white border-transparent"
+                    : "bg-[#E9F6FF] text-[#333] border-gray-200 hover:bg-[var(--primary-color)] hover:text-white"
+                }`}
+                style={{
+                  flex: isActive ? 1.3 : 1,
+                  minWidth: "240px",
+                  maxWidth: "100%",
+                }}
+              >
+                {/* Title + Arrow */}
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-lg md:text-xl font-semibold leading-snug">
+                    {title}
+                  </span>
+                  <motion.span
+                    animate={{ rotate: isActive ? 0 : 0 }}
+                    transition={{ duration: 3 }}
+                    className="bg-white text-[var(--primary-color)] p-2 rounded-full shadow-sm"
+                  >
+                    {isActive ? <FaArrowDown /> : <GrFormNextLink />}
+                  </motion.span>
+                </div>
+
+                {/* Description with animation */}
+                <AnimatePresence>
+                  {isActive && (
+                    <motion.p
+                      key={id}
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.4, ease: "easeInOut" }}
+                      className="text-sm font-light leading-relaxed mt-2 pr-2"
+                    >
+                      {desc}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+              </motion.button>
+            );
+          })}
+        </motion.div>
+      </LayoutGroup>
     </section>
   );
 };

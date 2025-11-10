@@ -13,6 +13,7 @@ const Cart = () => {
     () => cart.reduce((sum, item) => sum + (item.actualprice || 0), 0),
     [cart]
   );
+  console.log("Cart Total Amount:", cart);
 
   // Handle checkout logic
   const handleCheckout = () => {
@@ -20,7 +21,7 @@ const Cart = () => {
     if (!token) {
       navigate("/login");
     } else {
-      window.open("https://classplusapp.com/","_blank");
+      window.open("https://classplusapp.com/", "_blank");
     }
   };
 
@@ -61,7 +62,7 @@ const Cart = () => {
               className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 border-b pb-6 last:border-none"
             >
               <img
-                src={item.img}
+                src={item?.img ? item.img : item.image}
                 alt={item.courseDetails}
                 className="w-32 h-24 sm:w-40 sm:h-28 object-cover rounded-xl"
                 loading="lazy"
@@ -69,7 +70,7 @@ const Cart = () => {
 
               <div className="flex-1 text-center sm:text-left">
                 <h3 className="font-semibold text-gray-800 text-lg">
-                  {item.courseDetails}
+                  {item.courseDetails ? item.courseDetails : item.title}
                 </h3>
                 {item.discount && (
                   <p className="text-green-600 text-sm font-medium mt-1">

@@ -1,27 +1,63 @@
-import React from "react";
+import React, { useMemo, useState, useCallback } from "react";
+import { motion } from "framer-motion";
 import { FaArrowRightLong } from "react-icons/fa6";
 import { CiHeart } from "react-icons/ci";
+import { FaHeart } from "react-icons/fa";
+import { toast } from "react-toastify";
 import { useCourseStore } from "../../Zustand/GetAllCourses";
+import { useNavigate } from "react-router-dom";
 
 const DHero = ({
   title,
+  actualprice ,
   image,
   bgLeft = "/Ellipse2.svg",
   bgRight = "/Ellipse1.svg",
   onEnroll,
   badges = ["/ssc.svg"],
   date = "OCT 30th, 2025",
-  time = "5:00 PM",
+  insideCourses = []
 }) => {
   const { cart, addToCart, removeFromCart } = useCourseStore();
-  const token = JSON.parse(localStorage.getItem("auth"))?.token;
+  const navigate = useNavigate();
+  const [liked, setLiked] = useState(false);
 
+  const token = useMemo(() => {
+    const auth = JSON.parse(localStorage.getItem("auth"));
+    return auth?.token;
+  }, []);
 
+  /** Handle Like / Favorite Button */
+  const handleLike = useCallback(() => {
+    if (!token) {
+      toast.info("Please login to save this course ❤️");
+      setTimeout(() => navigate("/login"), 700);
+      return;
+    }
 
+    if (liked) {
+      setLiked(false);
+      removeFromCart(title);
+      toast.warning("Removed from favorites");
+    } else {
+      setLiked(true);
+      addToCart({ title, image });
+      toast.success("Added to favorites!");
+    }
+  }, [liked, token, title, image, navigate, addToCart, removeFromCart]);
+
+  // Motion Variants
+  const fadeIn = {
+    hidden: { opacity: 0, y: 40 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } },
+  };
 
   return (
-    <section
-      className="relative flex flex-col-reverse md:flex-row items-center justify-between px-6 md:px-16 py-10 bg-blue-50 md:h-[75vh] overflow-hidden"
+    <motion.section
+      variants={fadeIn}
+      initial="hidden"
+      animate="show"
+      className="relative flex flex-col-reverse md:flex-row items-center justify-between px-6 md:px-16 py-12 bg-blue-50 md:h-[80vh] overflow-hidden"
       style={{
         background: "url('/dynamicbg.svg') no-repeat center/cover",
       }}
@@ -38,30 +74,48 @@ const DHero = ({
       />
 
       {/* ===== Left Content ===== */}
-      <div className="z-10 flex flex-col gap-6 max-w-3xl">
-        {/* Badges */}
+      <motion.div
+        variants={fadeIn}
+        className="z-10 flex flex-col gap-6 max-w-3xl"
+      >
+        {/* 🎖 Badges */}
         {badges.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {badges.map((badge, i) => (
-              <img key={i} src={badge} alt={`badge-${i}`} className="h-10" />
+              <motion.img
+                key={i}
+                src={badge}
+                alt={`badge-${i}`}
+                className="h-10 drop-shadow-md"
+                whileHover={{ scale: 1.05 }}
+                transition={{ duration: 0.2 }}
+              />
             ))}
           </div>
         )}
 
-        {/* Title */}
-        <h1 className="text-3xl md:text-5xl font-bold text-[var(--primary-color)] leading-snug drop-shadow-sm">
+        {/* 🧾 Title */}
+        <motion.h1
+          className="text-3xl md:text-5xl font-bold text-[var(--primary-color)] leading-snug drop-shadow-sm"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
           {title}
-        </h1>
+        </motion.h1>
 
-        {/* Date & Time Info */}
-        <div className="flex flex-col w-1/2 gap-3">
+        {/*  Date & Time */}
+        <motion.div
+          variants={fadeIn}
+          className="flex flex-col w-full sm:w-1/2 gap-3"
+        >
           {[
             { label: "DATE", value: date },
-            { label: "TIME", value: time },
+            { label: "PRICE", value: actualprice },
           ].map(({ label, value }) => (
             <div
               key={label}
-              className="flex items-center gap-3 bg-[#0071BD] shadow-lg p-2 rounded-md"
+              className="flex items-center gap-3 bg-[#0071BD] shadow-md p-2 rounded-md"
               style={{
                 clipPath: "polygon(0 0, 90% 0, 100% 100%, 0% 100%)",
               }}
@@ -69,43 +123,82 @@ const DHero = ({
               <span className="bg-white px-4 py-2 text-[var(--primary-color)] font-semibold">
                 {label}
               </span>
-              <span className="text-white font-medium">{value}</span>
+              <span className="text-white font-medium">  {value }</span>
             </div>
           ))}
+        </motion.div>
+        <div className="flex items-center gap-3">
+          {insideCourses?.map((course, index) => (
+            <span
+          key={index}
+          className="px-3 py-1 bg-white text-[var(--primary-color)] font-semibold rounded-full text-sm shadow-md"
+        >
+          {course}
+        </span>
+          ))
+          }
         </div>
 
-        {/* Buttons */}
-        <div className="flex items-center gap-4 mt-2">
-          <button
+        {/*  Buttons */}
+        <div className="flex items-center gap-4 mt-3">
+          {/* Enroll Button */}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.97 }}
             onClick={onEnroll}
-            className="flex items-center gap-3 px-6 py-3 bg-[var(--primary-color)] text-white rounded-full font-semibold hover:scale-105 transition-transform shadow-md"
+            className="flex items-center gap-3 px-6 py-3 bg-[var(--primary-color)] text-white rounded-full font-semibold transition-all shadow-md hover:shadow-lg"
           >
             Enroll Now
-            <span className="p-2 rounded-full bg-white text-[var(--primary-color)]">
+            <motion.span
+              className="p-2 rounded-full bg-gray-200 text-[var(--primary-color)]"
+              whileHover={{ rotate: 20 }}
+            >
               <FaArrowRightLong />
-            </span>
-          </button>
+            </motion.span>
+          </motion.button>
 
-          <button className="p-3 rounded-full bg-black text-white hover:scale-110 transition-transform shadow-md">
-            <CiHeart className="text-xl" />
-          </button>
+          {/* Heart / Favorite Button */}
+          <motion.button
+            onClick={handleLike}
+            whileTap={{ scale: 0.9 }}
+            animate={{
+              scale: liked ? [1, 1.3, 1] : 1,
+              color: liked ? "#e0245e" : "#111",
+            }}
+            transition={{ duration: 0.3 }}
+            className={`p-3 rounded-full bg-white border shadow-md hover:shadow-lg transition-all ${
+              liked ? "bg-gray-100 " : "bg-black text-[var(--primary-color)]"
+            }`}
+          >
+            {liked ? (
+              <FaHeart className="text-xl text-[var(--primary-color)] drop-shadow-md" />
+            ) : (
+              <CiHeart className="text-xl text-gray-300" />
+            )}
+          </motion.button>
         </div>
-      </div>
+      </motion.div>
 
       {/* ===== Right Image ===== */}
-      <div className="z-10 w-full md:w-[40%] flex justify-center items-center mt-10 md:mt-0">
-        <img
+      <motion.div
+        variants={fadeIn}
+        className="z-10 w-full md:w-[40%] flex justify-center items-center mt-10 md:mt-0"
+      >
+        <motion.img
           src={image}
           alt="Course Visual"
           className="w-full max-w-md object-contain drop-shadow-3xl"
           loading="lazy"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6 }}
         />
-      </div>
+      </motion.div>
 
       {/* ===== Subtle Overlay ===== */}
       <div className="absolute inset-0 bg-gradient-to-r from-white via-transparent to-white opacity-10 pointer-events-none" />
-    </section>
+    </motion.section>
   );
 };
 
-export default DHero;
+export default React.memo(DHero);

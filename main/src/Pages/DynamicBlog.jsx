@@ -49,6 +49,9 @@ const DynamicBlog = () => {
     );
   }
 
+  console.log("Rendering blog:", blog);
+  const Content  = blog?.blogContent;
+console.log("Blog content:", Content);
   return (
     <motion.section
       className="min-h-screen mb-10 bg-gray-50 py-10 px-4 md:px-16"
@@ -69,7 +72,7 @@ const DynamicBlog = () => {
         {/* Hero Image */}
         <div className="relative w-full h-72 md:h-96">
           <img
-            src={blog.thumbnail}
+            src={blog.featuredImage}
             alt={blog.title}
             loading="lazy"
             className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
@@ -84,7 +87,7 @@ const DynamicBlog = () => {
               {blog.category || "General"}
             </span>
             <span>
-              {new Date(blog.published_date).toLocaleDateString(undefined, {
+              {new Date(blog.updatedAt).toLocaleDateString(undefined, {
                 year: "numeric",
                 month: "short",
                 day: "numeric",
@@ -121,45 +124,11 @@ const DynamicBlog = () => {
           <div
             className="prose prose-blue max-w-none text-gray-700 prose-headings:text-gray-900"
             dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(blog.contentHtml || blog.content || ""),
+              __html: DOMPurify.sanitize(blog?.blogContent),
             }}
           />
 
-          {/* Divider */}
-          <div className="my-10 border-t border-gray-200" />
-
-          {/* Related Courses */}
-          {Array.isArray(blog.related_courses) &&
-            blog.related_courses.length > 0 && (
-              <div>
-                <h3 className="text-2xl font-bold mb-5 text-gray-900">
-                  Related Courses
-                </h3>
-                <ul className="grid sm:grid-cols-2 gap-5">
-                  {blog.related_courses.map((course) => (
-                    <li
-                      key={course.id}
-                      className="flex justify-between items-center bg-gray-50 hover:bg-blue-50 p-4 rounded-xl border border-gray-100 transition"
-                    >
-                      <div>
-                        <p className="font-medium text-gray-800 text-sm md:text-base">
-                          {course.title}
-                        </p>
-                        <p className="text-gray-500 text-xs">
-                          {course.duration} • {course.level}
-                        </p>
-                      </div>
-                      <button
-                        onClick={() => navigate(`/courses/${course.id}`)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg text-xs transition"
-                      >
-                        View
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+         
         </div>
       </article>
     </motion.section>

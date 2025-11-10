@@ -6,7 +6,7 @@ import { Pagination, Autoplay } from "swiper/modules";
 import { useMentorStore } from "../Zustand/GetMentor";
 
 /**
- * ✅ MeetMentor Component
+ * MeetMentor Component
  * Displays mentors fetched from backend in a beautiful Swiper carousel.
  * Includes error handling, loading states, and responsive layout.
  */
@@ -17,7 +17,6 @@ const MeetMentor = () => {
   useEffect(() => {
     fetchMentors();
   }, [fetchMentors]);
-
   return (
     <section className="w-full py-16 bg-gradient-to-b from-gray-50 to-white overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row md:items-center md:justify-between gap-12">
@@ -108,7 +107,7 @@ const MeetMentor = () => {
                               href={mentor.linkedin}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-sm text-white bg-[var(--primary-color)] px-5 py-2 rounded-full hover:bg-blue-700 transition"
+                              className="text-sm  bg-gray-300 px-5 py-2 rounded-full transition"
                             >
                               LinkedIn
                             </a>
@@ -118,7 +117,7 @@ const MeetMentor = () => {
                               href={mentor.coursesLink}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-sm text-[var(--primary-color)] border border-[var(--primary-color)] px-5 py-2 rounded-full hover:bg-[var(--primary-color)] hover:text-white transition"
+                              className="text-sm text-[var(--primary-color)] border border-[var(--primary-color)] px-5 py-2 rounded-full  hover:text-white transition"
                             >
                               View Courses
                             </a>

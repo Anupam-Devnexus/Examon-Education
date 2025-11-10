@@ -1,6 +1,7 @@
-import React, { useEffect, useState, useMemo, Suspense } from "react";
-import { useParams } from "react-router-dom";
-import { motion } from "framer-motion";
+import React, { useEffect, useState, useMemo, Suspense, useCallback } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "react-toastify";
 
 // Components
 import DHero from "../Component/DynamicPage/DHero";
@@ -14,80 +15,129 @@ import MasterClassSection from "../Component/MasterClassSection";
 // Zustand Store
 import { useCourseStore } from "../Zustand/GetAllCourses";
 
-// Loading UI
-const LoadingScreen = () => (
-  <div className="w-full min-h-screen flex flex-col items-center justify-center bg-gray-50 text-center">
-    <div className="animate-spin rounded-full h-10 w-10 border-4 border-blue-500 border-t-transparent mb-4"></div>
-    <p className="text-gray-600 text-sm">Loading course details...</p>
+// ======================
+// Shimmer Skeleton Loader
+// ======================
+const ShimmerLoader = () => (
+  <div className="w-full min-h-screen flex flex-col items-center justify-center p-6 bg-gray-50 animate-pulse">
+    <div className="w-full max-w-4xl space-y-4">
+      <div className="h-48 bg-gray-200 rounded-lg"></div>
+      <div className="h-6 w-3/4 bg-gray-200 rounded"></div>
+      <div className="h-4 w-2/3 bg-gray-200 rounded"></div>
+      <div className="flex space-x-3 mt-6">
+        <div className="h-10 w-24 bg-gray-200 rounded-full"></div>
+        <div className="h-10 w-24 bg-gray-200 rounded-full"></div>
+      </div>
+      <div className="mt-8 grid grid-cols-2 md:grid-cols-3 gap-4">
+        {[...Array(6)].map((_, i) => (
+          <div key={i} className="h-40 bg-gray-200 rounded-lg"></div>
+        ))}
+      </div>
+    </div>
   </div>
 );
 
+// Motion Variants
+const fadeInUp = {
+  hidden: { opacity: 0, y: 40 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+};
+
+// ======================
+// Main Component
+// ======================
 const DynamicCourse = () => {
   const { courseId } = useParams();
-  const { data, loading, error, fetchCourses } = useCourseStore();
+  const navigate = useNavigate();
+  const { data, loading, error, fetchCourses, addToCart, removeFromCart , cart } = useCourseStore();
   const [course, setCourse] = useState(null);
 
-  // Fetch courses only once (or if not already fetched)
+  // Fetch courses
   useEffect(() => {
-    if (!data || data.length === 0) {
-      fetchCourses();
-    }
-  }, [fetchCourses, data]);
+    if (!data || data.length === 0) fetchCourses();
+  }, [data, fetchCourses]);
 
-  // Find the specific course based on courseId (string-safe)
+
+  // Find the selected course
   const foundCourse = useMemo(() => {
     if (!Array.isArray(data)) return null;
-    return (
-      data.find(
-        (item) =>
-          String(item.id || item._id) === String(courseId)
-      ) || null
-    );
+    return data.find((item) => String(item.id || item._id) === String(courseId));
   }, [data, courseId]);
+  console.log(foundCourse)
 
-  // Update local state when course changes
+  // Update state and scroll top
   useEffect(() => {
     setCourse(foundCourse);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [foundCourse]);
 
-  //  Handle Loading
-  if (loading) return <LoadingScreen />;
+  // ========== Heart / Add to Cart Click Handler ==========
+const handleEnroll = useCallback(() => {
+  const auth = JSON.parse(localStorage.getItem("auth"));
+  const token = auth?.token;
 
-  //  Handle Error
-  if (error) {
+  if (!token) {
+    toast.info("Please login to add this course to your favorites");
+    setTimeout(() => navigate("/login"), 700);
+    return;
+  }
+
+  if (!course) {
+    toast.error("Unable to add course right now. Please try again.");
+    return;
+  }
+
+  if (cart.some((item) => item._id === foundCourse._id)) {
+    toast.info("This course is already in your favorites");
+    return;
+  }
+
+  addToCart(foundCourse);
+  console.log("Added to favorites:", foundCourse);
+  toast.success(`${course.title} added to your favorites!`);
+}, [foundCourse, cart, addToCart, navigate]);
+
+
+  // Loading / Error / Not Found states
+  if (loading) return <ShimmerLoader />;
+
+  if (error)
     return (
-      <main className="w-full min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4 text-center">
+      <main className="w-full min-h-screen flex flex-col items-center justify-center bg-gray-50 text-center">
         <h2 className="text-2xl md:text-3xl font-semibold text-red-600 mb-2">
           Failed to load course
         </h2>
         <p className="text-gray-600 text-sm md:text-base max-w-md">
-          {error.message || "Please check your connection or try again later."}
+          {error.message || "Please try again later."}
         </p>
       </main>
     );
-  }
 
-  //  Handle Not Found
-  if (!course) {
+  if (!course)
     return (
-      <main className="w-full min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4 text-center">
+      <main className="w-full min-h-screen flex flex-col items-center justify-center bg-gray-50 text-center">
         <h2 className="text-2xl md:text-3xl font-semibold text-gray-800 mb-2">
           Course Not Found
         </h2>
         <p className="text-gray-600 text-sm md:text-base">
-          The course you’re looking for doesn’t exist or might have been removed.
+          The course you’re looking for doesn’t exist or was removed.
         </p>
       </main>
     );
-  }
 
-  //  Main Render
+  // ========== Main Render ==========
   return (
-    <main className="w-full flex flex-col items-center bg-white">
-      {/* =====================  Hero Section ===================== */}
-      <Suspense fallback={<LoadingScreen />}>
-        <section className="w-full">
+    <AnimatePresence mode="wait">
+      <motion.main
+        key={courseId}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.4 }}
+        className="w-full flex flex-col items-center bg-white"
+      >
+        {/* Hero Section */}
+        <motion.section variants={fadeInUp} initial="hidden" animate="show" className="w-full">
           <DHero
             title={course.courseDetails}
             image={course.img}
@@ -95,49 +145,49 @@ const DynamicCourse = () => {
             currentPrice={course.actualprice}
             percent={course.percent}
             perks={course.perks}
-            onEnroll={() =>
-              console.log(`Enroll clicked for course ${course.id || course._id}`)
-            }
+            onEnroll={handleEnroll} 
+            actualprice={course.actualprice}
+            insideCourses={course?.insideCourses}
           />
-        </section>
-      </Suspense>
+        </motion.section>
 
-      {/* =====================  Course Stages ===================== */}
-      <section className="w-full">
-        <StagesOfSSC />
-      </section>
+        {/* Stages */}
+        <motion.section variants={fadeInUp} initial="hidden" whileInView="show" viewport={{ once: true }} className="w-full">
+          <StagesOfSSC item={foundCourse}/>
+        </motion.section>
 
-      {/* =====================  Masterclass Section ===================== */}
-      <section className="w-full">
-        <Masterclass />
-      </section>
+        {/* Masterclass */}
+        <motion.section variants={fadeInUp} initial="hidden" whileInView="show" viewport={{ once: true }} className="w-full">
+          <Masterclass item = {foundCourse}/>
+        </motion.section>
 
-      {/* =====================  Quiz & Notes ===================== */}
-      <section className="w-full">
-        <QuizandNotes />
-      </section>
+        {/* Quiz and Notes */}
+        <motion.section variants={fadeInUp} initial="hidden" whileInView="show" viewport={{ once: true }} className="w-full">
+          <QuizandNotes />
+        </motion.section>
 
-      {/* =====================  Extra MasterClass Content ===================== */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        viewport={{ once: true }}
-        className="w-full"
-      >
-        <MasterClassSection />
-      </motion.div>
+        {/* Additional Masterclass */}
+        <motion.div variants={fadeInUp} initial="hidden" whileInView="show" viewport={{ once: true }} className="w-full">
+          <MasterClassSection />
+        </motion.div>
 
-      {/* =====================  Meet Your Mentor ===================== */}
-      <section className="w-full mt-6">
-        <MeetMentor />
-      </section>
+        {/* Meet Mentor */}
+        <motion.section variants={fadeInUp} initial="hidden" whileInView="show" viewport={{ once: true }} className="w-full mt-6">
+          <MeetMentor />
+        </motion.section>
 
-      {/* =====================  Related Courses ===================== */}
-      <section className="w-full py-8 mb-18 bg-[#F9FAFB]">
-        <CoursesYouLike title={false} />
-      </section>
-    </main>
+        {/* Related Courses */}
+        <motion.section
+          variants={fadeInUp}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          className="w-full py-8 mb-18 bg-[#F9FAFB]"
+        >
+          <CoursesYouLike title={false} />
+        </motion.section>
+      </motion.main>
+    </AnimatePresence>
   );
 };
 
