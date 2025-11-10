@@ -76,7 +76,7 @@ const RightComp = ({ data }) => (
 );
 
 /**
- * 🚀 Main AboutNumber Component
+ * Main AboutNumber Component
  */
 const AboutNumber = () => {
   const { fetchAchievements, loading, error, achievements } = useAchievementStore();
@@ -94,8 +94,8 @@ const AboutNumber = () => {
   const data = [
     { num: achievement.activeUser || 0, unit: "M+", title: "Students" },
     { num: achievement.courses || 0, unit: "+", title: "Courses" },
-    { num: achievement.instructors || 20, unit: "%", title: "Instructors" },
-    { num: achievement.satisfyUser || 0, unit: "K+", title: "Alumni" },
+    { num: achievement.Instructors || 20, unit: "%", title: "Instructors" },
+    { num: achievement.alumni || 0, unit: "K+", title: "Alumni" },
   ];
 
   // Loading / Error UI

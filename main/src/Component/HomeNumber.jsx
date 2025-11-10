@@ -9,7 +9,7 @@ const HomeNumber = () => {
   useEffect(() => {
     fetchAchievements();
   }, [fetchAchievements]);
-// console.log(achievements);
+console.log(achievements);
   //  If multiple entries exist, take the latest one
   const latestAchievement = useMemo(() => {
     if (!achievements?.length) return null;
