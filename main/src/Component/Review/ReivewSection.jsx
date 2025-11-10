@@ -17,7 +17,7 @@ export const ReviewSection = () => {
   useEffect(() => {
     fetchCourses();
   }, [fetchCourses]);
-console.log(coursesData);
+// console.log(coursesData);
   // Handle Review Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,7 +36,8 @@ console.log(coursesData);
 
     try {
       setLoading(true);
-      const token = JSON.parse(localStorage.getItem("auth"))?.token;
+      const Data = JSON.parse(localStorage.getItem("auth"));
+      const token = Data?.token;
       if (!token) {
         toast.error("User not authenticated. Please log in.");
         setLoading(false);
@@ -46,8 +47,10 @@ console.log(coursesData);
       const response = await axios.post(
         "http://194.238.18.1:3004/api/review/create", // Replace with actual endpoint
         {
-          courseId: selectedCourse,
-          rating,
+          clientname: Data?.user?.fullname,
+          profilePicture: Data?.user?.profileImage,
+          course: selectedCourse,
+          star,
           review: reviewText,
         },
         {

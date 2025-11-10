@@ -66,7 +66,7 @@ const Navbar = () => {
   /** ------------------ Token ------------------ **/
   const token = useMemo(() => {
     const authData = JSON.parse(localStorage.getItem("auth"));
-    return authData?.user?.refreshToken || null;
+    return authData?.token || null;
   }, []);
 
   /** ------------------ Handlers ------------------ **/

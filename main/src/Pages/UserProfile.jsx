@@ -1,12 +1,17 @@
-import React, { useEffect, useState, useMemo, useCallback } from "react";
+import React, {
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+  useRef,
+} from "react";
 import {
   FaEdit,
   FaSave,
   FaTimes,
-  FaEye,
-  FaEyeSlash,
   FaSignOutAlt,
 } from "react-icons/fa";
+import { BsThreeDotsVertical } from "react-icons/bs";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { motion } from "framer-motion";
 import { toast, ToastContainer } from "react-toastify";
@@ -14,163 +19,212 @@ import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
+// Components
 import ProfileQuizCard from "../Component/Card/ProfleQuizCard";
 import { useAuthStore } from "../Zustand/useAuthStore";
 import { useCourseStore } from "../Zustand/GetAllCourses";
 import ViewQuizPop from "../Component/ViewQuizPop";
+import ChangePassword from "../Component/Profile/ChangePassword";
 import { ReviewSection } from "../Component/Review/ReivewSection";
 
+// ======================================
+// CONFIG
+// ======================================
+const API_BASE = "http://194.238.18.1:3004/api";
+
+// Reusable Axios instance
+const api = axios.create({ baseURL: API_BASE, withCredentials: true });
+
+// ======================================
+// COMPONENT
+// ======================================
 const UserProfile = () => {
   const navigate = useNavigate();
   const { logout } = useAuthStore();
   const { data: coursesData = [], fetchCourses } = useCourseStore();
 
-  const [user, setUser] = useState({});
+  // ==============================
+  // STATE
+  // ==============================
+  const [user, setUser] = useState(null);
   const [draft, setDraft] = useState({});
   const [editMode, setEditMode] = useState(false);
-  const [passwords, setPasswords] = useState({ password: "", confirmPassword: "" });
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [pwdLoading, setPwdLoading] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+
   const [selectedQuiz, setSelectedQuiz] = useState(null);
   const [isQuizPopOpen, setIsQuizPopOpen] = useState(false);
 
-  // Image upload
-  const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
-  const [selectedCourse, setSelectedCourse] = useState("");
+  const fileInputRef = useRef(null);
 
-  /* ---------------------- Load user + courses ---------------------- */
+  // ======================================
+  // LOAD USER + COURSES
+  // ======================================
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem("auth");
-      if (!stored) return navigate("/login");
+    const stored = localStorage.getItem("auth");
+    if (!stored) return navigate("/login");
 
-      fetchCourses?.();
-      const parsed = JSON.parse(stored);
-      const u = parsed?.user || {};
+    fetchCourses?.();
+    const parsed = JSON.parse(stored);
+    const u = parsed?.user || {};
 
-      setUser(u);
-      setDraft(u);
-      setImagePreview(u.profileImg || null);
-      setSelectedCourse(u.course || "");
-    } catch (err) {
-      console.error("Auth load failed:", err);
-      navigate("/login");
-    }
+    setUser(u);
+    setDraft(u);
+    setImagePreview(u.profileImg || u.profileImage || null);
+    setSelectedCourse(u.course || u.preferedCourse || "");
   }, [navigate, fetchCourses]);
 
+  // ======================================
+  // QUIZ STATS (Memoized)
+  // ======================================
   const attemptedQuizzes = useMemo(() => user?.attemptedQuizzes || [], [user]);
 
-  /* ---------------------- Quiz Stats ---------------------- */
   const quizStats = useMemo(() => {
     if (!attemptedQuizzes.length) return { passed: 0, failed: 0, total: 0 };
-
     return attemptedQuizzes.reduce(
       (acc, q) => {
         const total = q.totalMarks || q.totalQuestions || 1;
         const pct = (q.score / total) * 100;
-        if (pct >= 40) acc.passed++;
-        else acc.failed++;
+        pct >= 40 ? acc.passed++ : acc.failed++;
         return acc;
       },
       { passed: 0, failed: 0, total: attemptedQuizzes.length }
     );
   }, [attemptedQuizzes]);
 
-  const chartData = [
-    { name: "Passed", value: quizStats.passed, color: "#16A34A" },
-    { name: "Failed", value: quizStats.failed, color: "#EF4444" },
-  ];
+  const chartData = useMemo(
+    () => [
+      { name: "Passed", value: quizStats.passed, color: "#16A34A" },
+      { name: "Failed", value: quizStats.failed, color: "#EF4444" },
+    ],
+    [quizStats]
+  );
 
-  /* ---------------------- Image selection ---------------------- */
-  const onImageInputChange = useCallback((e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setImageFile(file);
-    setImagePreview(URL.createObjectURL(file));
-  }, []);
+  // ======================================
+  // HANDLERS
+  // ======================================
 
-  /* ---------------------- Validation ---------------------- */
-  const validate = useCallback(() => {
+  // Handle local image preview
+  const handleImageChange = useCallback(
+    (e) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        if (imagePreview) {
+          URL.revokeObjectURL(imagePreview);
+        }
+        const previewUrl = URL.createObjectURL(file);
+        setImageFile(file);
+        setImagePreview(previewUrl);
+      }
+    },
+    [imagePreview]
+  );
+
+  // Validate basic profile data
+  const validateProfile = useCallback(() => {
     const errors = [];
-    if (!draft.fullname?.trim()) errors.push("Full name cannot be empty.");
     if (!draft.phone?.trim()) errors.push("Phone number cannot be empty.");
-    if (passwords.password || passwords.confirmPassword) {
-      if (passwords.password.length < 8)
-        errors.push("Password must be at least 8 characters.");
-      if (passwords.password !== passwords.confirmPassword)
-        errors.push("Passwords do not match.");
-    }
     return errors;
-  }, [draft, passwords]);
+  }, [draft]);
 
-  /* ---------------------- Save profile ---------------------- */
+  // ======================================
+  // SAVE PROFILE (with image upload)
+  // ======================================
   const handleSave = useCallback(async () => {
-    const errors = validate();
-    if (errors.length) {
-      errors.forEach((m) => toast.error(m));
-      return;
-    }
+    const errors = validateProfile();
+    if (errors.length) return errors.forEach((m) => toast.error(m));
+
+    const storedAuth = JSON.parse(localStorage.getItem("auth")) || {};
+    const user_id = storedAuth?.user?._id;
+    if (!user_id) return toast.error("User ID missing. Please re-login.");
 
     setLoading(true);
     try {
       const formData = new FormData();
-      formData.append("fullname", draft.fullname?.trim() || "");
-      formData.append("email", user.email || "");
       formData.append("phone", draft.phone || "");
-      formData.append("course", selectedCourse || "");
-      if (passwords.password) formData.append("password", passwords.password);
-      if (imageFile) formData.append("profileImage", imageFile);
+      formData.append("preferedCourse", selectedCourse || "");
 
-      const res = await axios.post("/api/update", formData, {
+      if (imageFile) formData.append("profileImage", imageFile);
+      // For debugging in dev (won’t run in production)
+      if (process.env.NODE_ENV !== "production") {
+        for (const [key, value] of formData.entries()) {
+          console.log(`${key}:`, value);
+        }
+      }
+
+      // Send form data to API endpoint
+      const res = await api.post(`/profile/update/${user_id}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
+      console.log(" Profile updated:", res.data);
+
       const updatedUser = res?.data?.user || {
         ...user,
-        fullname: draft.fullname?.trim(),
         phone: draft.phone,
-        course: selectedCourse,
-        profileImg: imagePreview || user.profileImg,
+        preferedCourse: selectedCourse,
+        profileImage: imagePreview || user.profileImg,
       };
 
-      const stored = JSON.parse(localStorage.getItem("auth")) || {};
-      localStorage.setItem("auth", JSON.stringify({ ...stored, user: updatedUser }));
+      // Sync localStorage
+      localStorage.setItem(
+        "auth",
+        JSON.stringify({ ...storedAuth, user: updatedUser })
+      );
 
+      // Update UI state
       setUser(updatedUser);
       setDraft(updatedUser);
       setEditMode(false);
-      setPasswords({ password: "", confirmPassword: "" });
       setImageFile(null);
+
       toast.success("Profile updated successfully!");
     } catch (err) {
-      console.error("Profile update failed:", err);
+      console.error("❌ Update Error:", err);
       toast.error(err?.response?.data?.message || "Failed to update profile.");
     } finally {
       setLoading(false);
     }
-  }, [draft, user, imageFile, imagePreview, passwords, selectedCourse, validate]);
+  }, [draft, user, imageFile, imagePreview, selectedCourse, validateProfile]);
+
+  // Reset to initial data
+  const handleCancel = useCallback(() => {
+    setDraft(user);
+    setEditMode(false);
+    setImageFile(null);
+    setImagePreview(user?.profileImg || user?.profileImage || null);
+    setSelectedCourse(user?.course || user?.preferedCourse || "");
+  }, [user]);
 
   const handleLogout = useCallback(() => {
     logout();
     toast.success("Logged out successfully!");
   }, [logout]);
 
-  /* ---------------------- UI ---------------------- */
+  // ======================================
+  // RENDER
+  // ======================================
   return (
     <>
       <ToastContainer position="top-right" autoClose={2500} />
+
       <div className="max-w-full p-6 mb-14">
-        {/* MAIN PROFILE BOX */}
+        {/* ================= PROFILE SECTION ================= */}
         <div className="flex flex-col md:flex-row items-start gap-6 bg-white p-6 rounded-2xl shadow-md">
-          {/* LEFT: Image + Logout */}
+          {/* LEFT PANEL */}
           <div className="w-full md:w-1/4 flex flex-col items-center gap-3">
+            {/* PROFILE IMAGE */}
             <div className="relative">
               <div className="w-32 h-32 md:w-36 md:h-36 rounded-full overflow-hidden border bg-gray-100">
                 {imagePreview ? (
                   <img
                     src={imagePreview}
-                    alt={draft.fullname || "Profile"}
+                    alt="Profile"
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -196,14 +250,15 @@ const UserProfile = () => {
                     id="profileImage"
                     type="file"
                     accept="image/*"
-                    onChange={onImageInputChange}
+                    ref={fileInputRef}
+                    onChange={handleImageChange}
                     className="hidden"
                   />
                 </label>
               )}
             </div>
 
-            <p className="text-sm text-gray-500">{user.email}</p>
+            <p className="text-sm text-gray-500">{user?.email}</p>
             <button
               onClick={handleLogout}
               className="mt-2 flex items-center gap-2 text-sm text-red-600 border border-red-500 px-3 py-1 rounded-xl hover:bg-red-50 transition"
@@ -212,84 +267,85 @@ const UserProfile = () => {
             </button>
           </div>
 
-          {/* RIGHT: Form */}
+          {/* RIGHT PANEL */}
           <div className="flex-1 w-full">
             <div className="flex items-start justify-between">
-              <h1 className="text-xl font-semibold text-gray-800">Profile Details</h1>
-              {!editMode ? (
-                <button
-                  onClick={() => setEditMode(true)}
-                  className="flex items-center gap-2 text-sm bg-white border px-4 py-2 rounded-xl hover:shadow-md"
-                >
-                  <FaEdit /> Edit
-                </button>
-              ) : (
-                <div className="flex gap-3">
+              <h1 className="text-xl font-semibold text-gray-800">
+                Profile Details
+              </h1>
+              <div className="flex items-center gap-4">
+                {!editMode ? (
                   <button
-                    onClick={handleSave}
-                    disabled={loading}
-                    className="flex items-center gap-2 text-sm bg-blue-600 text-white px-4 py-2 rounded-xl hover:opacity-90 disabled:opacity-70"
-                  >
-                    <FaSave /> {loading ? "Saving..." : "Save"}
-                  </button>
-                  <button
-                    onClick={() => {
-                      setDraft(user);
-                      setEditMode(false);
-                      setPasswords({ password: "", confirmPassword: "" });
-                      setImageFile(null);
-                      setImagePreview(user.profileImg || null);
-                      setSelectedCourse(user.course || "");
-                    }}
+                    onClick={() => setEditMode(true)}
                     className="flex items-center gap-2 text-sm bg-white border px-4 py-2 rounded-xl hover:shadow-md"
                   >
-                    <FaTimes /> Cancel
+                    <FaEdit /> Edit
                   </button>
+                ) : (
+                  <div className="flex gap-3">
+                    <button
+                      onClick={handleSave}
+                      disabled={loading}
+                      className="flex items-center gap-2 text-sm bg-blue-600 text-white px-4 py-2 rounded-xl hover:opacity-90 disabled:opacity-70"
+                    >
+                      <FaSave /> {loading ? "Saving..." : "Save"}
+                    </button>
+                    <button
+                      onClick={handleCancel}
+                      className="flex items-center gap-2 text-sm bg-white border px-4 py-2 rounded-xl hover:shadow-md"
+                    >
+                      <FaTimes /> Cancel
+                    </button>
+                  </div>
+                )}
+                <div
+                  className="text-[var(--primary-color)] cursor-pointer"
+                  onClick={() => setShowPassword(true)}
+                >
+                  <BsThreeDotsVertical />
                 </div>
-              )}
+              </div>
             </div>
 
-            {/* Form grid */}
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-              {/* Fullname */}
+            {/* PROFILE FORM */}
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* FULL NAME */}
               <div className="flex flex-col">
                 <label className="text-gray-600 text-sm mb-1">Full Name</label>
                 <input
-                  name="fullname"
-                  value={draft.fullname || ""}
-                  onChange={(e) => setDraft((p) => ({ ...p, fullname: e.target.value }))}
-                  disabled={!editMode}
-                  className={`border rounded-full px-4 py-2 text-gray-800 ${
-                    editMode ? "border-blue-500 bg-white" : "border-gray-200 bg-gray-50"
-                  }`}
-                />
-              </div>
-
-              {/* Phone */}
-              <div className="flex flex-col">
-                <label className="text-gray-600 text-sm mb-1">Phone No.</label>
-                <input
-                  name="phone"
-                  value={draft.phone || ""}
-                  onChange={(e) => setDraft((p) => ({ ...p, phone: e.target.value }))}
-                  disabled={!editMode}
-                  className={`border rounded-full px-4 py-2 text-gray-800 ${
-                    editMode ? "border-blue-500 bg-white" : "border-gray-200 bg-gray-50"
-                  }`}
-                />
-              </div>
-
-              {/* Email */}
-              <div className="flex flex-col">
-                <label className="text-gray-600 text-sm mb-1">Email</label>
-                <input
-                  value={user.email || ""}
+                  value={user?.fullname || ""}
                   readOnly
                   className="border rounded-full px-4 py-2 text-gray-600 border-gray-200 bg-gray-50"
                 />
               </div>
 
-              {/* Course Dropdown */}
+              {/* PHONE */}
+              <div className="flex flex-col">
+                <label className="text-gray-600 text-sm mb-1">Phone No.</label>
+                <input
+                  value={draft?.phone || ""}
+                  onChange={(e) =>
+                    setDraft((p) => ({ ...p, phone: e.target.value }))
+                  }
+                  disabled={!editMode}
+                  className={`border rounded-full px-4 py-2 text-gray-800 ${editMode
+                      ? "border-blue-500 bg-white"
+                      : "border-gray-200 bg-gray-50"
+                    }`}
+                />
+              </div>
+
+              {/* EMAIL */}
+              <div className="flex flex-col">
+                <label className="text-gray-600 text-sm mb-1">Email</label>
+                <input
+                  value={user?.email || ""}
+                  readOnly
+                  className="border rounded-full px-4 py-2 text-gray-600 border-gray-200 bg-gray-50"
+                />
+              </div>
+
+              {/* COURSE SELECT */}
               {editMode && (
                 <div className="flex flex-col">
                   <label className="text-gray-600 text-sm mb-1">Course</label>
@@ -299,76 +355,26 @@ const UserProfile = () => {
                     className="border rounded-full px-4 py-2 border-blue-500"
                   >
                     <option value="">-- Select Course --</option>
-                    {Array.isArray(coursesData) &&
-                      coursesData.map((c, idx) => (
-                        <option
-                          key={idx}
-                          value={c.courseDetails || c.name || c.title}
-                        >
-                          {c.courseDetails || c.name || c.title}
-                        </option>
-                      ))}
+                    {coursesData.map((c, idx) => (
+                      <option key={idx} value={c.courseDetails || c.name || c.title}>
+                        {c.courseDetails || c.name || c.title}
+                      </option>
+                    ))}
                   </select>
                 </div>
-              )}
-
-              {/* Passwords */}
-              {editMode && (
-                <>
-                  <div className="flex flex-col relative">
-                    <label className="text-gray-600 text-sm mb-1">New Password</label>
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      value={passwords.password}
-                      onChange={(e) =>
-                        setPasswords((p) => ({ ...p, password: e.target.value }))
-                      }
-                      className="border rounded-full px-4 py-2 pr-10 border-blue-500"
-                      placeholder="Enter new password"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword((s) => !s)}
-                      className="absolute right-3 top-3 text-gray-500"
-                    >
-                      {showPassword ? <FaEyeSlash /> : <FaEye />}
-                    </button>
-                  </div>
-
-                  <div className="flex flex-col">
-                    <label className="text-gray-600 text-sm mb-1">
-                      Confirm Password
-                    </label>
-                    <input
-                      type="password"
-                      value={passwords.confirmPassword}
-                      onChange={(e) =>
-                        setPasswords((p) => ({
-                          ...p,
-                          confirmPassword: e.target.value,
-                        }))
-                      }
-                      className="border rounded-full px-4 py-2 border-blue-500"
-                      placeholder="Re-enter password"
-                    />
-                  </div>
-                </>
               )}
             </div>
           </div>
         </div>
-         {/* ATTEMPTED QUIZZES */}
+
+        {/* ================= QUIZ SECTION ================= */}
         {attemptedQuizzes.length > 0 ? (
           <div className="mt-10 mb-10">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">
               Attempted Quizzes ({attemptedQuizzes.length})
             </h2>
-
             <div className="relative">
-              <div
-                className="flex overflow-x-auto gap-5 pb-4 scrollbar-hide snap-x snap-mandatory scroll-smooth"
-                style={{ scrollBehavior: "smooth" }}
-              >
+              <div className="flex overflow-x-auto gap-5 pb-4 scrollbar-hide snap-x snap-mandatory">
                 {attemptedQuizzes.map((quiz, i) => (
                   <div key={i} className="min-w-[260px] flex-shrink-0 snap-start">
                     <ProfileQuizCard
@@ -381,10 +387,6 @@ const UserProfile = () => {
                   </div>
                 ))}
               </div>
-
-              {/* Gradient edges */}
-              <div className="absolute top-0 left-0 w-12 h-full bg-gradient-to-r from-white to-transparent pointer-events-none" />
-              <div className="absolute top-0 right-0 w-12 h-full bg-gradient-to-l from-white to-transparent pointer-events-none" />
             </div>
           </div>
         ) : (
@@ -393,75 +395,78 @@ const UserProfile = () => {
           </p>
         )}
 
-     {/* QUIZ STATS + REVIEW SECTION */}
-<motion.div
-  initial={{ opacity: 0, y: 20 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.5 }}
-  className="mt-8 bg-white rounded-2xl shadow-md p-6"
->
-  <div className="flex flex-col gap-10 lg:gap-16">
-    {/* QUIZ PERFORMANCE SECTION */}
-    <div>
-      <h2 className="text-xl font-semibold text-gray-800 mb-6 text-center md:text-left">
-        Quiz Performance
-      </h2>
+        {/* ================= PERFORMANCE SECTION ================= */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mt-8 bg-white rounded-2xl shadow-md p-6"
+        >
+          <div className="flex flex-col gap-10">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-800 mb-6 text-center md:text-left">
+                Quiz Performance
+              </h2>
 
-      <div className="flex flex-col lg:flex-row items-center justify-center lg:justify-between gap-8">
-        {/* Pie Chart */}
-        <div className="w-full md:w-2/3 lg:w-1/2 h-[250px] md:h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={chartData}
-                cx="50%"
-                cy="50%"
-                outerRadius="80%"
-                dataKey="value"
-                label={({ name, value }) => `${name}: ${value}`}
-              >
-                {chartData.map((entry, i) => (
-                  <Cell key={i} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
+              <div className="flex flex-col lg:flex-row items-center justify-center lg:justify-between gap-8">
+                {/* CHART */}
+                <div className="w-full md:w-2/3 lg:w-1/2 h-[250px] md:h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={chartData}
+                        cx="50%"
+                        cy="50%"
+                        outerRadius="80%"
+                        dataKey="value"
+                        label={({ name, value }) => `${name}: ${value}`}
+                      >
+                        {chartData.map((entry, i) => (
+                          <Cell key={i} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
 
-        {/* Stats Boxes */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 gap-4 w-full lg:w-1/3">
-          {[
-            { label: "Passed", value: quizStats.passed, color: "text-green-600" },
-            { label: "Failed", value: quizStats.failed, color: "text-red-600" },
-          ].map((stat, i) => (
-            <motion.div
-              key={i}
-              whileHover={{ scale: 1.05 }}
-              className="border rounded-xl p-5 bg-gray-50 text-center shadow-sm hover:shadow-md transition-all"
-            >
-              <p className="text-sm font-medium text-gray-500">{stat.label}</p>
-              <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </div>
+                {/* STATS CARDS */}
+                <div className="grid grid-cols-2 gap-4 w-full lg:w-1/3">
+                  {[
+                    { label: "Passed", value: quizStats.passed, color: "text-green-600" },
+                    { label: "Failed", value: quizStats.failed, color: "text-red-600" },
+                  ].map((stat, i) => (
+                    <motion.div
+                      key={i}
+                      whileHover={{ scale: 1.05 }}
+                      className="border rounded-xl p-5 bg-gray-50 text-center shadow-sm hover:shadow-md transition-all"
+                    >
+                      <p className="text-sm font-medium text-gray-500">{stat.label}</p>
+                      <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </div>
 
-    {/* REVIEW SECTION */}
-    <div className="border-t border-gray-200 pt-6">
-      <ReviewSection />
-    </div>
-  </div>
-</motion.div>
+            <div className="border-t border-gray-200 pt-6">
+              <ReviewSection />
+            </div>
+          </div>
+        </motion.div>
 
-
-       
-
+        {/* POPUPS */}
         <ViewQuizPop
           isOpen={isQuizPopOpen}
           onClose={() => setIsQuizPopOpen(false)}
           quiz={selectedQuiz}
+        />
+
+        <ChangePassword
+          isOpen={showPassword}
+          onClose={() => setShowPassword(false)}
+          onSubmit={handleSave}
+          loading={pwdLoading}
         />
       </div>
     </>
