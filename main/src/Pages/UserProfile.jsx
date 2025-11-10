@@ -160,7 +160,7 @@ const UserProfile = () => {
   return (
     <>
       <ToastContainer position="top-right" autoClose={2500} />
-      <div className="max-w-full p-6 mb-10">
+      <div className="max-w-full p-6 mb-14">
         {/* MAIN PROFILE BOX */}
         <div className="flex flex-col md:flex-row items-start gap-6 bg-white p-6 rounded-2xl shadow-md">
           {/* LEFT: Image + Logout */}
@@ -357,6 +357,41 @@ const UserProfile = () => {
             </div>
           </div>
         </div>
+         {/* ATTEMPTED QUIZZES */}
+        {attemptedQuizzes.length > 0 ? (
+          <div className="mt-10 mb-10">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">
+              Attempted Quizzes ({attemptedQuizzes.length})
+            </h2>
+
+            <div className="relative">
+              <div
+                className="flex overflow-x-auto gap-5 pb-4 scrollbar-hide snap-x snap-mandatory scroll-smooth"
+                style={{ scrollBehavior: "smooth" }}
+              >
+                {attemptedQuizzes.map((quiz, i) => (
+                  <div key={i} className="min-w-[260px] flex-shrink-0 snap-start">
+                    <ProfileQuizCard
+                      quiz={quiz}
+                      onView={() => {
+                        setSelectedQuiz(quiz);
+                        setIsQuizPopOpen(true);
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* Gradient edges */}
+              <div className="absolute top-0 left-0 w-12 h-full bg-gradient-to-r from-white to-transparent pointer-events-none" />
+              <div className="absolute top-0 right-0 w-12 h-full bg-gradient-to-l from-white to-transparent pointer-events-none" />
+            </div>
+          </div>
+        ) : (
+          <p className="mt-8 text-center text-gray-500 text-sm">
+            No test attempted yet!
+          </p>
+        )}
 
      {/* QUIZ STATS + REVIEW SECTION */}
 <motion.div
@@ -421,41 +456,7 @@ const UserProfile = () => {
 </motion.div>
 
 
-        {/* ATTEMPTED QUIZZES */}
-        {attemptedQuizzes.length > 0 ? (
-          <div className="mt-10 mb-10">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">
-              Attempted Quizzes ({attemptedQuizzes.length})
-            </h2>
-
-            <div className="relative">
-              <div
-                className="flex overflow-x-auto gap-5 pb-4 scrollbar-hide snap-x snap-mandatory scroll-smooth"
-                style={{ scrollBehavior: "smooth" }}
-              >
-                {attemptedQuizzes.map((quiz, i) => (
-                  <div key={i} className="min-w-[260px] flex-shrink-0 snap-start">
-                    <ProfileQuizCard
-                      quiz={quiz}
-                      onView={() => {
-                        setSelectedQuiz(quiz);
-                        setIsQuizPopOpen(true);
-                      }}
-                    />
-                  </div>
-                ))}
-              </div>
-
-              {/* Gradient edges */}
-              <div className="absolute top-0 left-0 w-12 h-full bg-gradient-to-r from-white to-transparent pointer-events-none" />
-              <div className="absolute top-0 right-0 w-12 h-full bg-gradient-to-l from-white to-transparent pointer-events-none" />
-            </div>
-          </div>
-        ) : (
-          <p className="mt-8 text-center text-gray-500 text-sm">
-            No test attempted yet!
-          </p>
-        )}
+       
 
         <ViewQuizPop
           isOpen={isQuizPopOpen}

@@ -6,24 +6,24 @@ const MissionVisionValues = () => {
   const cards = [
     {
       title: "VISION",
-      bgImage: "https://images.pexels.com/photos/217380/pexels-photo-217380.jpeg",
-      icon: "https://images.hdqwalls.com/wallpapers/red-and-gold-legend-iron-man-80.jpg",
+      bgImage: "https://res.cloudinary.com/dt4ohfuwc/image/upload/v1762755958/light-bulb-with-drawing-graph_1_ty8gml.png",
+      icon: "/vision.svg",
       description:
         "We envision a world where learning is accessible, innovative, and empowers every student to achieve their true potential.",
       accentColor: "#EB3F57",
     },
     {
       title: "MISSION",
-      bgImage: "https://images.pexels.com/photos/217380/pexels-photo-217380.jpeg",
-      icon: "https://images.hdqwalls.com/wallpapers/red-and-gold-legend-iron-man-80.jpg",
+      bgImage: "https://res.cloudinary.com/dt4ohfuwc/image/upload/v1762755958/33_2_cmlg0i.png",
+      icon: "/mission.svg",
       description:
         "Our mission is to empower learners through dynamic, bilingual, and affordable education — accessible anytime, anywhere.",
       accentColor: "#2EA7D6",
     },
     {
       title: "VALUES",
-      bgImage: "https://images.pexels.com/photos/217380/pexels-photo-217380.jpeg",
-      icon: "https://images.hdqwalls.com/wallpapers/red-and-gold-legend-iron-man-80.jpg",
+      bgImage: "https://res.cloudinary.com/dt4ohfuwc/image/upload/v1762755958/5878303_1_rpir2y.png",
+      icon: "/values.svg",
       description:
         "Integrity, inclusivity, and innovation drive everything we do — ensuring a culture of continuous growth and impact.",
       accentColor: "#EC8A2C",

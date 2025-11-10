@@ -6,36 +6,31 @@ import ContactSection from "../Component/ContactSection";
 import CoursesCard from "../Component/Card/CoursesCard";
 
 const Courses = () => {
-  // Local state for search input with debounce
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedTerm, setDebouncedTerm] = useState("");
 
-  // Zustand store for course management
   const {
     loading,
     error,
     data,
     categories,
     selectedCategory,
-    currentPage,
-    totalPages,
-    perPage,
     fetchCourses,
     fetchCoursesByCategory,
-    setPage,
   } = useCourseStore();
 
-  // Fetch all courses on mount
+  // Local pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const perPage = 3;
+
+  // Fetch courses initially
   useEffect(() => {
     fetchCourses();
   }, []);
 
-  // Debounce search term to reduce re-renders
+  // Debounce search term
   useEffect(() => {
-    const handler = setTimeout(
-      () => setDebouncedTerm(searchTerm.toLowerCase()),
-      300
-    );
+    const handler = setTimeout(() => setDebouncedTerm(searchTerm.toLowerCase()), 300);
     return () => clearTimeout(handler);
   }, [searchTerm]);
 
@@ -55,7 +50,19 @@ const Courses = () => {
     return filtered;
   }, [data, selectedCategory, debouncedTerm]);
 
-  // Pagination slice
+  // Calculate total pages
+  const totalPages = Math.ceil(filteredCourses.length / perPage);
+
+  // Infinite pagination logic
+  const handleNext = () => {
+    setCurrentPage((prev) => (prev === totalPages ? 1 : prev + 1));
+  };
+
+  const handlePrev = () => {
+    setCurrentPage((prev) => (prev === 1 ? totalPages : prev - 1));
+  };
+
+  // Paginated slice
   const paginatedCourses = useMemo(() => {
     const start = (currentPage - 1) * perPage;
     return filteredCourses.slice(start, start + perPage);
@@ -147,7 +154,7 @@ const Courses = () => {
         ) : error ? (
           <p className="text-red-500 text-center text-lg">{error}</p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 max-w-7xl w-full">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8 max-w-7xl w-full">
             <AnimatePresence>
               {paginatedCourses.length > 0 ? (
                 paginatedCourses.map((course, index) => (
@@ -177,23 +184,33 @@ const Courses = () => {
         )}
       </section>
 
-      {/* Pagination */}
+      {/* 🔹 Infinite Pagination with Dots */}
       {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-4 mt-2 pb-12">
+        <div className="flex justify-center items-center gap-12 mt-2 pb-12">
           <button
-            onClick={() => setPage(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="px-4 py-2 bg-white border rounded-lg text-sm font-medium hover:bg-gray-100 disabled:opacity-40 transition-all"
+            onClick={handlePrev}
+            className="px-4 py-2 bg-white border-b cursor-pointer text-sm font-medium hover:bg-gray-100 transition-all"
           >
             Prev
           </button>
-          <span className="text-sm font-semibold text-gray-700">
-            Page {currentPage} of {totalPages}
-          </span>
+
+          {/* Dots */}
+          <div className="flex gap-4">
+            {Array.from({ length: totalPages }, (_, i) => (
+              <span
+                key={i}
+                className={`w-12 h-1 rounded-full transition-all duration-300 ${
+                  i + 1 === currentPage
+                    ? "bg-[var(--primary-color)] scale-125"
+                    : "bg-gray-300"
+                }`}
+              ></span>
+            ))}
+          </div>
+
           <button
-            onClick={() => setPage(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="px-4 py-2 bg-white border rounded-lg text-sm font-medium hover:bg-gray-100 disabled:opacity-40 transition-all"
+            onClick={handleNext}
+            className="px-4 py-2 bg-white border-b cursor-pointer text-sm font-medium hover:bg-gray-100 transition-all"
           >
             Next
           </button>
