@@ -85,7 +85,7 @@ const AboutNumber = () => {
   useEffect(() => {
     fetchAchievements();
   }, [fetchAchievements]);
-  console.log(achievements);
+  // console.log(achievements);
 
   // Extract first item safely
   const achievement = achievements?.[0] || {};

@@ -4,26 +4,27 @@ import React, {
   useRef,
   useCallback,
   useMemo,
-  lazy , Suspense
+  lazy,
+  Suspense,
 } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { CiSearch, CiUser } from "react-icons/ci";
 import { FiMenu, FiX, FiShoppingCart } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { useExamStore } from "../../Zustand/GetAllExams";
-import GlobalSearchModal from "../GlobalSearch";
 import CryptoJS from "crypto-js";
 
+// Lazy load the Global Search Modal for performance
+const GlobalSearchModal = lazy(() => import("../GlobalSearch"));
 
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   /** ------------------ UI States ------------------ **/
   const [menuOpen, setMenuOpen] = useState(false);
   const [examOpen, setExamOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [userData, setUserData] = useState(null);
   const searchInputRef = useRef(null);
 
@@ -31,32 +32,28 @@ const Navbar = () => {
   const { exams, loading, error, fetchAllExams } = useExamStore();
 
   useEffect(() => {
-    if (exams.length === 0) fetchAllExams();
-  }, [fetchAllExams, exams.length]);
-  console.log(exams)
+    if (!exams.length) fetchAllExams();
+  }, [exams.length, fetchAllExams]);
 
-  /** ------------------ Token & Decryption ------------------ **/
+  /** ------------------ Decrypt User Data ------------------ **/
+  const SECRET_KEY = import.meta.env.VITE_SECRET_KEY || "your-secret-key";
+
   const getDecryptedUser = useCallback(() => {
     try {
       const encryptedData = localStorage.getItem("userData");
       if (!encryptedData) return null;
       const bytes = CryptoJS.AES.decrypt(encryptedData, SECRET_KEY);
-      const decrypted = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-      return decrypted;
+      return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
     } catch {
       return null;
     }
-  }, []);
-
-  const updateUserData = useCallback(() => {
-    const user = getDecryptedUser();
-    setUserData(user);
-  }, [getDecryptedUser]);
+  }, [SECRET_KEY]);
 
   useEffect(() => {
-    updateUserData();
+    const user = getDecryptedUser();
+    setUserData(user);
 
-    const syncHandler = () => updateUserData();
+    const syncHandler = () => setUserData(getDecryptedUser());
     window.addEventListener("storage", syncHandler);
     window.addEventListener("userDataChanged", syncHandler);
 
@@ -64,22 +61,20 @@ const Navbar = () => {
       window.removeEventListener("storage", syncHandler);
       window.removeEventListener("userDataChanged", syncHandler);
     };
-  }, [updateUserData]);
+  }, [getDecryptedUser]);
 
-  /** ------------------ Token Detection ------------------ **/
+  /** ------------------ Token ------------------ **/
   const token = useMemo(() => {
     const authData = JSON.parse(localStorage.getItem("auth"));
     return authData?.user?.refreshToken || null;
   }, []);
 
-
-
-  /** ------------------ Navigation ------------------ **/
+  /** ------------------ Handlers ------------------ **/
   const handleNavigate = useCallback(
     (path) => {
       setMenuOpen(false);
       setExamOpen(false);
-      setSearchOpen(false);
+      setIsSearchOpen(false);
       navigate(path);
     },
     [navigate]
@@ -99,10 +94,10 @@ const Navbar = () => {
     navigate("/login");
   }, [navigate]);
 
-  /** ------------------ Focus Search ------------------ **/
+  /** ------------------ Focus on Search ------------------ **/
   useEffect(() => {
-    if (searchOpen && searchInputRef.current) searchInputRef.current.focus();
-  }, [searchOpen]);
+    if (isSearchOpen && searchInputRef.current) searchInputRef.current.focus();
+  }, [isSearchOpen]);
 
   /** ------------------ Navigation Links ------------------ **/
   const navLinks = useMemo(
@@ -113,22 +108,26 @@ const Navbar = () => {
       { label: "Quiz", path: "/quiz" },
       { label: "Study Material", path: "/study-material" },
       { label: "Blog", path: "/blog" },
-      { label: "Contact", path: "/contact" }
+      { label: "Contact", path: "/contact" },
     ],
     []
   );
 
-  /** ------------------ Animations ------------------ **/
+  /** ------------------ Framer Motion Variants ------------------ **/
   const dropdownVariants = {
-    hidden: { opacity: 0, y: -10 },
-    visible: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -10 }
+    hidden: { opacity: 0, y: -8 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.25 } },
+    exit: { opacity: 0, y: -8 },
   };
 
   const menuVariants = {
     hidden: { opacity: 0, x: "100%" },
-    visible: { opacity: 1, x: 0 },
-    exit: { opacity: 0, x: "100%" }
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: { type: "spring", stiffness: 260, damping: 25 },
+    },
+    exit: { opacity: 0, x: "100%" },
   };
 
   const underlineVariants = {
@@ -136,18 +135,18 @@ const Navbar = () => {
     visible: {
       scaleX: 1,
       opacity: 1,
-      transition: { duration: 0.4, ease: "easeInOut" }
+      transition: { duration: 0.4, ease: "easeInOut" },
     },
-    exit: { scaleX: 0, opacity: 0 }
+    exit: { scaleX: 0, opacity: 0 },
   };
 
+  /** ------------------ Component JSX ------------------ **/
   return (
     <>
-      {/* 🌐 Navbar */}
-      <nav className="bg-white shadow-md sticky top-0 z-[998] transition-all duration-300">
+      <nav className="bg-white shadow-md sticky top-0 z-[999]">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-          {/* Logo + Exams */}
-          <div className="flex items-center gap-6">
+          {/* Logo + Exam Dropdown */}
+          <div className="flex items-center gap-5">
             <img
               src="/logo2.svg"
               alt="Logo"
@@ -155,15 +154,14 @@ const Navbar = () => {
               onClick={() => handleNavigate("/")}
             />
 
-            <div className="h-8 w-0.5 bg-gray-300" />
+            <div className="h-8 w-px bg-gray-300" />
 
-            {/* Exams Dropdown */}
             <div className="relative">
               <button
-                onClick={() => setExamOpen((p) => !p)}
+                onClick={() => setExamOpen((prev) => !prev)}
                 aria-haspopup="true"
                 aria-expanded={examOpen}
-                className="px-3 py-1 rounded-xl border-2 border-[var(--secondary-color)] text-gray-700 font-medium hover:text-[var(--primary-color)] transition flex items-center gap-2"
+                className="px-3 py-1 rounded-xl border-2 border-[var(--secondary-color)] text-gray-700 font-medium hover:text-[var(--primary-color)] transition flex items-center gap-1"
               >
                 All Exams ▾
               </button>
@@ -175,8 +173,7 @@ const Navbar = () => {
                     initial="hidden"
                     animate="visible"
                     exit="exit"
-                    transition={{ duration: 0.2 }}
-                    className="absolute top-full left-0 mt-2 w-60 bg-white border rounded-md shadow-lg z-10 max-h-64 overflow-auto"
+                    className="absolute top-full left-0 mt-2 w-60 bg-white border rounded-md shadow-lg z-10 max-h-64 overflow-y-auto"
                   >
                     {loading && (
                       <p className="text-sm text-gray-500 p-4 text-center">
@@ -194,7 +191,7 @@ const Navbar = () => {
                         <div
                           key={exam._id}
                           onClick={() => handleExamClick(exam._id)}
-                          className="px-3 py-2 hover:bg-gray-100 cursor-pointer transition text-gray-700"
+                          className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-gray-700 transition"
                         >
                           {exam.title}
                         </div>
@@ -205,7 +202,7 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* Desktop Navigation */}
+          {/* Desktop Nav Links */}
           <div className="hidden md:flex items-center gap-6">
             {navLinks.map(({ label, path }) => {
               const isActive = location.pathname === path;
@@ -233,15 +230,15 @@ const Navbar = () => {
               );
             })}
 
+            {/* Search Icon */}
             <CiSearch
               className="text-2xl text-gray-600 cursor-pointer hover:text-[var(--primary-color)] transition"
-             onClick={() => setIsSearchOpen(true)}
-          
+              onClick={() => setIsSearchOpen(true)}
             />
 
-            <div className="hidden md:block w-1 border-2 rounded-2xl bg-pink-500 h-10"></div>
+            <div className="h-8 w-px bg-gray-300" />
 
-            {/* Show Cart & Profile only if token exists */}
+            {/* Auth & Cart */}
             {token ? (
               <div className="flex items-center gap-3">
                 <FiShoppingCart
@@ -250,16 +247,17 @@ const Navbar = () => {
                 />
                 <CiUser
                   className="text-2xl text-gray-700 cursor-pointer hover:text-[var(--primary-color)] transition"
-                  onClick={() => handleNavigate(`/profile/${userData?._id || ""}`)}
+                  onClick={() =>
+                    handleNavigate(`/profile/${userData?._id || ""}`)
+                  }
                 />
-            
               </div>
             ) : (
               <button
                 onClick={() => handleNavigate("/login")}
-                className="bg-[var(--primary-color)] text-white px-4 py-2 rounded-full hover:brightness-95 transition"
+                className="bg-[var(--primary-color)] text-white px-5 py-2 rounded-full hover:brightness-95 transition"
               >
-                Login / Signin
+                Login / Signup
               </button>
             )}
           </div>
@@ -268,10 +266,10 @@ const Navbar = () => {
           <div className="md:hidden flex items-center gap-3">
             <CiSearch
               className="text-xl text-gray-600 cursor-pointer hover:text-[var(--primary-color)] transition"
-              onClick={() => setSearchOpen(true)}
+              onClick={() => setIsSearchOpen(true)}
             />
             <button
-              onClick={() => setMenuOpen((p) => !p)}
+              onClick={() => setMenuOpen((prev) => !prev)}
               aria-label={menuOpen ? "Close menu" : "Open menu"}
               className="p-2 rounded-md"
             >
@@ -280,69 +278,85 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile Menu Drawer */}
+        {/* Mobile Drawer */}
         <AnimatePresence>
           {menuOpen && (
-            <motion.div
-              variants={menuVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              transition={{ duration: 0.3 }}
-              className="md:hidden px-4 pb-4 border-t bg-white"
-            >
-              <div className="flex flex-col gap-2 mt-2">
-                {navLinks.map(({ label, path }) => (
-                  <button
-                    key={path}
-                    onClick={() => handleNavigate(path)}
-                    className={`w-full text-left py-2 px-2 rounded-md ${
-                      location.pathname === path
-                        ? "text-[var(--primary-color)]"
-                        : "text-gray-700"
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ))}
-
-                <div className="border-t my-2" />
-
-                {token ? (
-                  <div className="flex justify-around gap-2">
+            <>
+              {/* Backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.4 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black z-[998]"
+                onClick={() => setMenuOpen(false)}
+              />
+              <motion.div
+                variants={menuVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="fixed top-0 right-0 w-72 h-full bg-white shadow-2xl z-[999] p-5 overflow-y-auto"
+              >
+                <div className="flex flex-col gap-4 mt-5">
+                  {navLinks.map(({ label, path }) => (
                     <button
-                      onClick={() => handleNavigate("/cart")}
-                      className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-100"
+                      key={path}
+                      onClick={() => handleNavigate(path)}
+                      className={`text-left border-l-2 py-2 px-2 ${
+                        location.pathname === path
+                          ? "text-[var(--primary-color)] font-semibold"
+                          : "text-gray-700"
+                      }`}
                     >
-                      <FiShoppingCart className="text-xl" />
-                      <span>Cart</span>
+                      {label}
                     </button>
+                  ))}
+
+                  <div className="border-t my-2" />
+
+                  {token ? (
+                    <div className="flex items-center justify-between gap-2">
+                      <button
+                        onClick={() => handleNavigate("/cart")}
+                        className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-100"
+                      >
+                        <FiShoppingCart className="text-xl" />
+                        <span>Cart</span>
+                      </button>
+                      <button
+                        onClick={() =>
+                          handleNavigate(`/profile/${userData?._id || ""}`)
+                        }
+                        className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-100"
+                      >
+                        <CiUser className="text-xl" />
+                        <span>Profile</span>
+                      </button>
+                    </div>
+                  ) : (
                     <button
-                      onClick={() =>
-                        handleNavigate(`/profile/${userData?._id || ""}`)
-                      }
-                      className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-100"
+                      onClick={handleMobileAuth}
+                      className="mt-3 bg-[var(--primary-color)] text-white py-2 rounded-full font-medium hover:brightness-95 transition"
                     >
-                      <CiUser className="text-xl" />
-                      <span>Profile</span>
+                      Login / Sign Up
                     </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={handleMobileAuth}
-                    className="mt-3 w-full bg-[var(--primary-color)] text-white py-2 rounded-full font-medium hover:brightness-95 transition"
-                  >
-                    Login / Sign Up
-                  </button>
-                )}
-              </div>
-            </motion.div>
+                  )}
+
+                  <div className="border-t my-2" />
+                </div>
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
-        <Suspense fallback={null}>
-        <GlobalSearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
-      </Suspense>
       </nav>
+
+      {/* Global Search Modal */}
+      <Suspense fallback={null}>
+        <GlobalSearchModal
+          isOpen={isSearchOpen}
+          onClose={() => setIsSearchOpen(false)}
+        />
+      </Suspense>
     </>
   );
 };
