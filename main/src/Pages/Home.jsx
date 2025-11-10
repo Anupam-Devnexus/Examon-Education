@@ -28,7 +28,7 @@ const Home = () => {
       <HomeQuiz />
       <CoursesYouLike />
       <HomeTestimonial />
-      <section className='py-10'>
+      <section className='mb-12'>
         <ContactSection />
       </section>
 

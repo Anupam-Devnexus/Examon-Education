@@ -14,10 +14,11 @@ const Footer = () => {
   const Links = [
     { link: "Home", path: "/home" },
     { link: "About", path: "/about" },
-    { link: "Contact", path: "/contact" },
-    { link: "Services", path: "/services" },
+    { link: "Courses", path: "/courses" },
+    { link: "Study Material", path: "/study-material" },
     { link: "Quiz", path: "/quiz" },
-    { link: "Study Material", path: "/studymaterial" },
+    { link: "Blog", path: "/blog" },
+    { link: "Contact", path: "/contact" },
   ];
 
   const Policies = [
