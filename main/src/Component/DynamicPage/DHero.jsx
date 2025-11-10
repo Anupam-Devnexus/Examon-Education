@@ -1,6 +1,7 @@
 import React from "react";
 import { FaArrowRightLong } from "react-icons/fa6";
 import { CiHeart } from "react-icons/ci";
+import { useCourseStore } from "../../Zustand/GetAllCourses";
 
 const DHero = ({
   title,
@@ -12,6 +13,12 @@ const DHero = ({
   date = "OCT 30th, 2025",
   time = "5:00 PM",
 }) => {
+  const { cart, addToCart, removeFromCart } = useCourseStore();
+  const token = JSON.parse(localStorage.getItem("auth"))?.token;
+
+
+
+
   return (
     <section
       className="relative flex flex-col-reverse md:flex-row items-center justify-between px-6 md:px-16 py-10 bg-blue-50 md:h-[75vh] overflow-hidden"

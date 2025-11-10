@@ -27,7 +27,7 @@ const DynamicExam = () => {
     () => exams?.find((e) => String(e.id || e.id) === String(id)),
     [exams, id]
   );
-// console.log("Selected Exam:", exam);
+  // console.log("Selected Exam:", exam);
   const Content = exam?.Content;
   // console.log("Exam Content:", Content);
 
@@ -55,10 +55,10 @@ const DynamicExam = () => {
 
   return (
     <div
-  
-     
-    className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-12">
-      
+
+
+      className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-12">
+
       {/* =============== HEADER SECTION =============== */}
       <section className="bg-white rounded-2xl shadow-md border border-gray-200 p-6 mb-8 text-center">
         <div className="flex flex-col items-center gap-4">
@@ -99,9 +99,9 @@ const DynamicExam = () => {
             <table className="min-w-full text-sm text-left text-gray-700">
               <thead className="bg-gray-100 text-gray-800">
                 <tr
-                 dangerouslySetInnerHTML={{
-    __html:Content
-  }}
+                  dangerouslySetInnerHTML={{
+                    __html: Content
+                  }}
                 >
                   <th className="px-4 py-3 font-semibold border-b">Description</th>
                   <th className="px-4 py-3 font-semibold border-b">Date</th>

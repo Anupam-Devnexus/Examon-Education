@@ -34,7 +34,7 @@ const CoursesCard = ({
   // Check if this course is already in the cart
   const isInCart = cart.some((item) => item.id === id);
 
-  /** ✅ Toggle Cart Handler */
+  /**  Toggle Cart Handler */
   const handleCartToggle = (e) => {
     e.stopPropagation(); // Prevent triggering Explore navigation
 

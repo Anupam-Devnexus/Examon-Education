@@ -7,7 +7,7 @@ import "react-phone-input-2/lib/style.css";
 import axios from "axios";
 
 const ContactUspageForm = () => {
-  // ✅ Centralized state for form fields
+  //  Centralized state for form fields
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -16,15 +16,15 @@ const ContactUspageForm = () => {
     message: "",
   });
 
-  // ✅ Email validation regex
+  //  Email validation regex
   const validateEmail = (email) => /\S+@\S+\.\S+/.test(email);
 
-  // ✅ Phone number validation (basic length & numeric)
+  //  Phone number validation (basic length & numeric)
   const validatePhone = (phone) => {
     return phone && phone.replace(/\D/g, "").length >= 10;
   };
 
-  // ✅ Input change handler
+  //  Input change handler
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -32,10 +32,10 @@ const ContactUspageForm = () => {
     });
   };
 
-  // ✅ API base URL (for maintainability)
+  //  API base URL (for maintainability)
   const API_BASE = "http://194.238.18.1:3004/api";
 
-  // ✅ Handle form submission
+  //  Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -68,8 +68,8 @@ const ContactUspageForm = () => {
       });
 
       if (response.status === 200 || response.status === 201) {
-        toast.success("✅ Message sent successfully!");
-        // 🔄 Reset form after success
+        toast.success(" Message sent successfully!");
+        // Reset form after success
         setFormData({
           firstName: "",
           lastName: "",
@@ -81,14 +81,14 @@ const ContactUspageForm = () => {
         toast.error("Something went wrong. Please try again later.");
       }
     } catch (error) {
-      console.error("❌ Contact form error:", error);
+      console.error(" Contact form error:", error);
       toast.error("Failed to send message. Please check your connection.");
     }
   };
 
   return (
     <div className="flex flex-col rounded-2xl shadow-md overflow-hidden gap-8 p-6 bg-white max-w-6xl mx-auto lg:flex-row">
-      {/* ✅ Toast Notifications */}
+      {/*  Toast Notifications */}
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
 
       {/* ================== Left Section: Contact Form ================== */}

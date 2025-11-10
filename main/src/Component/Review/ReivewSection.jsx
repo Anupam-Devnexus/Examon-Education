@@ -44,7 +44,7 @@ console.log(coursesData);
       }
 
       const response = await axios.post(
-        "http://194.238.18.1:3004/api/reviews", // Replace with actual endpoint
+        "http://194.238.18.1:3004/api/review/create", // Replace with actual endpoint
         {
           courseId: selectedCourse,
           rating,

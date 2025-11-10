@@ -51,10 +51,10 @@ const DynamicCourse = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [foundCourse]);
 
-  // ✅ Handle Loading
+  //  Handle Loading
   if (loading) return <LoadingScreen />;
 
-  // ✅ Handle Error
+  //  Handle Error
   if (error) {
     return (
       <main className="w-full min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4 text-center">
@@ -68,7 +68,7 @@ const DynamicCourse = () => {
     );
   }
 
-  // ✅ Handle Not Found
+  //  Handle Not Found
   if (!course) {
     return (
       <main className="w-full min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4 text-center">
@@ -82,7 +82,7 @@ const DynamicCourse = () => {
     );
   }
 
-  // ✅ Main Render
+  //  Main Render
   return (
     <main className="w-full flex flex-col items-center bg-white">
       {/* =====================  Hero Section ===================== */}

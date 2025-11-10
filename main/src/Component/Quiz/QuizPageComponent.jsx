@@ -9,7 +9,9 @@ const DynamicTest = ({ quizData }) => {
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(0); // Timer in seconds
 
+  /** Initialize quiz answers and timer **/
   useEffect(() => {
     if (quizData?.questions?.length) {
       setAnswers(
@@ -19,8 +21,27 @@ const DynamicTest = ({ quizData }) => {
           correctAnswerIndex: q.correctAnswerIndex ?? null,
         }))
       );
+
+      // Timer (fetched from API or default 5 mins)
+      const totalSeconds = (quizData.timer || 5 * 60); // assume seconds or convert from minutes if needed
+      setTimeLeft(totalSeconds);
     }
   }, [quizData]);
+
+  /** Countdown Timer **/
+  useEffect(() => {
+    if (hasSubmitted || timeLeft <= 0) return;
+    const timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
+    return () => clearInterval(timer);
+  }, [timeLeft, hasSubmitted]);
+
+  /** Auto-submit when time runs out **/
+  useEffect(() => {
+    if (timeLeft === 0 && !hasSubmitted) {
+      toast.warn("⏰ Time's up! Submitting your quiz...");
+      handleSubmit();
+    }
+  }, [timeLeft, hasSubmitted]);
 
   const handleOptionSelect = useCallback((questionIndex, optionIndex) => {
     setAnswers((prev) =>
@@ -45,13 +66,13 @@ const DynamicTest = ({ quizData }) => {
   const handleSubmit = useCallback(async () => {
     const hasAnyAnswer = answers.some((a) => a.selectedIndex !== null);
     if (!hasAnyAnswer)
-      return toast.warn(" Please answer or skip at least one question!");
+      return toast.warn("Please answer or skip at least one question!");
 
     const storedAuth = localStorage.getItem("auth");
-    if (!storedAuth) return toast.warn("⚠️ Please login before submitting!");
+    if (!storedAuth) return toast.warn("Please login before submitting!");
 
     const { token } = JSON.parse(storedAuth);
-    if (!token) return toast.error("❌ Invalid session. Please login again.");
+    if (!token) return toast.error("Invalid session. Please login again.");
 
     try {
       setSubmitting(true);
@@ -66,11 +87,10 @@ const DynamicTest = ({ quizData }) => {
           timeout: 10000,
         }
       );
-      console.log("✅ Quiz submitted successfully", answers);
       toast.success("✅ Quiz submitted successfully!");
       setHasSubmitted(true);
     } catch (err) {
-      console.error("❌ Submission failed:", err);
+      console.error(" Submission failed:", err);
       toast.error(err.response?.data?.message || "Submission failed!");
     } finally {
       setSubmitting(false);
@@ -80,7 +100,7 @@ const DynamicTest = ({ quizData }) => {
   const currentQuestion = quizData?.questions?.[currentQuestionIndex];
   if (!quizData?.questions?.length) return <p>Loading quiz...</p>;
 
-  /** 🧮 Calculate Marks & Percentage **/
+  /** Marks & Percentage Calculation **/
   const { score, total, percentage } = useMemo(() => {
     if (!hasSubmitted) return { score: 0, total: 0, percentage: 0 };
     const totalQ = answers.length;
@@ -95,20 +115,60 @@ const DynamicTest = ({ quizData }) => {
 
   const isFail = percentage < 40;
 
+  /** Progress bar calculation **/
+  const progressPercent = useMemo(() => {
+    if (!quizData?.questions?.length) return 0;
+    return ((currentQuestionIndex + 1) / quizData.questions.length) * 100;
+  }, [currentQuestionIndex, quizData]);
+
+  /** Format timer (mm:ss) **/
+  const formatTime = (seconds) => {
+    const min = Math.floor(seconds / 60);
+    const sec = seconds % 60;
+    return `${min.toString().padStart(2, "0")}:${sec
+      .toString()
+      .padStart(2, "0")}`;
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="text-center border-b pb-4 mb-4">
+      <div className="text-left border-b pb-4 mb-4">
         <h2 className="text-2xl md:text-3xl font-bold text-gray-800">
           {quizData?.title || "Quiz"}
         </h2>
         <p className="text-gray-500 mt-1">{quizData?.description}</p>
       </div>
 
+      {/* Timer + Progress */}
+      {!hasSubmitted && (
+        <div className="flex justify-between items-center mb-4">
+          <p className="text-sm font-medium text-gray-600">
+            Question {currentQuestionIndex + 1} / {quizData.questions.length}
+          </p>
+          <p
+            className={`font-semibold flex items-center gap-3 ${timeLeft < 30 ? "text-red-500" : "text-gray-700"
+              }`}
+          >
+            <img src="/timer.svg" alt="" className="h-6 w-6" /> {formatTime(timeLeft)}
+          </p>
+        </div>
+      )}
+
+      {/* Progress Bar */}
+      {!hasSubmitted && (
+        <div className="w-full bg-gray-200 rounded-full h-3 mb-4 overflow-hidden">
+          <div
+            className="h-3 bg-[var(--primary-color)] transition-all duration-500"
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
+      )}
+
       {/* Quiz Section */}
       {!hasSubmitted && currentQuestion && (
         <div className="space-y-6">
-          <div className="border rounded-2xl shadow-sm p-5 bg-white transition-all">
+          <div className="rounded-2xl shadow-sm p-5 bg-white transition-all">
             <h3 className="font-semibold text-lg text-gray-800 mb-3">
               {currentQuestionIndex + 1}.{" "}
               {currentQuestion.text || currentQuestion.question}
@@ -126,8 +186,8 @@ const DynamicTest = ({ quizData }) => {
                       handleOptionSelect(currentQuestionIndex, optionIndex)
                     }
                     className={`cursor-pointer flex items-center gap-3 border p-3 rounded-xl transition-all ${isSelected
-                        ? "bg-[var(--primary-color)] text-white border-[var(--primary-color)]"
-                        : "bg-gray-50 hover:bg-gray-100 border-gray-200"
+                      ? "bg-[var(--primary-color)] text-white border-[var(--primary-color)]"
+                      : "bg-gray-50 hover:bg-gray-100 border-gray-200"
                       }`}
                   >
                     <input
@@ -144,18 +204,18 @@ const DynamicTest = ({ quizData }) => {
             </div>
 
             {/* Buttons */}
-            <div className="flex justify-between mt-6">
+            <div className="flex justify-end gap-4 mt-6">
               <button
                 onClick={handleSkip}
                 disabled={submitting}
-                className="px-5 py-2 bg-gray-400 text-white rounded-xl hover:bg-gray-500 transition-all disabled:opacity-60"
+                className="px-5 cursor-pointer py-2 bg-gray-400 text-white rounded-xl hover:bg-gray-500 transition-all disabled:opacity-60"
               >
                 Skip
               </button>
               <button
                 onClick={handleNext}
                 disabled={submitting}
-                className="px-6 py-2 bg-[var(--primary-color)] text-white rounded-xl hover:bg-[var(--secondary-color)] transition-all disabled:opacity-60"
+                className="px-6 cursor-pointer py-2 bg-[var(--primary-color)] text-white rounded-xl hover:bg-[var(--secondary-color)] transition-all disabled:opacity-60"
               >
                 {currentQuestionIndex === quizData.questions.length - 1
                   ? submitting
@@ -168,31 +228,71 @@ const DynamicTest = ({ quizData }) => {
         </div>
       )}
 
-      {/* ✅ Result Section */}
+      {/* Result Section */}
       {hasSubmitted && (
-        <div className="mt-10 space-y-8">
-          <div
-            className={`text-center border rounded-xl p-6 shadow-sm ${isFail
-                ? "bg-red-50 border-red-300 text-red-700"
-                : "bg-green-50 border-green-300 text-green-700"
-              }`}
-          >
-            <h3 className="text-2xl font-bold mb-2">
-              {isFail ? "❌ You Failed" : "🎉 You Passed!"}
-            </h3>
-            <p className="text-lg font-semibold">
-              Score: {score} / {total}
-            </p>
-            <p className="text-md mt-1 font-medium">
-              Percentage: <span className="font-semibold">{percentage}%</span>
-            </p>
+        <div className=" space-y-8">
+          <div className="relative flex flex-col items-center justify-start">
+            {/* Background Ellipse */}
+            <div className="absolute z-999 -left-10  opacity-20">
+              <img
+                src={isFail ? "/red_Ellipse.svg" : "/green_Ellipse.svg"}
+                alt="Result Ellipse"
+                className="w-64 h-64"
+              />
+            </div>
+
+            {/* Result Card */}
+            <div
+              className={`relative text-center rounded-md p-8 shadow-sm w-full  
+          ${isFail ? "bg-[#FFE6E6] text-red-700" : "bg-[#E8FFF1] text-green-700"}`}
+            >
+              <div className="flex justify-center mb-4">
+                <img
+                  src={isFail ? "/sad.svg" : "/happy.svg"}
+                  alt="Result Icon"
+                  className="w-16 h-16"
+                />
+              </div>
+
+              <p
+                className={`text-sm font-semibold ${isFail ? "text-red-600" : "text-green-600"
+                  }`}
+              >
+                Your Score: {percentage}%
+              </p>
+
+              <h3
+                className={`text-2xl sm:text-3xl font-bold mt-2 ${isFail ? "text-[#FF1111]" : "text-green-600"
+                  }`}
+              >
+                {isFail ? "Better Luck Next Time!" : "Congratulations, You Passed!"}
+              </h3>
+
+              <p className="mt-3 text-[#747474] text-sm sm:text-base">
+                {isFail
+                  ? "Strengthen your preparation with our expert-led courses to enhance your performance and achieve success."
+                  : "Continue your learning journey by exploring our advanced courses for further improvement."}
+              </p>
+
+              {/* <p className="mt-4 text-lg font-semibold text-gray-800">
+                Score: {score} / {total}
+              </p> */}
+            </div>
           </div>
 
           {/* Detailed Review */}
           <div className="space-y-6">
             <h4 className="text-xl font-semibold text-gray-800">
-              📋 Review Your Answers
+              Review Your Answers
             </h4>
+            <div className="flex items-center gap-3">
+              <span className="w-5 h-5 bg-green-100 border-green-400 border inline-block rounded-sm" />
+              <span className="text-sm text-gray-700">Correct Answer</span>
+              <span className="w-5 h-5 bg-red-100 border-red-400 border inline-block rounded-sm ml-4" />
+              <span className="text-sm text-gray-700">Your Answer</span>
+              <span className="w-5 h-5 bg-yellow-100 border-yellow-400 border inline-block rounded-sm ml-4" />
+              <span className="text-sm text-gray-700">Skipped Question</span>
+            </div>
             {quizData.questions.map((q, index) => {
               const userAnswerIndex = answers[index]?.selectedIndex;
               const correctAnswerIndex = q.correctAnswerIndex;
