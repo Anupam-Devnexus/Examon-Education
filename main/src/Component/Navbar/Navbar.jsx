@@ -3,22 +3,22 @@ import React, {
   useEffect,
   useRef,
   useCallback,
-  useMemo
+  useMemo,
+  lazy , Suspense
 } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { CiSearch, CiUser } from "react-icons/ci";
 import { FiMenu, FiX, FiShoppingCart } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { useExamStore } from "../../Zustand/GetAllExams";
+import GlobalSearchModal from "../GlobalSearch";
 import CryptoJS from "crypto-js";
-import Cookies from "js-cookie";
 
-/** SECRET KEY for encryption – must match your auth store **/
-const SECRET_KEY = import.meta.env.VITE_ENCRYPTION_KEY;
 
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   /** ------------------ UI States ------------------ **/
   const [menuOpen, setMenuOpen] = useState(false);
@@ -72,7 +72,6 @@ const Navbar = () => {
     return authData?.user?.refreshToken || null;
   }, []);
 
-  /** ------------------ Logout ------------------ **/
 
 
   /** ------------------ Navigation ------------------ **/
@@ -236,7 +235,8 @@ const Navbar = () => {
 
             <CiSearch
               className="text-2xl text-gray-600 cursor-pointer hover:text-[var(--primary-color)] transition"
-              onClick={() => setSearchOpen(true)}
+             onClick={() => setIsSearchOpen(true)}
+          
             />
 
             <div className="hidden md:block w-1 border-2 rounded-2xl bg-pink-500 h-10"></div>
@@ -339,6 +339,9 @@ const Navbar = () => {
             </motion.div>
           )}
         </AnimatePresence>
+        <Suspense fallback={null}>
+        <GlobalSearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      </Suspense>
       </nav>
     </>
   );

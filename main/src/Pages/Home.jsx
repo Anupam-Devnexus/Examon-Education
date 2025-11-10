@@ -13,8 +13,6 @@ import CoursesYouLike from '../Component/CoursesYouLike'
 
 const Home = () => {
 
-
-
   return (
     <div className='flex flex-col '>
 

@@ -16,7 +16,7 @@ import { useAuthStore } from "./Zustand/useAuthStore";
 import Navbar from "./Component/Navbar/Navbar";
 import Footer from "./Component/Footer";
 
-/* 🔹 Lazy-loaded pages for better performance */
+/* Lazy-loaded pages for better performance */
 const Home = lazy(() => import("./Pages/Home"));
 const Aboutus = lazy(() => import("./Pages/Aboutus"));
 const ContactUs = lazy(() => import("./Pages/ContactUs"));
@@ -33,7 +33,7 @@ const Cart = lazy(() => import("./Pages/Cart"));
 const Login = lazy(() => import("./auth/Login"));
 const Register = lazy(() => import("./auth/Register"));
 
-/* 🔐 Protected Route Component */
+/* Protected Route Component */
 const ProtectedRoute = ({ children }) => {
   const storedAuth = JSON.parse(localStorage.getItem("auth"));
   const token = storedAuth?.user?.refreshToken || storedAuth?.token;
@@ -41,7 +41,7 @@ const ProtectedRoute = ({ children }) => {
   return token ? children : <Navigate to="/login" replace />;
 };
 
-/* 🌍 Main App */
+/*  Main App */
 function App() {
   const initialized = useAuthStore((state) => state.initialized);
   const restoreSession = useAuthStore((state) => state.restoreSession);
@@ -60,10 +60,10 @@ function App() {
   return (
     <Router>
       <div className="App flex flex-col min-h-screen bg-white text-gray-900">
-        {/* 🌐 Global Navbar */}
+        {/*  Global Navbar */}
         <Navbar />
 
-        {/* ⚡ Lazy-load route components */}
+        {/* Lazy-load route components */}
         <Suspense
           fallback={
             <div className="flex justify-center items-center h-[60vh] text-gray-500 animate-pulse text-lg font-medium">
@@ -72,7 +72,7 @@ function App() {
           }
         >
           <Routes>
-            {/* 🔓 Public Routes */}
+            {/*  Public Routes */}
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<Aboutus />} />
             <Route path="/courses" element={<Courses />} />
@@ -85,12 +85,12 @@ function App() {
             <Route path="/blog/:id" element={<DynamicBlog />} />
 
 
-            {/* 🔸 Dynamic Routes */}
+            {/*  Dynamic Routes */}
             <Route path="/courses/:courseId" element={<DynamicCourses />} />
             <Route path="/exams/:_id" element={<DynamicExam />} />
             <Route path="/quiz/:_id" element={<DynamicQuiz />} />
 
-            {/* 🔒 Protected Routes */}
+            {/*  Protected Routes */}
             <Route
               path="/profile"
               element={
@@ -108,7 +108,7 @@ function App() {
               }
             />
 
-            {/* 🚫 Fallback 404 */}
+            {/*  Fallback 404 */}
             <Route
               path="*"
               element={
@@ -120,10 +120,10 @@ function App() {
           </Routes>
         </Suspense>
 
-        {/* 🌍 Global Footer */}
+        {/* Global Footer */}
         <Footer />
 
-        {/* 🔔 Toast Notifications */}
+        {/* Toast Notifications */}
         <ToastContainer
           position="top-right"
           autoClose={1000}
