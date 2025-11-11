@@ -1,102 +1,125 @@
-// src/Component/ViewQuizPop.jsx
-import React from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { X } from "lucide-react";
+import React, { useEffect, useMemo } from "react";
+import { useParams } from "react-router-dom";
+import { useAllQuiz } from "../Zustand/GetAllQuiz";
+import { motion } from "framer-motion";
 
-/**
- * ViewQuizPop
- * Clean, modern, and lightweight quiz summary modal.
- * Designed for production with smooth animations & minimal overhead.
- */
-const ViewQuizPop = ({ isOpen, onClose, quiz }) => {
-  if (!isOpen || !quiz) return null;
+const ViewQuizPage = () => {
+  const { id } = useParams(); // quizId from URL like /quiz/:id
+  const Data = JSON.parse(localStorage.getItem("auth"));
+  const AttemptedQuiz = Data?.user?.attemptedQuizzes || [];
+  console.log("AttemptedQuiz:", AttemptedQuiz);
+
+  setTimeout(()=>{
+    scrollTo(0, 0);
+  },100)
+
+  // Get the attempted quiz data by matching quizId
+  const quiz = AttemptedQuiz.find((q) => q.quizId === id);
+
+  const { quizData, fetchQuiz } = useAllQuiz();
+
+  useEffect(() => {
+    if (quizData.length === 0) fetchQuiz();
+  }, [quizData.length, fetchQuiz]);
+
+  // Merge question data with attempted answers
+  const mergedAnswers = useMemo(() => {
+    if (!quiz || !quiz.answers || quizData.length === 0) return [];
+    const currentQuizData = quizData.find((q) => q._id === id);
+    if (!currentQuizData) return [];
+
+    return quiz.answers.map((ans) => {
+      const question = currentQuizData.questions.find(
+        (q) => q.questionId === ans.questionId
+      );
+      return {
+        ...ans,
+        questionText: question?.questionText || "Question not found",
+        options: question?.options || [],
+      };
+    });
+  }, [quiz, quizData, id]);
+
+  if (!quiz)
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-lg text-gray-600">Quiz not found or not attempted yet.</p>
+      </div>
+    );
 
   return (
-    <AnimatePresence>
+    <div className="max-w-5xl mx-auto p-6">
+      {/* ===== HEADER ===== */}
       <motion.div
-        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[999] flex items-center justify-center px-4"
+        initial={{ opacity: 0, y: -15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="mb-6"
+      >
+        <h1 className="text-2xl sm:text-3xl font-bold text-[var(--primary-color)] mb-2">
+          {quiz.quizTitle || "Quiz Result"}
+        </h1>
+        <div className="text-gray-700 flex flex-wrap gap-4">
+          <p>
+            <span className="font-semibold">Score:</span> {quiz.score} /{" "}
+            {quiz.totalMarks}
+          </p>
+          <p>
+            <span className="font-semibold">Attempted At:</span>{" "}
+            {new Date(quiz.attemptedAt).toLocaleString()}
+          </p>
+        </div>
+      </motion.div>
+
+      {/* ===== ANSWERS SECTION ===== */}
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
+        transition={{ delay: 0.1, duration: 0.4 }}
       >
-        <motion.div
-          className="bg-white rounded-2xl shadow-2xl w-5xl  max-h-[85vh] overflow-y-auto p-6"
-          initial={{ y: 40, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: 40, opacity: 0 }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
-        >
-          {/* Header */}
-          <div className="flex justify-between items-center border-b pb-3 mb-4">
-            <h2 className="text-lg sm:text-3xl font-bold text-[var(--primary-color)]">
-              {quiz.quizTitle || "Quiz Details"}
-            </h2>
-            <button
-              onClick={onClose}
-              className="text-gray-600 cursor-pointer hover:text-red-500 transition"
-            >
-              <X size={22} />
-            </button>
+        {mergedAnswers.length > 0 ? (
+          <div className="space-y-5">
+            {mergedAnswers.map((ans, index) => (
+              <div
+                key={ans.questionId}
+                className={`rounded-2xl border p-5 shadow-md transition-all duration-200 ${
+                  ans.isCorrect
+                    ? "bg-green-50 border-green-300"
+                    : "bg-red-50 border-red-300"
+                }`}
+              >
+                <h2 className="text-base sm:text-lg font-semibold text-gray-800 mb-3">
+                  Q{index + 1}. {ans.questionText}
+                </h2>
+                <ul className="ml-5 list-disc space-y-1 text-sm sm:text-base text-gray-700">
+                  {ans.options.map((opt, i) => (
+                    <li
+                      key={i}
+                      className={`${
+                        i === ans.correctAnswerIndex
+                          ? "text-green-700 font-semibold"
+                          : i === ans.selectedIndex
+                          ? "text-red-600"
+                          : ""
+                      }`}
+                    >
+                      {opt}
+                      {i === ans.correctAnswerIndex && " ✅"}
+                      {i === ans.selectedIndex && !ans.isCorrect && " ❌"}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
-
-          {/* Basic Info */}
-          <div className="space-y-1 mb-5 flex items-center justify-between text-sm sm:text-base text-gray-700">
-            <p>
-              <span className="font-bold text-[var(--primary-color)]">Score:</span> {quiz.score} /{" "}
-              {quiz.totalMarks}
-            </p>
-            <p>
-              <span className="font-bold text-[var(--primary-color)]">Attempted At:</span>{" "}
-              {new Date(quiz.attemptedAt).toLocaleString()}
-            </p>
-          </div>
-
-          {/* Answers Section */}
-          <div>
-            <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-3">
-              Answers Overview
-            </h3>
-            <div className="space-y-3">
-              {quiz.answers?.map((ans, i) => (
-                <div
-                  key={i}
-                  className={`rounded-xl border p-3 sm:p-4 transition-all duration-200 ${
-                    ans.isCorrect
-                      ? "bg-green-50 border-green-300"
-                      : "bg-red-50 border-red-300"
-                  }`}
-                >
-                  <p className="text-sm font-medium text-gray-900 mb-1">
-                    <span className="font-semibold">Q{i + 1}:</span>{" "}
-                    {ans.question || ans.questionId}
-                  </p>
-
-                  {ans.options && (
-                    <ul className="ml-4 list-disc space-y-0.5 text-sm text-gray-700">
-                      {ans.options.map((opt, j) => (
-                        <li
-                          key={j}
-                          className={`${
-                            j === ans.correctAnswerIndex
-                              ? "font-semibold text-green-600"
-                              : j === ans.selectedIndex
-                              ? "text-red-600"
-                              : ""
-                          }`}
-                        >
-                          {opt}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </motion.div>
+        ) : (
+          <p className="text-gray-500 italic">
+            No answer details available for this quiz.
+          </p>
+        )}
       </motion.div>
-    </AnimatePresence>
+    </div>
   );
 };
 
-export default ViewQuizPop;
+export default ViewQuizPage;

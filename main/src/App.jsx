@@ -32,6 +32,7 @@ const DynamicBlog = lazy(() => import("./Pages/DynamicBlog"));
 const Cart = lazy(() => import("./Pages/Cart"));
 const Login = lazy(() => import("./auth/Login"));
 const Register = lazy(() => import("./auth/Register"));
+const ViewQuizPop = lazy(() => import("./Component/ViewQuizPop"));
 
 /* Protected Route Component */
 const ProtectedRoute = ({ children }) => {
@@ -40,6 +41,7 @@ const ProtectedRoute = ({ children }) => {
 
   return token ? children : <Navigate to="/login" replace />;
 };
+
 
 /*  Main App */
 function App() {
@@ -89,6 +91,7 @@ function App() {
             <Route path="/courses/:courseId" element={<DynamicCourses />} />
             <Route path="/exams/:_id" element={<DynamicExam />} />
             <Route path="/quiz/:_id" element={<DynamicQuiz />} />
+            <Route path="/view-quiz/:_id" element={<ViewQuizPop />} />
 
             {/*  Protected Routes */}
             <Route

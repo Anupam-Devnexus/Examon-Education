@@ -75,7 +75,7 @@ const Cart = () => {
   console.log(cart);
   return (
     <motion.div
-      className="min-h-screen bg-gray-50 py-10 px-4 sm:px-8 md:px-12 lg:px-20"
+      className="min-h-screen mb-14 bg-gray-50 py-10 px-4 sm:px-8 md:px-12 lg:px-20"
       initial="hidden"
       animate="visible"
       variants={containerVariants}

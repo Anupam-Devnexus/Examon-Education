@@ -231,10 +231,10 @@ const Navbar = () => {
             })}
 
             {/* Search Icon */}
-            <CiSearch
+            {/* <CiSearch
               className="text-2xl text-gray-600 cursor-pointer hover:text-[var(--primary-color)] transition"
               onClick={() => setIsSearchOpen(true)}
-            />
+            /> */}
 
             <div className="h-8 w-px bg-gray-300" />
 
@@ -264,10 +264,10 @@ const Navbar = () => {
 
           {/* Mobile Menu */}
           <div className="md:hidden flex items-center gap-3">
-            <CiSearch
+            {/* <CiSearch
               className="text-xl text-gray-600 cursor-pointer hover:text-[var(--primary-color)] transition"
               onClick={() => setIsSearchOpen(true)}
-            />
+            /> */}
             <button
               onClick={() => setMenuOpen((prev) => !prev)}
               aria-label={menuOpen ? "Close menu" : "Open menu"}

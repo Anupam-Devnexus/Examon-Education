@@ -9,7 +9,8 @@ const DynamicTest = ({ quizData }) => {
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(0); // Timer in seconds
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [timerStarted, setTimerStarted] = useState(false); // to prevent early toasts
 
   /** Initialize quiz answers and timer **/
   useEffect(() => {
@@ -22,8 +23,7 @@ const DynamicTest = ({ quizData }) => {
         }))
       );
 
-      // Timer (fetched from API or default 5 mins)
-      const totalSeconds = (quizData.timer || 5 * 60); // assume seconds or convert from minutes if needed
+      const totalSeconds = quizData.timer || 5 * 60;
       setTimeLeft(totalSeconds);
     }
   }, [quizData]);
@@ -31,17 +31,28 @@ const DynamicTest = ({ quizData }) => {
   /** Countdown Timer **/
   useEffect(() => {
     if (hasSubmitted || timeLeft <= 0) return;
-    const timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev > 1) return prev - 1;
+        clearInterval(timer);
+        return 0;
+      });
+    }, 1000);
+
+    if (!timerStarted && quizData?.questions?.length) {
+      setTimerStarted(true);
+    }
+
     return () => clearInterval(timer);
-  }, [timeLeft, hasSubmitted]);
+  }, [timeLeft, hasSubmitted, quizData, timerStarted]);
 
   /** Auto-submit when time runs out **/
   useEffect(() => {
-    if (timeLeft === 0 && !hasSubmitted) {
-      toast.warn("⏰ Time's up! Submitting your quiz...");
+    if (timeLeft === 0 && !hasSubmitted && timerStarted) {
+      toast.warn("Time's up! Submitting your quiz...");
       handleSubmit();
     }
-  }, [timeLeft, hasSubmitted]);
+  }, [timeLeft, hasSubmitted, timerStarted]);
 
   const handleOptionSelect = useCallback((questionIndex, optionIndex) => {
     setAnswers((prev) =>
@@ -64,10 +75,6 @@ const DynamicTest = ({ quizData }) => {
   }, [currentQuestionIndex, quizData]);
 
   const handleSubmit = useCallback(async () => {
-    const hasAnyAnswer = answers.some((a) => a.selectedIndex !== null);
-    if (!hasAnyAnswer)
-      return toast.warn("Please answer or skip at least one question!");
-
     const storedAuth = localStorage.getItem("auth");
     if (!storedAuth) return toast.warn("Please login before submitting!");
 
@@ -87,10 +94,10 @@ const DynamicTest = ({ quizData }) => {
           timeout: 10000,
         }
       );
-      toast.success("✅ Quiz submitted successfully!");
+      toast.success("Quiz submitted successfully!");
       setHasSubmitted(true);
     } catch (err) {
-      console.error(" Submission failed:", err);
+      console.error("Submission failed:", err);
       toast.error(err.response?.data?.message || "Submission failed!");
     } finally {
       setSubmitting(false);
@@ -147,10 +154,12 @@ const DynamicTest = ({ quizData }) => {
             Question {currentQuestionIndex + 1} / {quizData.questions.length}
           </p>
           <p
-            className={`font-semibold flex items-center gap-3 ${timeLeft < 30 ? "text-red-500" : "text-gray-700"
-              }`}
+            className={`font-semibold flex items-center gap-3 ${
+              timeLeft < 30 ? "text-red-500" : "text-gray-700"
+            }`}
           >
-            <img src="/timer.svg" alt="" className="h-6 w-6" /> {formatTime(timeLeft)}
+            <img src="/timer.svg" alt="" className="h-6 w-6" />{" "}
+            {formatTime(timeLeft)}
           </p>
         </div>
       )}
@@ -185,10 +194,11 @@ const DynamicTest = ({ quizData }) => {
                     onClick={() =>
                       handleOptionSelect(currentQuestionIndex, optionIndex)
                     }
-                    className={`cursor-pointer flex items-center gap-3 border p-3 rounded-xl transition-all ${isSelected
-                      ? "bg-[var(--primary-color)] text-white border-[var(--primary-color)]"
-                      : "bg-gray-50 hover:bg-gray-100 border-gray-200"
-                      }`}
+                    className={`cursor-pointer flex items-center gap-3 border p-3 rounded-xl transition-all ${
+                      isSelected
+                        ? "bg-[var(--primary-color)] text-white border-[var(--primary-color)]"
+                        : "bg-gray-50 hover:bg-gray-100 border-gray-200"
+                    }`}
                   >
                     <input
                       type="radio"
@@ -232,8 +242,7 @@ const DynamicTest = ({ quizData }) => {
       {hasSubmitted && (
         <div className=" space-y-8">
           <div className="relative flex flex-col items-center justify-start">
-            {/* Background Ellipse */}
-            <div className="absolute z-999 -left-10  opacity-20">
+            <div className="absolute z-999 -left-10 opacity-20">
               <img
                 src={isFail ? "/red_Ellipse.svg" : "/green_Ellipse.svg"}
                 alt="Result Ellipse"
@@ -241,10 +250,12 @@ const DynamicTest = ({ quizData }) => {
               />
             </div>
 
-            {/* Result Card */}
             <div
-              className={`relative text-center rounded-md p-8 shadow-sm w-full  
-          ${isFail ? "bg-[#FFE6E6] text-red-700" : "bg-[#E8FFF1] text-green-700"}`}
+              className={`relative text-center rounded-md p-8 shadow-sm w-full ${
+                isFail
+                  ? "bg-[#FFE6E6] text-red-700"
+                  : "bg-[#E8FFF1] text-green-700"
+              }`}
             >
               <div className="flex justify-center mb-4">
                 <img
@@ -255,15 +266,17 @@ const DynamicTest = ({ quizData }) => {
               </div>
 
               <p
-                className={`text-sm font-semibold ${isFail ? "text-red-600" : "text-green-600"
-                  }`}
+                className={`text-sm font-semibold ${
+                  isFail ? "text-red-600" : "text-green-600"
+                }`}
               >
                 Your Score: {percentage}%
               </p>
 
               <h3
-                className={`text-2xl sm:text-3xl font-bold mt-2 ${isFail ? "text-[#FF1111]" : "text-green-600"
-                  }`}
+                className={`text-2xl sm:text-3xl font-bold mt-2 ${
+                  isFail ? "text-[#FF1111]" : "text-green-600"
+                }`}
               >
                 {isFail ? "Better Luck Next Time!" : "Congratulations, You Passed!"}
               </h3>
@@ -273,10 +286,6 @@ const DynamicTest = ({ quizData }) => {
                   ? "Strengthen your preparation with our expert-led courses to enhance your performance and achieve success."
                   : "Continue your learning journey by exploring our advanced courses for further improvement."}
               </p>
-
-              {/* <p className="mt-4 text-lg font-semibold text-gray-800">
-                Score: {score} / {total}
-              </p> */}
             </div>
           </div>
 
@@ -293,6 +302,7 @@ const DynamicTest = ({ quizData }) => {
               <span className="w-5 h-5 bg-yellow-100 border-yellow-400 border inline-block rounded-sm ml-4" />
               <span className="text-sm text-gray-700">Skipped Question</span>
             </div>
+
             {quizData.questions.map((q, index) => {
               const userAnswerIndex = answers[index]?.selectedIndex;
               const correctAnswerIndex = q.correctAnswerIndex;

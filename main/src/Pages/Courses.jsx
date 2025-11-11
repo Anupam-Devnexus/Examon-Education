@@ -199,11 +199,10 @@ const Courses = () => {
             {Array.from({ length: totalPages }, (_, i) => (
               <span
                 key={i}
-                className={`w-12 h-1 rounded-full transition-all duration-300 ${
-                  i + 1 === currentPage
+                className={`w-12 h-1 rounded-full transition-all duration-300 ${i + 1 === currentPage
                     ? "bg-[var(--primary-color)] scale-125"
                     : "bg-gray-300"
-                }`}
+                  }`}
               ></span>
             ))}
           </div>

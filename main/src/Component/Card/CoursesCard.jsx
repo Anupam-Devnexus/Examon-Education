@@ -6,12 +6,6 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useCourseStore } from "../../Zustand/GetAllCourses";
 
-/**
- * Course Card Component
- * - Displays individual course information
- * - Handles add/remove from cart through heart icon
- * - Navigates to course detail page
- */
 
 const CoursesCard = ({
   id,
@@ -25,7 +19,7 @@ const CoursesCard = ({
   Discount,
   amount,
 }) => {
- 
+
   const { cart, addToCart, removeFromCart } = useCourseStore();
   const navigate = useNavigate();
 
@@ -65,19 +59,19 @@ const CoursesCard = ({
     }
   };
 
-  /** ✅ Navigate to Course Detail Page */
+  /**  Navigate to Course Detail Page */
   const handleNavigate = () => navigate(`/courses/${id}`);
 
   return (
     <div
-      className="rounded-xl bg-white flex flex-col flex-1 h-[500px] md:h-[520px] shadow-xl overflow-hidden transition-transform hover:scale-[1.02] duration-300"
+      className="rounded-xl bg-white flex flex-col flex-1 max-h-[600px]  shadow-xl overflow-hidden transition-transform hover:scale-[1.02] duration-300"
     >
       {/* === TOP SECTION (Image + Pricing) === */}
-      <div className="relative shadow-lg p-2 rounded-2xl w-full h-48 md:h-56 overflow-hidden">
+      <div className="relative shadow-lg p-2 rounded-2xl w-full h-52 md:h-62 overflow-hidden">
         <img
           src={img}
           alt={courseDetails}
-          className="object-cover rounded-2xl w-full h-[85%]"
+          className="object-center object-cover rounded-2xl w-full "
         />
 
         {/* === Pricing Overlay === */}
@@ -95,7 +89,7 @@ const CoursesCard = ({
         </span>
 
         {/* Inside Courses List */}
-        <ul className="text-sm text-gray-600 space-y-1 max-h-24 overflow-y-auto pr-1">
+        <ul className="text-sm text-gray-600 space-y-1 min-h-28 overflow-y-auto pr-1">
           {insideCourses.map((item, index) => (
             <li key={index} className="flex items-start gap-2">
               <TiTickOutline className="text-green-600 mt-1" />
@@ -104,22 +98,24 @@ const CoursesCard = ({
           ))}
         </ul>
 
+
+      </div>
+      <div className="p-3">
+
         {/* Perks */}
         <div className="flex flex-wrap gap-2 mt-2">
           {perks.map((perk, i) => (
             <div
               key={i}
-              className={`px-3 py-1 rounded-md text-white text-xs font-medium ${
-                perk.toLowerCase() === "new"
+              className={`px-3 py-1 rounded-md text-white text-xs font-medium ${perk.toLowerCase() === "new"
                   ? "bg-[#FF0000]"
                   : "bg-[var(--text-color)]"
-              }`}
+                }`}
             >
               {perk}
             </div>
           ))}
         </div>
-
         {/* Extra Discount */}
         {Discount && (
           <div className="flex items-center gap-2 text-sm text-[#FF0000] font-medium mt-2">

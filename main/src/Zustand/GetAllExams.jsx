@@ -6,7 +6,7 @@ export const useExamStore = create((set) => ({
   loading: false,
   error: null,
 
-  /** ✅ Fetch all exams */
+  /** Fetch all exams */
   fetchAllExams: async () => {
     set({ loading: true, error: null });
 

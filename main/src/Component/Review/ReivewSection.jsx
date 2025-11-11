@@ -43,6 +43,15 @@ export const ReviewSection = () => {
         setLoading(false);
         return;
       }
+       console.log(
+          "Submitting review:", {
+            clientname: Data?.user?.fullname,
+            profilePicture: Data?.user?.profileImage,
+            course: selectedCourse,
+            star:rating,
+            review: reviewText,
+          }
+        )
 
       const response = await axios.post(
         "http://194.238.18.1:3004/api/review/create", // Replace with actual endpoint
@@ -50,7 +59,7 @@ export const ReviewSection = () => {
           clientname: Data?.user?.fullname,
           profilePicture: Data?.user?.profileImage,
           course: selectedCourse,
-          star,
+          star:rating,
           review: reviewText,
         },
         {
@@ -59,6 +68,7 @@ export const ReviewSection = () => {
           },
         }
       );
+      
 
       toast.success("Review submitted successfully!");
       setSelectedCourse("");

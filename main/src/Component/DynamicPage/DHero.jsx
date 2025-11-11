@@ -96,7 +96,7 @@ const DHero = ({
 
         {/* 🧾 Title */}
         <motion.h1
-          className="text-3xl md:text-5xl font-bold text-[var(--primary-color)] leading-snug drop-shadow-sm"
+          className="text-xl md:text-3xl font-bold text-[var(--primary-color)] leading-snug drop-shadow-sm"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
@@ -127,7 +127,7 @@ const DHero = ({
             </div>
           ))}
         </motion.div>
-        <div className="flex items-center gap-3">
+        {/* <div className="flex items-center gap-3">
           {insideCourses?.map((course, index) => (
             <span
           key={index}
@@ -137,7 +137,7 @@ const DHero = ({
         </span>
           ))
           }
-        </div>
+        </div> */}
 
         {/*  Buttons */}
         <div className="flex items-center gap-4 mt-3">

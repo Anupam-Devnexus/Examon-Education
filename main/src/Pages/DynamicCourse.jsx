@@ -49,7 +49,7 @@ const fadeInUp = {
 const DynamicCourse = () => {
   const { courseId } = useParams();
   const navigate = useNavigate();
-  const { data, loading, error, fetchCourses, addToCart, removeFromCart , cart } = useCourseStore();
+  const { data, loading, error, fetchCourses, addToCart, removeFromCart, cart } = useCourseStore();
   const [course, setCourse] = useState(null);
 
   // Fetch courses
@@ -72,30 +72,30 @@ const DynamicCourse = () => {
   }, [foundCourse]);
 
   // ========== Heart / Add to Cart Click Handler ==========
-const handleEnroll = useCallback(() => {
-  const auth = JSON.parse(localStorage.getItem("auth"));
-  const token = auth?.token;
+  const handleEnroll = useCallback(() => {
+    const auth = JSON.parse(localStorage.getItem("auth"));
+    const token = auth?.token;
 
-  if (!token) {
-    toast.info("Please login to add this course to your favorites");
-    setTimeout(() => navigate("/login"), 700);
-    return;
-  }
+    if (!token) {
+      toast.info("Please login to add this course to your favorites");
+      setTimeout(() => navigate("/login"), 700);
+      return;
+    }
 
-  if (!course) {
-    toast.error("Unable to add course right now. Please try again.");
-    return;
-  }
+    if (!course) {
+      toast.error("Unable to add course right now. Please try again.");
+      return;
+    }
 
-  if (cart.some((item) => item._id === foundCourse._id)) {
-    toast.info("This course is already in your favorites");
-    return;
-  }
+    if (cart.some((item) => item._id === foundCourse._id)) {
+      toast.info("This course is already in your favorites");
+      return;
+    }
 
-  addToCart(foundCourse);
-  console.log("Added to favorites:", foundCourse);
-  toast.success(`${course.title} added to your favorites!`);
-}, [foundCourse, cart, addToCart, navigate]);
+    addToCart(foundCourse);
+    console.log("Added to favorites:", foundCourse);
+    toast.success(`${course.title} added to your favorites!`);
+  }, [foundCourse, cart, addToCart, navigate]);
 
 
   // Loading / Error / Not Found states
@@ -145,7 +145,7 @@ const handleEnroll = useCallback(() => {
             currentPrice={course.actualprice}
             percent={course.percent}
             perks={course.perks}
-            onEnroll={handleEnroll} 
+            onEnroll={handleEnroll}
             actualprice={course.actualprice}
             insideCourses={course?.insideCourses}
           />
@@ -153,12 +153,12 @@ const handleEnroll = useCallback(() => {
 
         {/* Stages */}
         <motion.section variants={fadeInUp} initial="hidden" whileInView="show" viewport={{ once: true }} className="w-full">
-          <StagesOfSSC item={foundCourse}/>
+          <StagesOfSSC item={foundCourse} />
         </motion.section>
 
         {/* Masterclass */}
         <motion.section variants={fadeInUp} initial="hidden" whileInView="show" viewport={{ once: true }} className="w-full">
-          <Masterclass item = {foundCourse}/>
+          <Masterclass item={foundCourse} />
         </motion.section>
 
         {/* Quiz and Notes */}
