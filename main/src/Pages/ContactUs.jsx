@@ -14,16 +14,16 @@ const ContactUs = () => {
         transition={{ duration: 0.8, ease: "easeOut" }}
       >
         <Hero
-          Title="Contact Us"
-          bg="https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
-          desc="We would love to hear from you!"
+          Title=""
+          bg="https://res.cloudinary.com/dt4ohfuwc/image/upload/v1762862824/IMG_2243_ojjaun.png"
+          desc=""
           alt="Contact background image"
         />
       </motion.section>
 
       {/* Contact Form Section */}
       <motion.section
-        className="relative z-[10] -mt-60 px-4 md:px-8 lg:px-16 py-25 flex justify-center"
+        className="relative z-[10] -mt-55 px-4 md:px-8 lg:px-16 py-25 flex justify-center"
         initial={{ opacity: 0, y: 80 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, duration: 0.9, ease: "easeOut" }}
