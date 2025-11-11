@@ -62,7 +62,7 @@ const HomeSlider = () => {
       x: 0,
       opacity: 1,
       scale: 1,
-      transition: { duration: .9, ease: "easeInOut" },
+      transition: { duration: .6, ease: "easeInOut" },
     },
     exit: (dir) => ({
       x: dir > 0 ? -1000 : 1000,
@@ -98,7 +98,7 @@ const HomeSlider = () => {
   return (
     <div className="p-2">
       <div
-        className="relative w-full h-[70vh] sm:h-[75vh] md:h-[80vh] overflow-hidden rounded-2xl shadow-lg"
+        className="relative w-full h-[70vh] sm:h-[75vh] overflow-hidden rounded-2xl shadow-lg"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -116,7 +116,7 @@ const HomeSlider = () => {
             <img
               src={batch.image}
               alt={batch.batchName}
-              className="w-full h-full object-fill object-center rounded-2xl"
+              className="w-full h-full object-cover object-center rounded-2xl"
             />
             <div className="absolute inset-0 bg-black/40 flex flex-col justify-end items-start p-8 md:p-14 text-white rounded-2xl">
               <h2 className="text-2xl sm:text-3xl  font-bold mb-4 max-w-2xl leading-tight">
@@ -129,18 +129,18 @@ const HomeSlider = () => {
                 Duration: {batch.duration} | Price: ₹{batch.price}
               </p>
 
-              <div className="flex gap-4 flex-wrap">
+              <div className="flex gap-4 w-full sm:w-auto">
                 <button
                   onClick={() => window.open(batch.enrollLink, "_blank")}
-                  className="bg-[var(--primary-color)] cursor-pointer hover:bg-[var(--text-color)] transition-all duration-300 text-white px-6 py-2 rounded-full font-semibold"
+                  className="bg-[var(--primary-color)] cursor-pointer hover:bg-[var(--text-color)] transition-all duration-300 text-white px-2 md:px-6 py-1 sm:py-2 rounded-full font-semibold"
                 >
                   Enroll Now
                 </button>
                 <button
-                  className="bg-transparent border-2 rounded-3xl cursor-pointer transition-all duration-300 text-white px-6 py-2 font-semibold"
-                  onClick={()=> navigate('/courses')}
+                  className="bg-transparent border-2 rounded-3xl cursor-pointer transition-all duration-300 text-white px-3 sm:px-6 py-1 sm:py-2 font-semibold"
+                  onClick={() => navigate('/courses')}
                 >
-                  Explore Courses 
+                  Explore Courses
                 </button>
               </div>
             </div>
