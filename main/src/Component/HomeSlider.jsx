@@ -18,6 +18,7 @@ const HomeSlider = () => {
   useEffect(() => {
     fetchBatches();
   }, [fetchBatches]);
+  // console.log(batchData)
 
   // Auto-slide every 4s
   useEffect(() => {
@@ -131,7 +132,7 @@ const HomeSlider = () => {
 
               <div className="flex gap-4 w-full sm:w-auto">
                 <button
-                  onClick={() => window.open(batch.enrollLink, "_blank")}
+                  onClick={() => window.open(batch.enrollLink, "https://classplusapp.com/")}
                   className="bg-[var(--primary-color)] cursor-pointer hover:bg-[var(--text-color)] transition-all duration-300 text-white px-2 md:px-6 py-1 sm:py-2 rounded-full font-semibold"
                 >
                   Enroll Now
