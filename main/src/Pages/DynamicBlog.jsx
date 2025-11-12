@@ -9,14 +9,14 @@ const DynamicBlog = () => {
   const navigate = useNavigate();
   const { blogData: allBlogs = [], fetchBlogs, loading } = useBlogStore();
 
-  // ✅ Fetch blogs if not loaded yet
+  //  Fetch blogs if not loaded yet
   useEffect(() => {
     if (!allBlogs || allBlogs.length === 0) fetchBlogs();
   }, [allBlogs?.length, fetchBlogs]);
 
   const blog = allBlogs.find((b) => b._id === id);
 
-  // ✅ Loading state
+  //  Loading state
   if (loading || !allBlogs.length) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
@@ -25,7 +25,7 @@ const DynamicBlog = () => {
     );
   }
 
-  // ✅ Not found state
+  //  Not found state
   if (!blog) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 text-center p-6">
@@ -43,7 +43,7 @@ const DynamicBlog = () => {
     );
   }
 
-  // ✅ Memoized, styled, and sanitized HTML
+  //  Memoized, styled, and sanitized HTML
   const styledHTML = useMemo(() => {
     if (!blog?.blogContent) return "";
 

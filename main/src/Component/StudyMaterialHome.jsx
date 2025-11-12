@@ -15,7 +15,7 @@ const StudyMaterialHome = () => {
     },
     {
       id: 2,
-      title: "PY Question Paper",
+      title: "PYQ's",
       description:
         "Access previous year question papers to analyze exam patterns and improve performance.",
       link: "/study-material",
