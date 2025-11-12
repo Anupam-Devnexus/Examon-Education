@@ -34,7 +34,6 @@ const Login = lazy(() => import("./auth/Login"));
 const Register = lazy(() => import("./auth/Register"));
 const ViewQuizPop = lazy(() => import("./Component/ViewQuizPop"));
 
-
 /*  Main App */
 function App() {
   const { restoreUser } = useAuthStore();
@@ -83,22 +82,22 @@ function App() {
             <Route path="/view-quiz/:_id" element={<ViewQuizPop />} />
 
             {/* Protected Routes */}
-           <Route
-  path="/profile"
-  element={
-    <ProtectedRoute>
-      <Profile />
-    </ProtectedRoute>
-  }
-/>
-<Route
-  path="/cart"
-  element={
-    <ProtectedRoute>
-      <Cart />
-    </ProtectedRoute>
-  }
-/>
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/cart"
+              element={
+                <ProtectedRoute>
+                  <Cart />
+                </ProtectedRoute>
+              }
+            />
 
             {/* Fallback 404 */}
             <Route

@@ -50,10 +50,10 @@ const UserProfile = () => {
   useEffect(() => {
     fetchCourses?.();
 
-    // 1️⃣ Try getting user from router state
+    //  Try getting user from router state
     const stateUser = location?.state?.user;
 
-    // 2️⃣ Fallback to localStorage mock data if user is null
+    // 2️ Fallback to localStorage mock data if user is null
     const authData = localStorage.getItem("auth");
     const parsedUser = authData ? JSON.parse(authData)?.user : null;
 

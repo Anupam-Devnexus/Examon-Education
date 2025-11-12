@@ -12,7 +12,7 @@ import { CiSearch, CiUser } from "react-icons/ci";
 import { FiMenu, FiX, FiShoppingCart } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { useExamStore } from "../../Zustand/GetAllExams";
-import { useAuthStore } from "../../Zustand/useAuthStore"; // ✅ Zustand Auth Store
+import { useAuthStore } from "../../Zustand/UserData"; // ✅ Zustand Auth Store
 
 // Lazy-load the global search modal
 const GlobalSearchModal = lazy(() => import("../GlobalSearch"));
@@ -68,7 +68,8 @@ const Navbar = () => {
     handleNavigate("/");
   }, [logout, handleNavigate]);
 
- 
+// console.log("user" , user)
+
 
   /** ------------------ Navigation Links ------------------ **/
   const navLinks = useMemo(
@@ -110,8 +111,8 @@ const Navbar = () => {
     },
     exit: { scaleX: 0, opacity: 0 },
   };
- const token = localStorage.getItem('token')
-  console.log(token)
+  const token = localStorage.getItem('token')
+  // console.log(token)
   /** ------------------ JSX ------------------ **/
   return (
     <>
@@ -182,9 +183,8 @@ const Navbar = () => {
                 <div key={path} className="relative">
                   <button
                     onClick={() => handleNavigate(path)}
-                    className={`text-gray-700 font-medium hover:text-[var(--primary-color)] transition ${
-                      isActive ? "text-[var(--primary-color)]" : ""
-                    }`}
+                    className={`text-gray-700 font-medium hover:text-[var(--primary-color)] transition ${isActive ? "text-[var(--primary-color)]" : ""
+                      }`}
                   >
                     {label}
                   </button>
@@ -220,7 +220,7 @@ const Navbar = () => {
                 <CiUser
                   className="text-2xl text-gray-700 cursor-pointer hover:text-[var(--primary-color)] transition"
                   onClick={() =>
-                    handleNavigate(`/profile/${user?._id || "me"}`)
+                    handleNavigate(`/profile`)
                   }
                 />
                 <button
@@ -279,11 +279,10 @@ const Navbar = () => {
                     <button
                       key={path}
                       onClick={() => handleNavigate(path)}
-                      className={`text-left border-l-2 py-2 px-2 ${
-                        location.pathname === path
-                          ? "text-[var(--primary-color)] font-semibold"
-                          : "text-gray-700"
-                      }`}
+                      className={`text-left border-l-2 py-2 px-2 ${location.pathname === path
+                        ? "text-[var(--primary-color)] font-semibold"
+                        : "text-gray-700"
+                        }`}
                     >
                       {label}
                     </button>
@@ -302,7 +301,7 @@ const Navbar = () => {
                       </button>
                       <button
                         onClick={() =>
-                          handleNavigate(`/profile/${user?._id || "me"}`)
+                          handleNavigate(`/profile}`)
                         }
                         className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-100"
                       >

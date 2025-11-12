@@ -67,7 +67,7 @@ const Login = () => {
       setUserData({ user, token: accessToken });
 
       toast.success("Login successful!", { duration: 500 });
-navigate("/profile");
+      navigate("/profile");
       setTimeout(() => {
         navigate("/profile");
       }, 1000);
@@ -142,8 +142,8 @@ navigate("/profile");
                   onChange={handleChange}
                   placeholder="Enter your email"
                   className={`w-full p-2 rounded-full border ${errors.email
-                      ? "border-red-500 focus:ring-red-400"
-                      : "border-gray-300 dark:border-gray-700 focus:ring-blue-400"
+                    ? "border-red-500 focus:ring-red-400"
+                    : "border-gray-300 dark:border-gray-700 focus:ring-blue-400"
                     } focus:outline-none focus:ring-2 dark:bg-gray-800 dark:text-white`}
                 />
                 {errors.email && (
@@ -165,8 +165,8 @@ navigate("/profile");
                     onChange={handleChange}
                     placeholder="Enter your password"
                     className={`w-full p-2 rounded-full border ${errors.password
-                        ? "border-red-500 focus:ring-red-400"
-                        : "border-gray-300 dark:border-gray-700 focus:ring-blue-400"
+                      ? "border-red-500 focus:ring-red-400"
+                      : "border-gray-300 dark:border-gray-700 focus:ring-blue-400"
                       } focus:outline-none focus:ring-2 dark:bg-gray-800 dark:text-white`}
                   />
                   <button
@@ -187,8 +187,8 @@ navigate("/profile");
                 type="submit"
                 disabled={loading}
                 className={`mt-3 w-full flex items-center justify-center gap-2 text-white py-2 rounded-full transition ${loading
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-blue-600 hover:bg-blue-700"
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700"
                   }`}
               >
                 {loading ? "Logging in..." : <>Login <FaArrowRight /></>}

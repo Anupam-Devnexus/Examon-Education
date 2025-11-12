@@ -4,12 +4,12 @@ import { persist } from "zustand/middleware";
 export const useAuthStore = create(
   persist(
     (set, get) => ({
-      // 🔹 State
+      // State
       user: null,
       token: null,
       isAuthenticated: false,
 
-      // ✅ Core Auth Updaters
+      //  Core Auth Updaters
       setUserData: ({ user, token }) => {
         set({
           user,
@@ -18,7 +18,7 @@ export const useAuthStore = create(
         });
       },
 
-      /** ⛳ Simplified Login helper */
+      /**  Simplified Login helper */
       login: (user, token) => {
         set({
           user,
@@ -27,7 +27,7 @@ export const useAuthStore = create(
         });
       },
 
-      /** 🧼 Update user fields mid-session */
+      /**  Update user fields mid-session */
       updateUser: (updates) => {
         const currentUser = get().user || {};
         set({
@@ -35,7 +35,7 @@ export const useAuthStore = create(
         });
       },
 
-      /** 🚪 Logout cleanly */
+      /** Logout cleanly */
       logout: () => {
         // remove persisted data
         localStorage.removeItem("auth");
@@ -47,13 +47,13 @@ export const useAuthStore = create(
       },
     }),
     {
-      name: "auth", // LocalStorage key
+      name: "auth",
       getStorage: () => localStorage,
       partialize: (state) => ({
         // Persist only necessary fields
-        user: state.user,
-        token: state.token,
-        isAuthenticated: state.isAuthenticated,
+        user: state?.user,
+        token: state?.token,
+        isAuthenticated: state?.isAuthenticated,
       }),
     }
   )
