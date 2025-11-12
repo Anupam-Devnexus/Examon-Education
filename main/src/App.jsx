@@ -1,4 +1,3 @@
-// src/App.jsx
 import React, { Suspense, lazy, useEffect, useCallback } from "react";
 import {
   BrowserRouter as Router,
@@ -12,9 +11,10 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./App.css";
 
-import { useAuthStore } from "./Zustand/useAuthStore";
+import { useAuthStore } from "./Zustand/UserData"; //  use your Zustand user store
 import Navbar from "./Component/Navbar/Navbar";
 import Footer from "./Component/Footer";
+import ProtectedRoute from "./auth/ProtectedRoute";
 
 /* Lazy-loaded pages for better performance */
 const Home = lazy(() => import("./Pages/Home"));
@@ -34,35 +34,25 @@ const Login = lazy(() => import("./auth/Login"));
 const Register = lazy(() => import("./auth/Register"));
 const ViewQuizPop = lazy(() => import("./Component/ViewQuizPop"));
 
-/* Protected Route Component */
-const ProtectedRoute = ({ children }) => {
-  const storedAuth = JSON.parse(localStorage.getItem("auth"));
-  const token = storedAuth?.user?.refreshToken || storedAuth?.token;
-
-  return token ? children : <Navigate to="/login" replace />;
-};
-
 
 /*  Main App */
 function App() {
-  const initialized = useAuthStore((state) => state.initialized);
-  const restoreSession = useAuthStore((state) => state.restoreSession);
+  const { restoreUser } = useAuthStore();
 
-  
-  const initializeAuth = useCallback(() => {
-    if (!initialized && typeof restoreSession === "function") {
-      restoreSession();
+  const initializeUser = useCallback(() => {
+    if (typeof restoreUser === "function") {
+      restoreUser();
     }
-  }, [initialized, restoreSession]);
+  }, [restoreUser]);
 
   useEffect(() => {
-    initializeAuth();
-  }, [initializeAuth]);
+    initializeUser();
+  }, [initializeUser]);
 
   return (
     <Router>
       <div className="App flex flex-col min-h-screen bg-white text-gray-900">
-        {/*  Global Navbar */}
+        {/* Global Navbar */}
         <Navbar />
 
         {/* Lazy-load route components */}
@@ -74,7 +64,7 @@ function App() {
           }
         >
           <Routes>
-            {/*  Public Routes */}
+            {/* Public Routes */}
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<Aboutus />} />
             <Route path="/courses" element={<Courses />} />
@@ -86,32 +76,31 @@ function App() {
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:id" element={<DynamicBlog />} />
 
-
-            {/*  Dynamic Routes */}
+            {/* Dynamic Routes */}
             <Route path="/courses/:courseId" element={<DynamicCourses />} />
             <Route path="/exams/:_id" element={<DynamicExam />} />
             <Route path="/quiz/:_id" element={<DynamicQuiz />} />
             <Route path="/view-quiz/:_id" element={<ViewQuizPop />} />
 
-            {/*  Protected Routes */}
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/cart"
-              element={
-                <ProtectedRoute>
-                  <Cart />
-                </ProtectedRoute>
-              }
-            />
+            {/* Protected Routes */}
+           <Route
+  path="/profile"
+  element={
+    <ProtectedRoute>
+      <Profile />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/cart"
+  element={
+    <ProtectedRoute>
+      <Cart />
+    </ProtectedRoute>
+  }
+/>
 
-            {/*  Fallback 404 */}
+            {/* Fallback 404 */}
             <Route
               path="*"
               element={

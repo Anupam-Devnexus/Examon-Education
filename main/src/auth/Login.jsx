@@ -4,9 +4,13 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuthStore } from "../Zustand/UserData";
 
 const Login = () => {
   const navigate = useNavigate();
+
+  // Zustand actions
+  const { setUserData } = useAuthStore();
 
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
@@ -55,14 +59,18 @@ const Login = () => {
 
       const { user, message, accessToken } = data;
       if (!accessToken || !user) throw new Error("Invalid server response");
- localStorage.setItem("auth", JSON.stringify({ token: accessToken, user }));
-      console.log("Login Success:", user);
-      toast.success("Login successful!", { duration: 1500 });
-setTimeout(()=>{
-  window.location.href = "/profile";
-  // ✅ Pass user data to UserProfile via navigation state
-  navigate("/profile", { state: { user } });
-},1000)
+
+      // Store token in localStorage only
+      localStorage.setItem("token", accessToken);
+
+      // Store all data in Zustand (reactive state)
+      setUserData({ user, token: accessToken });
+
+      toast.success("Login successful!", { duration: 500 });
+navigate("/profile");
+      setTimeout(() => {
+        navigate("/profile");
+      }, 1000);
     } catch (err) {
       console.error("❌ Login Error:", err);
       const msg =
@@ -133,11 +141,10 @@ setTimeout(()=>{
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="Enter your email"
-                  className={`w-full p-2 rounded-full border ${
-                    errors.email
+                  className={`w-full p-2 rounded-full border ${errors.email
                       ? "border-red-500 focus:ring-red-400"
                       : "border-gray-300 dark:border-gray-700 focus:ring-blue-400"
-                  } focus:outline-none focus:ring-2 dark:bg-gray-800 dark:text-white`}
+                    } focus:outline-none focus:ring-2 dark:bg-gray-800 dark:text-white`}
                 />
                 {errors.email && (
                   <p className="text-red-500 text-xs mt-1">{errors.email}</p>
@@ -157,11 +164,10 @@ setTimeout(()=>{
                     value={formData.password}
                     onChange={handleChange}
                     placeholder="Enter your password"
-                    className={`w-full p-2 rounded-full border ${
-                      errors.password
+                    className={`w-full p-2 rounded-full border ${errors.password
                         ? "border-red-500 focus:ring-red-400"
                         : "border-gray-300 dark:border-gray-700 focus:ring-blue-400"
-                    } focus:outline-none focus:ring-2 dark:bg-gray-800 dark:text-white`}
+                      } focus:outline-none focus:ring-2 dark:bg-gray-800 dark:text-white`}
                   />
                   <button
                     type="button"
@@ -180,11 +186,10 @@ setTimeout(()=>{
               <button
                 type="submit"
                 disabled={loading}
-                className={`mt-3 w-full flex items-center justify-center gap-2 text-white py-2 rounded-full transition ${
-                  loading
+                className={`mt-3 w-full flex items-center justify-center gap-2 text-white py-2 rounded-full transition ${loading
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-blue-600 hover:bg-blue-700"
-                }`}
+                  }`}
               >
                 {loading ? "Logging in..." : <>Login <FaArrowRight /></>}
               </button>

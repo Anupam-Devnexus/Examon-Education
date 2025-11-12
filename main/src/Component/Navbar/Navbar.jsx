@@ -12,9 +12,9 @@ import { CiSearch, CiUser } from "react-icons/ci";
 import { FiMenu, FiX, FiShoppingCart } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { useExamStore } from "../../Zustand/GetAllExams";
-import CryptoJS from "crypto-js";
+import { useAuthStore } from "../../Zustand/useAuthStore"; // ✅ Zustand Auth Store
 
-// Lazy load the Global Search Modal for performance
+// Lazy-load the global search modal
 const GlobalSearchModal = lazy(() => import("../GlobalSearch"));
 
 const Navbar = () => {
@@ -25,49 +25,23 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [examOpen, setExamOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [userData, setUserData] = useState(null);
   const searchInputRef = useRef(null);
 
-  /** ------------------ Zustand Store ------------------ **/
+  /** ------------------ Zustand Stores ------------------ **/
   const { exams, loading, error, fetchAllExams } = useExamStore();
+  const { user, isAuthenticated, logout } = useAuthStore();
 
+  /** ------------------ Fetch Exams ------------------ **/
   useEffect(() => {
     if (!exams.length) fetchAllExams();
   }, [exams.length, fetchAllExams]);
 
-  /** ------------------ Decrypt User Data ------------------ **/
-  const SECRET_KEY = import.meta.env.VITE_SECRET_KEY || "your-secret-key";
-
-  const getDecryptedUser = useCallback(() => {
-    try {
-      const encryptedData = localStorage.getItem("userData");
-      if (!encryptedData) return null;
-      const bytes = CryptoJS.AES.decrypt(encryptedData, SECRET_KEY);
-      return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-    } catch {
-      return null;
-    }
-  }, [SECRET_KEY]);
-
+  /** ------------------ Auto-focus Search ------------------ **/
   useEffect(() => {
-    const user = getDecryptedUser();
-    setUserData(user);
-
-    const syncHandler = () => setUserData(getDecryptedUser());
-    window.addEventListener("storage", syncHandler);
-    window.addEventListener("userDataChanged", syncHandler);
-
-    return () => {
-      window.removeEventListener("storage", syncHandler);
-      window.removeEventListener("userDataChanged", syncHandler);
-    };
-  }, [getDecryptedUser]);
-
-  /** ------------------ Token ------------------ **/
-  const token = useMemo(() => {
-    const authData = JSON.parse(localStorage.getItem("auth"));
-    return authData?.token || null;
-  }, []);
+    if (isSearchOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isSearchOpen]);
 
   /** ------------------ Handlers ------------------ **/
   const handleNavigate = useCallback(
@@ -89,15 +63,12 @@ const Navbar = () => {
     [navigate]
   );
 
-  const handleMobileAuth = useCallback(() => {
-    setMenuOpen(false);
-    navigate("/login");
-  }, [navigate]);
+  const handleLogout = useCallback(() => {
+    logout();
+    handleNavigate("/");
+  }, [logout, handleNavigate]);
 
-  /** ------------------ Focus on Search ------------------ **/
-  useEffect(() => {
-    if (isSearchOpen && searchInputRef.current) searchInputRef.current.focus();
-  }, [isSearchOpen]);
+ 
 
   /** ------------------ Navigation Links ------------------ **/
   const navLinks = useMemo(
@@ -139,13 +110,14 @@ const Navbar = () => {
     },
     exit: { scaleX: 0, opacity: 0 },
   };
-
-  /** ------------------ Component JSX ------------------ **/
+ const token = localStorage.getItem('token')
+  console.log(token)
+  /** ------------------ JSX ------------------ **/
   return (
     <>
       <nav className="bg-white shadow-md sticky top-0 z-[999]">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-          {/* Logo + Exam Dropdown */}
+          {/* ----------- Left Section: Logo & Exams Dropdown ----------- */}
           <div className="flex items-center gap-5">
             <img
               src="/examon_logo.svg"
@@ -202,7 +174,7 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* Desktop Nav Links */}
+          {/* ----------- Center: Desktop Navigation ----------- */}
           <div className="hidden md:flex items-center gap-6">
             {navLinks.map(({ label, path }) => {
               const isActive = location.pathname === path;
@@ -238,7 +210,7 @@ const Navbar = () => {
 
             <div className="h-8 w-px bg-gray-300" />
 
-            {/* Auth & Cart */}
+            {/* ----------- Authenticated User Section ----------- */}
             {token ? (
               <div className="flex items-center gap-3">
                 <FiShoppingCart
@@ -248,9 +220,15 @@ const Navbar = () => {
                 <CiUser
                   className="text-2xl text-gray-700 cursor-pointer hover:text-[var(--primary-color)] transition"
                   onClick={() =>
-                    handleNavigate(`/profile/${userData?._id || ""}`)
+                    handleNavigate(`/profile/${user?._id || "me"}`)
                   }
                 />
+                <button
+                  onClick={handleLogout}
+                  className="text-sm text-gray-600 hover:text-red-500 transition"
+                >
+                  Logout
+                </button>
               </div>
             ) : (
               <button
@@ -262,7 +240,7 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Mobile Menu */}
+          {/* ----------- Mobile Menu Button ----------- */}
           <div className="md:hidden flex items-center gap-3">
             <CiSearch
               className="text-xl text-gray-600 cursor-pointer hover:text-[var(--primary-color)] transition"
@@ -278,11 +256,10 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile Drawer */}
+        {/* ----------- Mobile Drawer ----------- */}
         <AnimatePresence>
           {menuOpen && (
             <>
-              {/* Backdrop */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 0.4 }}
@@ -312,10 +289,10 @@ const Navbar = () => {
                     </button>
                   ))}
 
-                  <div className="border-t my-2" />
+                  <div className="border-t my-3" />
 
-                  {token ? (
-                    <div className="flex items-center justify-between gap-2">
+                  {isAuthenticated && token ? (
+                    <>
                       <button
                         onClick={() => handleNavigate("/cart")}
                         className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-100"
@@ -325,24 +302,28 @@ const Navbar = () => {
                       </button>
                       <button
                         onClick={() =>
-                          handleNavigate(`/profile/${userData?._id || ""}`)
+                          handleNavigate(`/profile/${user?._id || "me"}`)
                         }
                         className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-100"
                       >
                         <CiUser className="text-xl" />
                         <span>Profile</span>
                       </button>
-                    </div>
+                      <button
+                        onClick={handleLogout}
+                        className="mt-3 text-left px-3 py-2 text-red-500 font-medium hover:bg-gray-100 rounded-md"
+                      >
+                        Logout
+                      </button>
+                    </>
                   ) : (
                     <button
-                      onClick={handleMobileAuth}
+                      onClick={() => handleNavigate("/login")}
                       className="mt-3 bg-[var(--primary-color)] text-white py-2 rounded-full font-medium hover:brightness-95 transition"
                     >
                       Login / Sign Up
                     </button>
                   )}
-
-                  <div className="border-t my-2" />
                 </div>
               </motion.div>
             </>
@@ -350,7 +331,7 @@ const Navbar = () => {
         </AnimatePresence>
       </nav>
 
-      {/* Global Search Modal */}
+      {/* ----------- Global Search Modal ----------- */}
       <Suspense fallback={null}>
         <GlobalSearchModal
           isOpen={isSearchOpen}
