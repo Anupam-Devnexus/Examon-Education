@@ -1,11 +1,23 @@
-import React, { useEffect, useState, useMemo, useCallback, useRef } from "react";
+import React, {
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+  useRef,
+} from "react";
 import { FaSignOutAlt } from "react-icons/fa";
 import { BsThreeDotsVertical } from "react-icons/bs";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+} from "recharts";
 import { motion } from "framer-motion";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { useAuthStore } from "../Zustand/useAuthStore";
 import { useCourseStore } from "../Zustand/GetAllCourses";
@@ -19,8 +31,10 @@ const api = axios.create({ baseURL: API_BASE, withCredentials: true });
 
 const UserProfile = () => {
   const navigate = useNavigate();
+  const location = useLocation(); // ✅ Access router state
   const { logout } = useAuthStore();
   const { fetchCourses } = useCourseStore();
+
   const [user, setUser] = useState(null);
   const [form, setForm] = useState({ phone: "" });
   const [selectedCourse, setSelectedCourse] = useState("");
@@ -34,26 +48,38 @@ const UserProfile = () => {
   // FETCH USER + COURSES
   // ===============================
   useEffect(() => {
-    const authData = localStorage.getItem("auth");
-    if (!authData) return navigate("/login");
-
     fetchCourses?.();
-    const parsed = JSON.parse(authData);
-    const u = parsed?.user || {};
 
-    setUser(u);
-    setForm({ phone: u.phone || "" });
-    setSelectedCourse(u.course || u.preferedCourse || "");
-    setImagePreview(u.profileImg || u.profileImage || null);
-  }, [navigate, fetchCourses]);
+    // 1️⃣ Try getting user from router state
+    const stateUser = location?.state?.user;
+
+    // 2️⃣ Fallback to localStorage mock data if user is null
+    const authData = localStorage.getItem("auth");
+    const parsedUser = authData ? JSON.parse(authData)?.user : null;
+
+    const finalUser = stateUser || parsedUser;
+
+    if (!finalUser) {
+      navigate("/login");
+      return;
+    }
+
+    // 3️⃣ Store/prepare user data
+    setUser(finalUser);
+    setForm({ phone: finalUser.phone || "" });
+    setSelectedCourse(finalUser.course || finalUser.preferedCourse || "");
+    setImagePreview(finalUser.profileImg || finalUser.profileImage || null);
+  }, [location, navigate, fetchCourses]);
 
   // ===============================
   // LOGOUT
   // ===============================
   const handleLogout = useCallback(() => {
     logout();
+    localStorage.removeItem("auth");
     toast.success("Logged out successfully!");
-  }, [logout]);
+    navigate("/login");
+  }, [logout, navigate]);
 
   // ===============================
   // PASSWORD CHANGE
@@ -79,6 +105,7 @@ const UserProfile = () => {
   // QUIZ DATA
   // ===============================
   const attemptedQuizzes = user?.attemptedQuizzes || [];
+  console.log("Attempted Quizzes:", attemptedQuizzes);
 
   const quizStats = useMemo(() => {
     if (!attemptedQuizzes.length) return { passed: 0, failed: 0 };
@@ -152,7 +179,7 @@ const UserProfile = () => {
       <section className="mt-8">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl md:text-2xl font-semibold text-gray-800">
-            🧠 Attempted Quizzes
+             Attempted Quizzes
           </h2>
           <span className="text-gray-500 text-sm font-medium">
             {attemptedQuizzes.length} Attempted
@@ -166,13 +193,7 @@ const UserProfile = () => {
                 key={i}
                 className="min-w-[260px] flex-shrink-0 snap-start transition-transform hover:scale-[1.03]"
               >
-                <ProfileQuizCard
-                  quiz={quiz}
-                  onView={() => {
-                    setSelectedQuiz(quiz);
-                    setIsQuizPopOpen(true);
-                  }}
-                />
+                <ProfileQuizCard quiz={quiz} onView={() => setSelectedQuiz(quiz)} />
               </div>
             ))}
           </div>
@@ -196,11 +217,10 @@ const UserProfile = () => {
         className="mt-12 bg-white rounded-2xl shadow-lg p-6 md:p-10 border border-gray-100"
       >
         <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center md:text-left">
-          📊 Quiz Performance Overview
+           Quiz Performance Overview
         </h2>
 
         <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
-          {/* PIE CHART */}
           <div className="w-full md:w-2/3 lg:w-1/2 h-[260px] md:h-[320px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -221,7 +241,6 @@ const UserProfile = () => {
             </ResponsiveContainer>
           </div>
 
-          {/* STATS */}
           <div className="grid grid-cols-2 gap-6 w-full lg:w-1/3">
             {[
               { label: "Passed", value: quizStats.passed, color: "text-green-600" },
@@ -238,12 +257,10 @@ const UserProfile = () => {
           </div>
         </div>
 
-        {/* REVIEWS */}
         <div className="border-t border-gray-200 mt-10 pt-6">
           <ReviewSection />
         </div>
       </motion.section>
-
 
       {showPassword && (
         <ChangePassword

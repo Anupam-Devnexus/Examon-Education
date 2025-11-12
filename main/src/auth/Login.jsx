@@ -44,22 +44,27 @@ const Login = () => {
 
     setLoading(true);
     try {
-      const { data } = await axios.post("http://194.238.18.1:3004/api/signin", formData, {
-        headers: { "Content-Type": "application/json" },
-        timeout: 10000,
-      });
+      const { data } = await axios.post(
+        "http://194.238.18.1:3004/api/signin",
+        formData,
+        {
+          headers: { "Content-Type": "application/json" },
+          timeout: 10000,
+        }
+      );
 
       const { user, message, accessToken } = data;
       if (!accessToken || !user) throw new Error("Invalid server response");
-
-      localStorage.setItem("auth", JSON.stringify({ token: accessToken, user }));
+ localStorage.setItem("auth", JSON.stringify({ token: accessToken, user }));
+      console.log("Login Success:", user);
       toast.success("Login successful!", { duration: 1500 });
-
-      setTimeout(() => {
-        window.location.href = "/";
-      }, 1000);
+setTimeout(()=>{
+  window.location.href = "/profile";
+  // ✅ Pass user data to UserProfile via navigation state
+  navigate("/profile", { state: { user } });
+},1000)
     } catch (err) {
-      console.error("Login Error:", err);
+      console.error("❌ Login Error:", err);
       const msg =
         err.response?.data?.message ||
         (err.code === "ECONNABORTED"
@@ -89,7 +94,7 @@ const Login = () => {
         <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-[90%] max-w-3xl overflow-hidden flex flex-col md:flex-row relative">
           {/* Close Button */}
           <button
-            onClick={() => navigate('/')}
+            onClick={() => navigate("/")}
             aria-label="Close Login"
             className="absolute cursor-pointer top-3 right-3 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-xl"
           >
@@ -109,7 +114,7 @@ const Login = () => {
           {/* Right Form */}
           <div className="flex flex-col justify-center w-full md:w-1/2 p-8">
             <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2">
-             Welcome to Examon Education
+              Welcome to Examon Education
             </h2>
             <p className="text-gray-500 dark:text-gray-400 mb-6">
               Enter your login credentials!
@@ -133,13 +138,9 @@ const Login = () => {
                       ? "border-red-500 focus:ring-red-400"
                       : "border-gray-300 dark:border-gray-700 focus:ring-blue-400"
                   } focus:outline-none focus:ring-2 dark:bg-gray-800 dark:text-white`}
-                  aria-invalid={!!errors.email}
-                  aria-describedby="email-error"
                 />
                 {errors.email && (
-                  <p id="email-error" className="text-red-500 text-xs mt-1">
-                    {errors.email}
-                  </p>
+                  <p className="text-red-500 text-xs mt-1">{errors.email}</p>
                 )}
               </div>
 
@@ -161,8 +162,6 @@ const Login = () => {
                         ? "border-red-500 focus:ring-red-400"
                         : "border-gray-300 dark:border-gray-700 focus:ring-blue-400"
                     } focus:outline-none focus:ring-2 dark:bg-gray-800 dark:text-white`}
-                    aria-invalid={!!errors.password}
-                    aria-describedby="password-error"
                   />
                   <button
                     type="button"
@@ -173,9 +172,7 @@ const Login = () => {
                   </button>
                 </div>
                 {errors.password && (
-                  <p id="password-error" className="text-red-500 text-xs mt-1">
-                    {errors.password}
-                  </p>
+                  <p className="text-red-500 text-xs mt-1">{errors.password}</p>
                 )}
               </div>
 
@@ -184,7 +181,9 @@ const Login = () => {
                 type="submit"
                 disabled={loading}
                 className={`mt-3 w-full flex items-center justify-center gap-2 text-white py-2 rounded-full transition ${
-                  loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
+                  loading
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700"
                 }`}
               >
                 {loading ? "Logging in..." : <>Login <FaArrowRight /></>}
