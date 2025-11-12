@@ -117,7 +117,7 @@ const HomeSlider = () => {
             <img
               src={batch.image}
               alt={batch.batchName}
-              className="w-full h-full object-cover object-center rounded-2xl"
+              className="w-full h-full object-full object-cover rounded-2xl"
             />
             <div className="absolute inset-0 bg-black/40 flex flex-col justify-end items-start p-8 md:p-14 text-white rounded-2xl">
               <h2 className="text-2xl sm:text-3xl  font-bold mb-4 max-w-2xl leading-tight">
