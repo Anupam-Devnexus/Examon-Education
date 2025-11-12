@@ -63,7 +63,7 @@ const DynamicCourse = () => {
     if (!Array.isArray(data)) return null;
     return data.find((item) => String(item.id || item._id) === String(courseId));
   }, [data, courseId]);
-  console.log(foundCourse)
+  // console.log(foundCourse)
 
   // Update state and scroll top
   useEffect(() => {

@@ -39,7 +39,7 @@ const DynamicExam = () => {
       </div>
     );
 
-  /** 🧩 Clean & style tables + enhance typography */
+  /** 🧩 Clean & style tables + enhance typography (with responsive scroll) */
   const styledHTML = useMemo(() => {
     if (!exam.Content) return "";
     const clean = DOMPurify.sanitize(exam.Content);
@@ -47,8 +47,9 @@ const DynamicExam = () => {
     return clean
       .replaceAll(
         /<table([^>]*)>/g,
-        '<table$1 class="min-w-full text-sm text-left border border-gray-300 rounded-xl overflow-hidden shadow-md my-6">'
+        `<div class="overflow-x-auto my-6 rounded-xl shadow-md"><table$1 class="min-w-full text-sm text-left border border-gray-300">`
       )
+      .replaceAll(/<\/table>/g, "</table></div>")
       .replaceAll(
         /<thead>/g,
         '<thead class="bg-gray-100 text-gray-800 font-semibold">'
@@ -63,13 +64,13 @@ const DynamicExam = () => {
       )
       .replaceAll(
         /<td([^>]*)>/g,
-        '<td$1 class="px-4 py-3 border-b border-gray-200 text-gray-700">'
+        '<td$1 class="px-4 py-3 border-b border-gray-200 text-gray-700 whitespace-nowrap">'
       )
       .replaceAll(
         /<th([^>]*)>/g,
-        '<th$1 class="px-4 py-3 border-b border-gray-300 text-gray-900 font-medium bg-gray-50">'
+        '<th$1 class="px-4 py-3 border-b border-gray-300 text-gray-900 font-medium bg-gray-50 whitespace-nowrap">'
       )
-      // Optional: beautify lists and headings
+      // Lists and text
       .replaceAll(
         /<ul>/g,
         '<ul class="list-disc pl-6 space-y-2 text-gray-700">'
@@ -82,10 +83,16 @@ const DynamicExam = () => {
         /<p>/g,
         '<p class="text-gray-700 leading-relaxed mb-4">'
       )
+      // Headings
       .replaceAll(
         /<h2([^>]*)>/g,
         '<h2$1 class="text-2xl font-semibold text-gray-900 mt-8 mb-4 border-l-4 border-[var(--primary-color)] pl-3">'
       )
+      .replaceAll(
+        /<h3([^>]*)>/g,
+        '<h3$1 class="text-xl font-semibold text-gray-900 mt-6 mb-3">'
+      )
+      // Links
       .replaceAll(
         /<a([^>]*)>/g,
         '<a$1 class="text-[var(--primary-color)] font-medium hover:underline">'
@@ -102,7 +109,7 @@ const DynamicExam = () => {
             alt={`${exam.name} Logo`}
             className="h-12 md:h-16 w-auto object-contain"
           />
-          <h1 className="text-2xl md:text-3xl font-bold text-[var(--primary-color)]">
+          <h1 className="text-2xl md:text-3xl font-bold text-[var(--primary-color)] text-center">
             {exam.name || "Exam"} — Dates, Fees, Eligibility & Pattern
           </h1>
           {exam.year && (
@@ -116,7 +123,7 @@ const DynamicExam = () => {
       {/* ===== DYNAMIC CONTENT ===== */}
       <section>
         <div
-          className="prose prose-lg max-w-none bg-white p-8 rounded-2xl border border-gray-200 shadow-sm leading-relaxed text-gray-800 transition-all duration-300 hover:shadow-md"
+          className="prose prose-lg max-w-none bg-white p-6 sm:p-8 rounded-2xl border border-gray-200 shadow-sm leading-relaxed text-gray-800 transition-all duration-300 hover:shadow-md"
           dangerouslySetInnerHTML={{ __html: styledHTML }}
         />
       </section>
@@ -135,4 +142,3 @@ const DynamicExam = () => {
 };
 
 export default DynamicExam;
-  

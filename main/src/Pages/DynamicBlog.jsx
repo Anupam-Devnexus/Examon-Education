@@ -1,29 +1,22 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import DOMPurify from "dompurify"; // ✅ To safely render HTML
+import DOMPurify from "dompurify";
 import { useBlogStore } from "../Zustand/GetBlog";
 
-/**
- * DynamicBlog Page
- * -----------------
- * Displays detailed blog content based on ID from the URL.
- * Optimized for safety, responsiveness, and clarity.
- */
 const DynamicBlog = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { blogData: allBlogs = [], fetchBlogs, loading } = useBlogStore();
 
-  // Fetch blogs only if not already available
+  // ✅ Fetch blogs if not loaded yet
   useEffect(() => {
     if (!allBlogs || allBlogs.length === 0) fetchBlogs();
   }, [allBlogs?.length, fetchBlogs]);
 
-  // Find current blog
   const blog = allBlogs.find((b) => b._id === id);
 
-  // Handle loading or not found
+  // ✅ Loading state
   if (loading || !allBlogs.length) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
@@ -32,6 +25,7 @@ const DynamicBlog = () => {
     );
   }
 
+  // ✅ Not found state
   if (!blog) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 text-center p-6">
@@ -49,9 +43,66 @@ const DynamicBlog = () => {
     );
   }
 
-  console.log("Rendering blog:", blog);
-  const Content  = blog?.blogContent;
-console.log("Blog content:", Content);
+  // ✅ Memoized, styled, and sanitized HTML
+  const styledHTML = useMemo(() => {
+    if (!blog?.blogContent) return "";
+
+    const clean = DOMPurify.sanitize(blog.blogContent);
+
+    return clean
+      // Table styling
+      .replaceAll(
+        /<table([^>]*)>/g,
+        '<div class="overflow-x-auto my-6"><table$1 class="min-w-full text-sm text-left border border-gray-300 rounded-xl overflow-hidden shadow-md">'
+      )
+      .replaceAll(/<\/table>/g, "</table></div>")
+      .replaceAll(
+        /<thead>/g,
+        '<thead class="bg-gray-100 text-gray-800 font-semibold">'
+      )
+      .replaceAll(
+        /<tbody>/g,
+        '<tbody class="divide-y divide-gray-200">'
+      )
+      .replaceAll(
+        /<tr>/g,
+        '<tr class="hover:bg-gray-50 transition-colors">'
+      )
+      .replaceAll(
+        /<td([^>]*)>/g,
+        '<td$1 class="px-4 py-3 border-b border-gray-200 text-gray-700 whitespace-nowrap">'
+      )
+      .replaceAll(
+        /<th([^>]*)>/g,
+        '<th$1 class="px-4 py-3 border-b border-gray-300 text-gray-900 font-medium bg-gray-50 whitespace-nowrap">'
+      )
+      // Typography improvements
+      .replaceAll(
+        /<ul>/g,
+        '<ul class="list-disc pl-6 space-y-2 text-gray-700">'
+      )
+      .replaceAll(
+        /<ol>/g,
+        '<ol class="list-decimal pl-6 space-y-2 text-gray-700">'
+      )
+      .replaceAll(
+        /<p>/g,
+        '<p class="text-gray-700 leading-relaxed mb-4">'
+      )
+      .replaceAll(
+        /<h2([^>]*)>/g,
+        '<h2$1 class="text-2xl font-semibold text-gray-900 mt-8 mb-4 border-l-4 border-blue-600 pl-3">'
+      )
+      .replaceAll(
+        /<h3([^>]*)>/g,
+        '<h3$1 class="text-xl font-semibold text-gray-900 mt-6 mb-3">'
+      )
+      .replaceAll(
+        /<a([^>]*)>/g,
+        '<a$1 class="text-blue-600 font-medium hover:underline">'
+      );
+  }, [blog?.blogContent]);
+
   return (
     <motion.section
       className="min-h-screen mb-10 bg-gray-50 py-10 px-4 md:px-16"
@@ -79,7 +130,7 @@ console.log("Blog content:", Content);
           />
         </div>
 
-        {/* Content */}
+        {/* Blog Content */}
         <div className="p-6 md:p-10">
           {/* Metadata */}
           <div className="flex flex-wrap gap-3 text-sm text-gray-500 mb-3">
@@ -122,13 +173,9 @@ console.log("Blog content:", Content);
 
           {/* Blog Body */}
           <div
-            className="prose prose-blue max-w-none text-gray-700 prose-headings:text-gray-900"
-            dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(blog?.blogContent),
-            }}
+            className="prose max-w-none text-gray-700 prose-headings:text-gray-900"
+            dangerouslySetInnerHTML={{ __html: styledHTML }}
           />
-
-         
         </div>
       </article>
     </motion.section>
