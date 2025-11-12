@@ -131,12 +131,13 @@ const HomeSlider = () => {
               </p>
 
               <div className="flex gap-4 w-full sm:w-auto">
-                <button
-                  onClick={() => window.open(batch.enrollLink, "https://classplusapp.com/")}
-                  className="bg-[var(--primary-color)] cursor-pointer hover:bg-[var(--text-color)] transition-all duration-300 text-white px-2 md:px-6 py-1 sm:py-2 rounded-full font-semibold"
-                >
-                  Enroll Now
-                </button>
+             <button
+  onClick={() => window.open(batch.link || "https://classplusapp.com/", "_blank")}
+  className="bg-[var(--primary-color)] cursor-pointer hover:bg-[var(--text-color)] transition-all duration-300 text-white px-2 md:px-6 py-1 sm:py-2 rounded-full font-semibold"
+>
+  Enroll Now
+</button>
+
                 <button
                   className="bg-transparent border-2 rounded-3xl cursor-pointer transition-all duration-300 text-white px-3 sm:px-6 py-1 sm:py-2 font-semibold"
                   onClick={() => navigate('/courses')}
