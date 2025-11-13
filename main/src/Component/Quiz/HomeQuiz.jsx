@@ -17,9 +17,7 @@ const HomeQuiz = () => {
   useEffect(() => {
     fetchHomeQuiz();
   }, [fetchHomeQuiz]);
-  console.log(
-    data
-  )
+ 
 
   // Guard against empty data
   if (loading)
