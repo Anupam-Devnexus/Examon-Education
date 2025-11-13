@@ -1,174 +1,263 @@
-import React, { useEffect, useState, useMemo, useCallback } from "react";
-import ExamCard from "../Component/Card/ExamCard";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  Suspense,
+  lazy,
+} from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { FiFilter } from "react-icons/fi";
+import { IoClose } from "react-icons/io5";
 import { useAllQuiz } from "../Zustand/GetAllQuiz";
+import ExamCard from "../Component/Card/ExamCard";
 
-/**
- * Quiz Page
- * -----------------
- * Displays all available quizzes with:
- *  Search functionality
- *  Exam filter
- *  Pagination
- *  Zustand-based data fetching
- *  Production-ready error & UX handling
- */
+const CoursesYouLike = lazy(() => import("../Component/CoursesYouLike"));
+
 const Quiz = () => {
-  const {
-    quizData = [],
-    loading,
-    error,
-    fetchQuiz,
-    currentPage = 1,
-    totalPages = 1,
-  } = useAllQuiz();
+  const { quizData = [], loading, error, fetchQuiz } = useAllQuiz();
 
-  const [searchTerm, setSearchTerm] = useState("");
+  const [search, setSearch] = useState("");
   const [selectedExam, setSelectedExam] = useState("All");
+  const [page, setPage] = useState(1);
+  const [showFilter, setShowFilter] = useState(false);
 
-  //  Fetch quizzes on mount or when page changes
+  const itemsPerPage = 6;
+
+  // Fetch all quizzes once
   useEffect(() => {
-    if (!quizData.length) fetchQuiz(currentPage);
-  }, [quizData.length, fetchQuiz, currentPage]);
+    if (!quizData.length) fetchQuiz();
+  }, [fetchQuiz, quizData.length]);
 
-  //  Unique exam list from data
+  // Extract unique exam names
   const examOptions = useMemo(() => {
     const exams = quizData.map((q) => q.exam).filter(Boolean);
     return ["All", ...new Set(exams)];
   }, [quizData]);
 
-  //  Filtered results (search + filter)
+  // Filter logic
   const filteredQuizzes = useMemo(() => {
-    const term = searchTerm.toLowerCase();
     return quizData.filter((quiz) => {
       const matchesSearch =
-        quiz.title?.toLowerCase().includes(term) ||
-        quiz.tags?.some((tag) => tag.toLowerCase().includes(term));
-
+        quiz.title?.toLowerCase().includes(search.toLowerCase()) ||
+        quiz.tags?.some((tag) =>
+          tag.toLowerCase().includes(search.toLowerCase())
+        );
       const matchesExam = selectedExam === "All" || quiz.exam === selectedExam;
       return matchesSearch && matchesExam;
     });
-  }, [quizData, searchTerm, selectedExam]);
+  }, [quizData, search, selectedExam]);
 
-  //  Pagination handler
-  const handlePageChange = useCallback(
-    (page) => {
-      if (page < 1 || page > totalPages || page === currentPage) return;
-      fetchQuiz(page);
-    },
-    [fetchQuiz, totalPages, currentPage]
+  const totalPages = Math.ceil(filteredQuizzes.length / itemsPerPage);
+  const paginatedData = filteredQuizzes.slice(
+    (page - 1) * itemsPerPage,
+    page * itemsPerPage
   );
 
+  useEffect(() => setPage(1), [search, selectedExam]);
+
   return (
-    <main className="min-h-screen px-4 py-4 md:px-8 bg-gradient-to-b from-[#f9fbff] to-white">
-      {/* 🔹 Header Section */}
-      <header className="bg-[var(--primary-color)] text-white rounded-2xl p-6 shadow-md mb-10 relative overflow-hidden">
-        <div className="absolute right-0 top-0 opacity-10">
-          <img src="/questionmark.svg" alt="" className="w-48 h-48" />
-        </div>
+    <div className="relative flex flex-col gap-6 p-4 md:py-6 mb-14">
+      <main className="flex-1 flex flex-col gap-6">
+        {/* --- Header Section --- */}
+        <header className="flex flex-col gap-3 text-white rounded-2xl bg-[var(--primary-color)] p-5 shadow-lg relative overflow-hidden">
+          <div className="absolute right-0 top-0 opacity-10">
+            <img src="/questionmark.svg" alt="pattern" className="w-64 h-64" />
+          </div>
 
-        <h1 className="font-bold text-3xl md:text-4xl flex items-center gap-3 relative z-10">
-          Quizzes
-          <img
-            src="/questionmark.svg"
-            alt="icon"
-            className="w-7 h-7 md:w-9 md:h-9"
-          />
-        </h1>
-        <p className="text-white/90 z-10 text-base md:text-lg">
-          Choose a test and start your preparation journey.
-        </p>
+          <div className="flex items-center justify-between flex-wrap gap-3 relative z-10">
+            <div className="flex items-center gap-3 text-2xl font-semibold">
+              <span>All Quizzes</span>
+              <img
+                src="/questionmark.svg"
+                alt="quiz"
+                className="w-8 h-8 md:w-9 md:h-9"
+              />
+            </div>
 
-        {/*  Search Input */}
-        <div className="relative w-full mt-4 z-10">
-          <input
-            type="text"
-            placeholder="Search quizzes or topics..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-white text-gray-800 rounded-xl px-4 py-2 text-sm md:text-base outline-none shadow-sm focus:ring-2 focus:ring-[var(--secondary-color)]"
-          />
-        </div>
-      </header>
+            <button
+              onClick={() => setShowFilter(true)}
+              className="flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white px-3 py-2 rounded-lg backdrop-blur-sm transition"
+            >
+              <FiFilter className="text-lg" />
+              <span className="hidden sm:inline">Filters</span>
+            </button>
+          </div>
 
-      {/* 🔹 Filter + Quiz Grid */}
-      <section className="flex flex-col md:flex-row gap-8 items-start">
-        {/* Sidebar Filter */}
-        <aside className="bg-white p-5 rounded-2xl shadow-md w-full md:w-1/4 border border-gray-100 space-y-6 top-24">
-          <div>
-            <label className="text-[var(--primary-color)] font-semibold block mb-3">
-              Filter by Exam
-            </label>
-            <hr />
-            <div className="space-y-2 mt-3">
-              {examOptions.map((exam) => (
-                <label
-                  key={exam}
-                  className="flex items-center text-sm text-gray-700 hover:text-[var(--primary-color)] cursor-pointer transition-colors"
+          <p className="text-sm md:text-base leading-relaxed relative z-10">
+            Browse through all quizzes. Filter by exam, search topics, and
+            start your test prep.
+          </p>
+
+          {/* Search Bar */}
+          <div className="mt-2 w-full md:max-w-md relative z-10">
+            <input
+              type="text"
+              placeholder="Search by title, exam, or topic..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full rounded-xl p-3 text-white border border-gray-300 focus:ring-2 focus:ring-white outline-none bg-transparent placeholder:text-gray-200"
+            />
+          </div>
+        </header>
+<div className="flex flex-col lg:flex-row items-start gap-8 px-2 md:px-4">
+  {/* --- Content --- */}
+  <section className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+    {loading ? (
+      <div className="col-span-full text-center py-10 text-gray-500">
+        Loading quizzes...
+      </div>
+    ) : error ? (
+      <div className="col-span-full text-center py-10 text-red-500">
+        {error}
+      </div>
+    ) : paginatedData.length > 0 ? (
+      paginatedData.map((quiz) => (
+        <motion.div
+          key={quiz._id}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <ExamCard examData={quiz} />
+        </motion.div>
+      ))
+    ) : (
+      <div className="text-gray-500 col-span-full text-center py-10">
+        No quizzes found.
+      </div>
+    )}
+  </section>
+
+  {/* --- Sidebar --- */}
+  <aside className="w-full lg:w-80 flex-shrink-0">
+    <Suspense fallback={<div className="text-gray-500">Loading courses...</div>}>
+      {/* Desktop Sticky Sidebar */}
+      <div className="hidden lg:block sticky top-24">
+        <CoursesYouLike title />
+      </div>
+
+      {/* Mobile / Tablet Sidebar (below grid) */}
+      <div className="block lg:hidden mt-8">
+        <CoursesYouLike title={false} />
+      </div>
+    </Suspense>
+  </aside>
+</div>
+
+
+        {/* --- Pagination --- */}
+        {totalPages > 1 && (
+          <div className="flex justify-center gap-2 mt-4">
+            <button
+              onClick={() => setPage((p) => Math.max(p - 1, 1))}
+              disabled={page === 1}
+              className={`px-4 py-2 rounded-xl ${
+                page === 1
+                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  : "bg-white text-gray-700 border hover:bg-gray-50"
+              }`}
+            >
+              Prev
+            </button>
+
+            {Array.from({ length: totalPages }).map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setPage(i + 1)}
+                className={`px-4 py-2 rounded-xl ${
+                  page === i + 1
+                    ? "bg-[var(--primary-color)] text-white"
+                    : "bg-white text-gray-700 border hover:bg-gray-50"
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+
+            <button
+              onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
+              disabled={page === totalPages}
+              className={`px-4 py-2 rounded-xl ${
+                page === totalPages
+                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  : "bg-white text-gray-700 border hover:bg-gray-50"
+              }`}
+            >
+              Next
+            </button>
+          </div>
+        )}
+
+        
+      </main>
+
+      {/* --- Floating Filter Sidebar --- */}
+      <AnimatePresence>
+        {showFilter && (
+          <>
+            <motion.div
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowFilter(false)}
+            />
+
+            <motion.aside
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", stiffness: 120, damping: 20 }}
+              className="fixed top-0 right-0 w-80 h-full bg-white z-50 shadow-xl p-6 overflow-y-auto rounded-l-2xl"
+            >
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-semibold text-gray-800">
+                  Filter Quizzes
+                </h2>
+                <button
+                  onClick={() => setShowFilter(false)}
+                  className="p-2 rounded-full hover:bg-gray-100"
                 >
-                  <input
-                    type="radio"
-                    name="exam"
-                    value={exam}
-                    checked={selectedExam === exam}
-                    onChange={() => setSelectedExam(exam)}
-                    className="mr-2 accent-[var(--primary-color)]"
-                  />
-                  {exam}
-                </label>
-              ))}
-            </div>
-          </div>
-        </aside>
+                  <IoClose className="text-2xl text-gray-600" />
+                </button>
+              </div>
 
-        {/* Quiz Grid */}
-        <div className="w-full flex flex-col gap-6 mb-18">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-2 bg-[var(--tertiary-color)] rounded-2xl shadow-inner min-h-[200px]">
-            {loading ? (
-              <p className="col-span-full text-center text-gray-500 py-10 animate-pulse">
-                Loading quizzes...
-              </p>
-            ) : error ? (
-              <p className="col-span-full text-center text-red-500 py-10">
-                {error}
-              </p>
-            ) : filteredQuizzes.length > 0 ? (
-              filteredQuizzes.map((quiz) => (
-                <ExamCard key={quiz._id} examData={quiz} />
-              ))
-            ) : (
-              <p className="col-span-full text-gray-500 text-center py-10">
-                No quizzes found.
-              </p>
-            )}
-          </div>
-
-          {/* Pagination */}
-          {!loading && totalPages > 1 && (
-            <div className="flex justify-center items-center gap-3 mt-6">
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="px-4 py-2 rounded-lg bg-[var(--primary-color)] text-white disabled:bg-gray-300 disabled:cursor-not-allowed transition-all"
-              >
-                Prev
-              </button>
-
-              <span className="text-gray-700 font-medium">
-                Page {currentPage} of {totalPages}
-              </span>
+              {/* Exam Filter */}
+              <div className="mb-6">
+                <h3 className="text-sm font-semibold text-gray-600 mb-2">
+                  Exam Category
+                </h3>
+                <div className="flex flex-col gap-2">
+                  {examOptions.map((exam) => (
+                    <label
+                      key={exam}
+                      className="flex items-center gap-2 text-gray-700 cursor-pointer"
+                    >
+                      <input
+                        type="radio"
+                        name="exam"
+                        value={exam}
+                        checked={selectedExam === exam}
+                        onChange={(e) => setSelectedExam(e.target.value)}
+                      />
+                      <span>{exam}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
 
               <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className="px-4 py-2 rounded-lg bg-[var(--primary-color)] text-white disabled:bg-gray-300 disabled:cursor-not-allowed transition-all"
+                onClick={() => setShowFilter(false)}
+                className="mt-4 w-full py-2 rounded-lg bg-[var(--primary-color)] text-white font-semibold hover:opacity-90 transition"
               >
-                Next
+                Apply Filters
               </button>
-            </div>
-          )}
-        </div>
-      </section>
-    </main>
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
   );
 };
 
