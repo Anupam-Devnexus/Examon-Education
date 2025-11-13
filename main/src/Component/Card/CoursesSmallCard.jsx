@@ -17,7 +17,7 @@ const CoursesSmallCard = ({
 
   // ✅ Fetch token from localStorage
   const authData = JSON.parse(localStorage.getItem("auth"));
-  const token = authData?.token || null;
+  const token = localStorage.getItem('token');
 
   // ✅ Check if course already in cart
   const isInCart = useMemo(

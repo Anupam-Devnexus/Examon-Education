@@ -13,7 +13,7 @@ const RecordedBatchesCard = ({
   return (
     <div
       className="relative group overflow-hidden rounded-2xl cursor-pointer  h-[320px] transition-transform hover:scale-[1.03] shadow-xl hover:shadow-2xl"
-        onClick={() => window.open("https://classplusapp.com/", "_blank")}
+      onClick={() => window.open("https://classplusapp.com/", "_blank")}
 
     >
       {/* Image */}
@@ -43,7 +43,7 @@ const RecordedBatchesCard = ({
             <p className="text-base font-semibold mt-1">Price: ₹{price}</p>
             <button
               className="mt-4 flex items-center gap-2 bg-[var(--primary-color)] hover:bg-[var(--secondary-color)] text-white text-sm py-2 px-4 rounded-md w-fit transition-all"
-               onClick={() => window.open(batch.link || "https://classplusapp.com/", "_blank")}
+              onClick={() => window.open(batch.link || "https://classplusapp.com/", "_blank")}
 
             >
               View <GrFormNextLink className="text-lg" />

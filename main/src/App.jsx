@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useEffect, useCallback } from "react";
+import React, { Suspense, lazy } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -11,10 +11,11 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./App.css";
 
-import { useAuthStore } from "./Zustand/UserData"; //  use your Zustand user store
 import Navbar from "./Component/Navbar/Navbar";
 import Footer from "./Component/Footer";
+import Whatsapp from "./Component/Whatsapp";
 import ProtectedRoute from "./auth/ProtectedRoute";
+
 
 /* Lazy-loaded pages for better performance */
 const Home = lazy(() => import("./Pages/Home"));
@@ -36,17 +37,6 @@ const ViewQuizPop = lazy(() => import("./Component/ViewQuizPop"));
 
 /*  Main App */
 function App() {
-  const { restoreUser } = useAuthStore();
-
-  const initializeUser = useCallback(() => {
-    if (typeof restoreUser === "function") {
-      restoreUser();
-    }
-  }, [restoreUser]);
-
-  useEffect(() => {
-    initializeUser();
-  }, [initializeUser]);
 
   return (
     <Router>
@@ -82,22 +72,23 @@ function App() {
             <Route path="/view-quiz/:_id" element={<ViewQuizPop />} />
 
             {/* Protected Routes */}
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/cart"
-              element={
-                <ProtectedRoute>
-                  <Cart />
-                </ProtectedRoute>
-              }
-            />
+           <Route
+  path="/profile"
+  element={
+    <ProtectedRoute>
+      <Profile />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/cart"
+  element={
+    <ProtectedRoute>
+      <Cart />
+    </ProtectedRoute>
+  }
+/>
+
 
             {/* Fallback 404 */}
             <Route
@@ -110,6 +101,8 @@ function App() {
             />
           </Routes>
         </Suspense>
+        <Whatsapp
+        />
 
         {/* Global Footer */}
         <Footer />

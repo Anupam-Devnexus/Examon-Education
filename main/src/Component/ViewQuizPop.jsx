@@ -1,25 +1,26 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useAuthStore } from "../Zustand/UserData";
 
-//  Production-Ready ViewQuizPage with Full Correct/Skipped Answer Display
 const ViewQuizPage = () => {
   const { _id: id } = useParams();
+  const { user } = useAuthStore();
 
-  //  Fetch stored user data
-  const Data = JSON.parse(localStorage.getItem("auth"));
-  const AttemptedQuiz = Data?.user?.attemptedQuizzes || [];
+  // ✅ Get quizzes safely from user
+  const attemptedQuizzes = user?.attemptedQuizzes || [];
 
-  //  Get the current quiz based on ID from params
-  const quiz = AttemptedQuiz.find((q) => q.quizId === id);
+  // ✅ Find the quiz matching the id from route
+  const quiz = useMemo(
+    () => attemptedQuizzes.find((q) => q._id === id || q.quizId === id),
+    [attemptedQuizzes, id]
+  );
 
-  //  Scroll to top on mount
   useEffect(() => {
-    scrollTo(0, 0);
+    window.scrollTo(0, 0);
   }, []);
 
-  //  Handle missing quiz case
-  if (!quiz)
+  if (!quiz) {
     return (
       <div className="flex justify-center items-center h-screen bg-gray-50">
         <p className="text-lg text-gray-600">
@@ -27,6 +28,7 @@ const ViewQuizPage = () => {
         </p>
       </div>
     );
+  }
 
   return (
     <div className="max-w-7xl mx-auto mb-20 px-4 py-6">
@@ -64,7 +66,7 @@ const ViewQuizPage = () => {
         transition={{ delay: 0.2, duration: 0.6 }}
         className="space-y-6"
       >
-        {quiz.questions.map((q, index) => {
+        {quiz.questions?.map((q, index) => {
           const isSkipped = q.userAnswer === null;
           const isCorrect =
             q.userAnswer !== null && q.userAnswer === q.correctAnswer;
@@ -113,7 +115,7 @@ const ViewQuizPage = () => {
                       {opt}
                       {isCorrectChoice && (
                         <span className="ml-2 text-green-600 font-semibold">
-                           Correct
+                          ✅ Correct
                         </span>
                       )}
                       {isUserChoice && isWrong && (
@@ -126,14 +128,13 @@ const ViewQuizPage = () => {
                 })}
               </ul>
 
-              {/* ===== SKIPPED / META INFO ===== */}
+              {/* ===== META INFO ===== */}
               <div className="mt-4 flex flex-wrap gap-4 text-xs sm:text-sm text-gray-600">
                 {isSkipped && (
                   <p className="text-yellow-600 font-semibold">
                     ⚠️ You skipped this question.
                   </p>
                 )}
-
                 <p>
                   <span className="font-semibold">Topic:</span> {q.topic}
                 </p>
@@ -146,10 +147,10 @@ const ViewQuizPage = () => {
                 </p>
               </div>
 
-              {/* ===== SHOW CORRECT ANSWER IF SKIPPED OR WRONG ===== */}
+              {/* ===== CORRECT ANSWER IF SKIPPED/WRONG ===== */}
               {(isSkipped || isWrong) && (
                 <div className="mt-3 text-sm sm:text-base text-green-700 font-medium">
-                   Correct Answer:{" "}
+                  Correct Answer:{" "}
                   <span className="text-green-800">
                     {q.options[q.correctAnswer]}
                   </span>

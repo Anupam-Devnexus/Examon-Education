@@ -12,9 +12,7 @@ import { CiSearch, CiUser } from "react-icons/ci";
 import { FiMenu, FiX, FiShoppingCart } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { useExamStore } from "../../Zustand/GetAllExams";
-import { useAuthStore } from "../../Zustand/UserData"; // ✅ Zustand Auth Store
 
-// Lazy-load the global search modal
 const GlobalSearchModal = lazy(() => import("../GlobalSearch"));
 
 const Navbar = () => {
@@ -29,7 +27,6 @@ const Navbar = () => {
 
   /** ------------------ Zustand Stores ------------------ **/
   const { exams, loading, error, fetchAllExams } = useExamStore();
-  const { user, isAuthenticated, logout } = useAuthStore();
 
   /** ------------------ Fetch Exams ------------------ **/
   useEffect(() => {
@@ -50,6 +47,7 @@ const Navbar = () => {
       setExamOpen(false);
       setIsSearchOpen(false);
       navigate(path);
+      // console.log(path)
     },
     [navigate]
   );
@@ -62,14 +60,6 @@ const Navbar = () => {
     },
     [navigate]
   );
-
-  const handleLogout = useCallback(() => {
-    logout();
-    handleNavigate("/");
-  }, [logout, handleNavigate]);
-
-// console.log("user" , user)
-
 
   /** ------------------ Navigation Links ------------------ **/
   const navLinks = useMemo(
@@ -112,7 +102,6 @@ const Navbar = () => {
     exit: { scaleX: 0, opacity: 0 },
   };
   const token = localStorage.getItem('token')
-  // console.log(token)
   /** ------------------ JSX ------------------ **/
   return (
     <>
@@ -219,16 +208,8 @@ const Navbar = () => {
                 />
                 <CiUser
                   className="text-2xl text-gray-700 cursor-pointer hover:text-[var(--primary-color)] transition"
-                  onClick={() =>
-                    handleNavigate(`/profile`)
-                  }
+                  onClick={() => handleNavigate("/profile")}
                 />
-                <button
-                  onClick={handleLogout}
-                  className="text-sm text-gray-600 hover:text-red-500 transition"
-                >
-                  Logout
-                </button>
               </div>
             ) : (
               <button
@@ -290,7 +271,7 @@ const Navbar = () => {
 
                   <div className="border-t my-3" />
 
-                  {isAuthenticated && token ? (
+                  {token ? (
                     <>
                       <button
                         onClick={() => handleNavigate("/cart")}
@@ -301,19 +282,14 @@ const Navbar = () => {
                       </button>
                       <button
                         onClick={() =>
-                          handleNavigate(`/profile}`)
+                          handleNavigate(`/profile`)
                         }
                         className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-100"
                       >
                         <CiUser className="text-xl" />
                         <span>Profile</span>
                       </button>
-                      <button
-                        onClick={handleLogout}
-                        className="mt-3 text-left px-3 py-2 text-red-500 font-medium hover:bg-gray-100 rounded-md"
-                      >
-                        Logout
-                      </button>
+
                     </>
                   ) : (
                     <button

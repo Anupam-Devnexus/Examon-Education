@@ -1,60 +1,67 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
 
 export const useAuthStore = create(
   persist(
     (set, get) => ({
-      // State
-      user: null,
+      user: null, // full user object (kept in memory only)
       token: null,
+      userId: null,
+      name: null,
+      email: null,
       isAuthenticated: false,
 
-      //  Core Auth Updaters
-      setUserData: ({ user, token }) => {
-        set({
-          user,
-          token,
-          isAuthenticated: token,
-        });
-      },
-
-      /**  Simplified Login helper */
+      /** ✅ Login — stores user in memory and basic info in localStorage */
       login: (user, token) => {
         set({
           user,
           token,
-          isAuthenticated: true,
+          userId: user?._id || null,
+          name: user?.fullname || user?.fullName || null,
+          email: user?.email || null,
+          isAuthenticated: Boolean(token),
         });
       },
 
-      /**  Update user fields mid-session */
+      /** ✅ Update user info — memory only */
       updateUser: (updates) => {
-        const currentUser = get().user || {};
-        set({
-          user: { ...currentUser, ...updates },
-        });
+        const current = get().user || {};
+        const updated = { ...current, ...updates };
+        if (JSON.stringify(current) !== JSON.stringify(updated)) {
+          set({ user: updated });
+        }
       },
 
-      /** Logout cleanly */
+      /** ✅ Logout — clear both memory and localStorage */
       logout: () => {
-        // remove persisted data
-        localStorage.removeItem("auth");
         set({
           user: null,
           token: null,
+          userId: null,
+          name: null,
+          email: null,
           isAuthenticated: false,
         });
+        localStorage.removeItem("token"); // remove persisted data
       },
     }),
     {
-      name: "auth",
-      getStorage: () => localStorage,
+      name: "token", // 🔑 localStorage key name
+      storage: createJSONStorage(() => localStorage),
+
+      /** ✅ Persist only the required fields */
       partialize: (state) => ({
-        // Persist only necessary fields
-        user: state?.user,
-        token: state?.token,
-        isAuthenticated: state?.isAuthenticated,
+        token: state.token,
+        userId: state.userId,
+        name: state.name,
+        email: state.email,
       }),
+
+      /** ✅ On app reload, recheck authentication */
+      onRehydrateStorage: () => (state) => {
+        const token = state?.token || null;
+        state.isAuthenticated = Boolean(token);
+      },
     }
   )
 );

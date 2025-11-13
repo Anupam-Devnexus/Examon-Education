@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { FaDownload } from "react-icons/fa";
 
 const PyqCard = ({ title, year, pdf }) => {
-  const token = JSON.parse(localStorage.getItem("auth"))?.token;
+  const token = localStorage.getItem("token")
   const handleDownload = () => {
     if (!token) {
       toast.error("Please login to access the PYQ");

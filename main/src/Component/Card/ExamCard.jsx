@@ -13,7 +13,7 @@ const ExamCard = ({ examData }) => {
     const mins = Math.floor((seconds % 3600) / 60);
     return hrs > 0 ? `${hrs}h ${mins}m` : `${mins} min`;
   };
-  const token = JSON.parse(localStorage.getItem("auth"))?.token;
+  const token = localStorage.getItem("token");
   const handleNAvigate = () => {
     if (token) {
       navigate(`/quiz/${_id}`);

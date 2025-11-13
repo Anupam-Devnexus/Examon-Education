@@ -8,10 +8,7 @@ import { useAuthStore } from "../Zustand/UserData";
 
 const Login = () => {
   const navigate = useNavigate();
-
-  // Zustand actions
-  const { setUserData } = useAuthStore();
-
+  const { login, isAuthenticated } = useAuthStore();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -22,7 +19,14 @@ const Login = () => {
     document.getElementById("email")?.focus();
   }, []);
 
-  /** Input change handler */
+  /** Redirect if already authenticated */
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/profile", { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
+  /** Handle input change */
   const handleChange = useCallback(
     (e) => {
       const { name, value } = e.target;
@@ -32,7 +36,7 @@ const Login = () => {
     [errors]
   );
 
-  /** Field validation */
+  /** Validate input fields */
   const validate = useCallback(() => {
     const newErrors = {};
     if (!formData.email.trim()) newErrors.email = "Email is required.";
@@ -41,7 +45,7 @@ const Login = () => {
     return Object.keys(newErrors).length === 0;
   }, [formData]);
 
-  /** Submit handler */
+  /** Handle login form submit */
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
@@ -60,19 +64,13 @@ const Login = () => {
       const { user, message, accessToken } = data;
       if (!accessToken || !user) throw new Error("Invalid server response");
 
-      // Store token in localStorage only
-      localStorage.setItem("token", accessToken);
+      //  Zustand handles persistence (only token is stored)
+      login(user, accessToken);
 
-      // Store all data in Zustand (reactive state)
-      setUserData({ user, token: accessToken });
-
-      toast.success("Login successful!", { duration: 500 });
-      navigate("/profile");
-      setTimeout(() => {
-        navigate("/profile");
-      }, 1000);
+      toast.success("Login successful!", { duration: 800 });
+      navigate("/profile", { replace: true });
     } catch (err) {
-      console.error("❌ Login Error:", err);
+      console.error("Login Error:", err);
       const msg =
         err.response?.data?.message ||
         (err.code === "ECONNABORTED"

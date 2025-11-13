@@ -23,7 +23,7 @@ const CoursesCard = ({
   const { cart, addToCart, removeFromCart } = useCourseStore();
   const navigate = useNavigate();
 
-  const token = JSON.parse(localStorage.getItem("auth"))?.token;
+  const token = localStorage.getItem("token")
 
   // Check if this course is already in the cart
   const isInCart = cart.some((item) => item.id === id);
@@ -108,8 +108,8 @@ const CoursesCard = ({
             <div
               key={i}
               className={`px-3 py-1 rounded-md text-white text-xs font-medium ${perk.toLowerCase() === "new"
-                  ? "bg-[#FF0000]"
-                  : "bg-[var(--text-color)]"
+                ? "bg-[#FF0000]"
+                : "bg-[var(--text-color)]"
                 }`}
             >
               {perk}

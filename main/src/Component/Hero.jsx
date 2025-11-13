@@ -9,7 +9,7 @@ const Hero = ({ bg, Title, desc }) => {
     }}
     >
       {/* Overlay */}
-      <div className="absolute inset-0 bg-black/50 z-10"></div>
+      <div className="absolute inset-0 z-10"></div>
 
       {/* Content */}
       <div className="relative z-20 mt-12 text-left px-4">

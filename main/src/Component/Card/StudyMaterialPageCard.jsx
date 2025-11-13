@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 const StudyMaterialPageCard = ({ title, level, language, pdfUrl }) => {
     const [showModal, setShowModal] = useState(false);
 
-    const token = JSON.parse(localStorage.getItem("auth"))?.token;
+    const token = localStorage.getItem("token")
 
     const handleDownload = () => {
         if (!token) {

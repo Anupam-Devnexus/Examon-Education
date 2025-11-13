@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { useAuthStore } from "../../Zustand/UserData";
 
 const API_BASE = "http://194.238.18.1:3004/api";
 
@@ -75,11 +76,12 @@ const DynamicTest = ({ quizData }) => {
   }, [currentQuestionIndex, quizData]);
 
   const handleSubmit = useCallback(async () => {
-    const storedAuth = localStorage.getItem("auth");
+    const storedAuth = JSON.parse(localStorage.getItem("token"))?.state.token || {};
     if (!storedAuth) return toast.warn("Please login before submitting!");
 
-    const { token } = JSON.parse(storedAuth);
+    const token  = storedAuth
     if (!token) return toast.error("Invalid session. Please login again.");
+    // console.log(token)
 
     try {
       setSubmitting(true);

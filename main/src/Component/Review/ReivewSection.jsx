@@ -4,31 +4,44 @@ import { useCourseStore } from "../../Zustand/GetAllCourses";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FaStar } from "react-icons/fa";
+import { useAuthStore } from "../../Zustand/UserData";
 
 export const ReviewSection = () => {
   const { data: coursesData = [], fetchCourses } = useCourseStore();
+  const { user, token, isAuthenticated } = useAuthStore();
+
   const [selectedCourse, setSelectedCourse] = useState("");
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(null);
   const [reviewText, setReviewText] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Fetch course list
+  // Fetch all courses
   useEffect(() => {
     fetchCourses();
   }, [fetchCourses]);
-// console.log(coursesData);
-  // Handle Review Submit
+
+  // ===========================
+  // HANDLE SUBMIT REVIEW
+  // ===========================
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!isAuthenticated || !user || !token) {
+      toast.error("You must be logged in to submit a review.");
+      return;
+    }
+
     if (!selectedCourse) {
       toast.error("Please select a course.");
       return;
     }
+
     if (rating === 0) {
       toast.error("Please provide a rating.");
       return;
     }
+
     if (reviewText.trim().length === 0) {
       toast.error("Please write a review.");
       return;
@@ -36,39 +49,27 @@ export const ReviewSection = () => {
 
     try {
       setLoading(true);
-      const Data = JSON.parse(localStorage.getItem("auth"));
-      const token = Data?.token;
-      if (!token) {
-        toast.error("User not authenticated. Please log in.");
-        setLoading(false);
-        return;
-      }
-       console.log(
-          "Submitting review:", {
-            clientname: Data?.user?.fullname,
-            profilePicture: Data?.user?.profileImage,
-            course: selectedCourse,
-            star:rating,
-            review: reviewText,
-          }
-        )
 
-      const response = await axios.post(
-        "http://194.238.18.1:3004/api/review/create", // Replace with actual endpoint
-        {
-          clientname: Data?.user?.fullname,
-          profilePicture: Data?.user?.profileImage,
-          course: selectedCourse,
-          star:rating,
-          review: reviewText,
-        },
+      const reviewPayload = {
+        clientname: user?.fullname,
+        profilePicture: user?.profileImage || "",
+        course: selectedCourse,
+        star: rating,
+        review: reviewText,
+      };
+
+      // console.log("Submitting review:", reviewPayload);
+
+      await axios.post(
+        "http://194.238.18.1:3004/api/review/create",
+        reviewPayload,
         {
           headers: {
             Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
         }
       );
-      
 
       toast.success("Review submitted successfully!");
       setSelectedCourse("");
@@ -82,6 +83,9 @@ export const ReviewSection = () => {
     }
   };
 
+  // ===========================
+  // RENDER
+  // ===========================
   return (
     <div className="max-w-full mx-auto bg-white shadow-md rounded-2xl p-6 mt-8">
       <h2 className="text-xl font-semibold mb-4 text-gray-800">Leave a Review</h2>
@@ -97,7 +101,7 @@ export const ReviewSection = () => {
       >
         <option value="">-- Choose a course --</option>
         {coursesData?.map((course) => (
-          <option key={course.id || course._id} value={course.id || course._id}>
+          <option key={course._id || course.id} value={course._id || course.id}>
             {course.courseDetails || course.name}
           </option>
         ))}
@@ -148,7 +152,7 @@ export const ReviewSection = () => {
       <button
         onClick={handleSubmit}
         disabled={loading}
-        className={`w-full bg-[var(--primary-color)] cursor-pointer text-white py-2 rounded-lg hover:bg-indigo-700 transition ${
+        className={`w-full bg-[var(--primary-color)] text-white py-2 rounded-lg hover:bg-indigo-700 transition ${
           loading ? "opacity-70 cursor-not-allowed" : ""
         }`}
       >
