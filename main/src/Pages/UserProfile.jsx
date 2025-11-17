@@ -17,9 +17,9 @@ import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../Zustand/UserData";
 import { useCourseStore } from "../Zustand/GetAllCourses";
 import { useProfileData } from "../Zustand/GetuseProfile";
-
+import AttemptedQuiz from"../Component/AttemptedQuiz"
 import ChangePassword from "../Component/Profile/ChangePassword";
-import ProfileQuizCard from "../Component/Card/ProfleQuizCard";
+
 import { ReviewSection } from "../Component/Review/ReivewSection";
 import UserProfileHeader from "../Component/Profile/UserProfileHeader";
 
@@ -28,6 +28,7 @@ const api = axios.create({ baseURL: API_BASE, withCredentials: true });
 
 const UserProfile = () => {
   const navigate = useNavigate();
+
 
   const { fetchCourses } = useCourseStore();
   const { user, token, updateUser, logout, isAuthenticated } = useAuthStore();
@@ -60,6 +61,7 @@ const UserProfile = () => {
     }
   }, [isAuthenticated, token, user, fetchCourses, fetchUserProfile, navigate]);
   // console.log(userData)
+  
 
   // ===============================
   // LOGOUT HANDLER
@@ -93,27 +95,7 @@ const UserProfile = () => {
   // ===============================
   // QUIZ STATISTICS
   // ===============================
-  const attemptedQuizzes = user?.attemptedQuizzes || [];
-  const quizStats = useMemo(() => {
-    if (!attemptedQuizzes.length) return { passed: 0, failed: 0 };
-    return attemptedQuizzes.reduce(
-      (acc, q) => {
-        const total = q.totalMarks || q.totalQuestions || 1;
-        const pct = (q.score / total) * 100;
-        pct >= 40 ? acc.passed++ : acc.failed++;
-        return acc;
-      },
-      { passed: 0, failed: 0 }
-    );
-  }, [attemptedQuizzes]);
 
-  const chartData = useMemo(
-    () => [
-      { name: "Passed", value: quizStats.passed, color: "#22C55E" },
-      { name: "Failed", value: quizStats.failed, color: "#EF4444" },
-    ],
-    [quizStats]
-  );
 
   // ===============================
   // PROFILE UPDATE HANDLER
@@ -140,16 +122,7 @@ const UserProfile = () => {
     [user, token, navigate, updateUser]
   );
 
-  // ===============================
-  // QUIZ DETAILS HANDLER
-  // ===============================
-  const handleViewQuiz = useCallback(
-    (quiz) => {
-      if (!quiz?._id) return;
-      navigate(`/quiz-details/${quiz._id}`, { state: { quiz } });
-    },
-    [navigate]
-  );
+ 
 
   // ===============================
   // RENDER
@@ -199,91 +172,13 @@ const UserProfile = () => {
         />
       </motion.div>
 
-      {/* QUIZ SECTION */}
-      <section className="mt-8">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl md:text-2xl font-semibold text-gray-800">
-            Attempted Quizzes
-          </h2>
-          <span className="text-gray-500 text-sm font-medium">
-            {attemptedQuizzes.length} Attempted
-          </span>
-        </div>
-
-        {attemptedQuizzes.length > 0 ? (
-          <div className="flex overflow-x-auto gap-5 pb-4 scrollbar-hide snap-x snap-mandatory">
-            {attemptedQuizzes.map((quiz, i) => (
-              <div
-                key={i}
-                className="min-w-[260px] flex-shrink-0 snap-start transition-transform hover:scale-[1.03]"
-              >
-                <ProfileQuizCard quiz={quiz} onView={() => handleViewQuiz(quiz)} />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center py-10 text-gray-500">
-            <img
-              src="/no-data.svg"
-              alt="No quiz"
-              className="h-28 w-28 opacity-60 mb-3"
-            />
-            <p className="text-sm md:text-base">No quizzes attempted yet!</p>
-          </div>
-        )}
-      </section>
-
-      {/* PERFORMANCE SECTION */}
-      <motion.section
-        initial={{ opacity: 0, y: 25 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="mt-12 bg-white rounded-2xl shadow-lg p-6 md:p-10 border border-gray-100"
-      >
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center md:text-left">
-          Quiz Performance Overview
-        </h2>
-
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
-          <div className="w-full md:w-2/3 lg:w-1/2 h-[260px] md:h-[320px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={chartData}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius="80%"
-                  dataKey="value"
-                  label={({ name, value }) => `${name}: ${value}`}
-                >
-                  {chartData.map((entry, i) => (
-                    <Cell key={i} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div className="grid grid-cols-2 gap-6 w-full lg:w-1/3">
-            {[{ label: "Passed", value: quizStats.passed, color: "text-green-600" },
-              { label: "Failed", value: quizStats.failed, color: "text-red-600" }]
-              .map((stat, i) => (
-                <div
-                  key={i}
-                  className="rounded-2xl border border-gray-200 p-6 bg-gray-50 text-center shadow-sm hover:shadow-md transition-all"
-                >
-                  <p className="text-sm font-medium text-gray-500 mb-1">{stat.label}</p>
-                  <p className={`text-3xl font-bold ${stat.color}`}>{stat.value}</p>
-                </div>
-              ))}
-          </div>
-        </div>
+      <AttemptedQuiz/>
+    
 
         <div className="border-t border-gray-200 mt-10 pt-6">
           <ReviewSection />
         </div>
-      </motion.section>
+ 
 
       {/* PASSWORD MODAL */}
       {showPassword && (

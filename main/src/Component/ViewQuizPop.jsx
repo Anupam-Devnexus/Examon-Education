@@ -1,26 +1,71 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo , lazy, Suspense } from "react";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useAuthStore } from "../Zustand/UserData";
+import { useQuizStore } from "../Zustand/userQuizDetails";
+import CoursesYouLike from "./CoursesYouLike";
 
 const ViewQuizPage = () => {
-  const { _id: id } = useParams();
-  const { user } = useAuthStore();
+  const { finalQuizId: quizId } = useParams();
+  const { data, loading, error, fetchQuiz } = useQuizStore();
 
-  // ✅ Get quizzes safely from user
-  const attemptedQuizzes = user?.attemptedQuizzes || [];
+  // Fetch on mount
+  useEffect(() => {
+    fetchQuiz();
+  }, [fetchQuiz]);
 
-  // ✅ Find the quiz matching the id from route
-  const quiz = useMemo(
-    () => attemptedQuizzes.find((q) => q._id === id || q.quizId === id),
-    [attemptedQuizzes, id]
-  );
+  // Extract attempts
+  const attempts = useMemo(() => {
+    return Array.isArray(data?.attempts) ? data.attempts : [];
+  }, [data]);
 
+  console.log("URL quizId:", quizId);
+  console.log("Attempts:", attempts);
+
+  // Correct comparison using quizId from API
+  const quiz = useMemo(() => {
+    if (!quizId || attempts.length === 0) return null;
+
+    // MATCH quizId from API
+    const selected = attempts.find(
+      (item) => String(item.quizId) === String(quizId)
+    );
+
+    if (!selected) return null;
+
+    return {
+      ...selected,
+      attemptedAt: selected.attemptedAt || null,
+      questions: Array.isArray(selected.questions) ? selected.questions : [],
+      totalQuestions: selected.questions?.length || 0,
+      score: selected.score ?? 0,
+      quizTitle: selected.quizTitle || "Quiz",
+      quizTotalMarks: selected.quizTotalMarks || selected.totalMarks || 0
+    };
+  }, [attempts, quizId]);
+
+  // Scroll top
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  if (!quiz) {
+  // Loading
+  if (loading)
+    return (
+      <div className="flex items-center justify-center h-screen text-gray-600">
+        Loading quiz details...
+      </div>
+    );
+
+  // Error
+  if (error)
+    return (
+      <div className="flex items-center justify-center h-screen text-red-500">
+        {error}
+      </div>
+    );
+
+  // Quiz Not Found
+  if (!quiz)
     return (
       <div className="flex justify-center items-center h-screen bg-gray-50">
         <p className="text-lg text-gray-600">
@@ -28,59 +73,64 @@ const ViewQuizPage = () => {
         </p>
       </div>
     );
-  }
 
   return (
-    <div className="max-w-7xl mx-auto mb-20 px-4 py-6">
-      {/* ===== HEADER SECTION ===== */}
+   <div className="w-full mb-14 max-w-7xl mx-auto px-4 py-6">
+
+  {/* Main Grid Layout */}
+  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+    {/* MAIN CONTENT (HEADER + QUESTIONS) */}
+    <div className="col-span-2 w-full">
+
+      {/* HEADER */}
       <motion.div
-        initial={{ opacity: 0, y: -30 }}
+        initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="mb-8 text-center"
+        transition={{ duration: 0.4 }}
+        className="mb-10 text-center"
       >
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[var(--primary-color)] mb-2">
-          {quiz.quizTitle || "Quiz Result"}
+        <h1 className="text-3xl font-bold text-blue-600 mb-3">
+          {quiz.quizTitle} Result
         </h1>
 
-        <div className="flex flex-col sm:flex-row justify-center gap-4 text-gray-700 text-sm sm:text-base">
-          <p>
-            <span className="font-semibold">Attempted At:</span>{" "}
-            {new Date(quiz.attemptedAt).toLocaleString()}
-          </p>
-          <p>
-            <span className="font-semibold">Total Questions:</span>{" "}
-            {quiz.questions?.length || 0}
-          </p>
-          <p>
-            <span className="font-semibold">Score:</span> {quiz.score || 0} /{" "}
-            {quiz.totalMarks || quiz.questions?.length * 2 || 0}
-          </p>
-        </div>
+        <p className="text-gray-700">
+          <span className="font-semibold">Attempted At:</span>{" "}
+          {quiz.attemptedAt
+            ? new Date(quiz.attemptedAt).toLocaleString()
+            : "N/A"}
+        </p>
+
+        <p className="text-gray-700">
+          <span className="font-semibold">Total Questions:</span>{" "}
+          {quiz.totalQuestions}
+        </p>
+
+        <p className="text-gray-700">
+          <span className="font-semibold">Score:</span>{" "}
+          {quiz.score} / {quiz.quizTotalMarks}
+        </p>
       </motion.div>
 
-      {/* ===== QUESTION LIST ===== */}
+      {/* QUESTIONS */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.2, duration: 0.6 }}
-        className="space-y-6"
+        transition={{ duration: 0.4 }}
+        className="space-y-6 mb-20"
       >
-        {quiz.questions?.map((q, index) => {
-          const isSkipped = q.userAnswer === null;
-          const isCorrect =
-            q.userAnswer !== null && q.userAnswer === q.correctAnswer;
-          const isWrong =
-            q.userAnswer !== null && q.userAnswer !== q.correctAnswer;
+        {quiz.questions.map((q, index) => {
+          const isSkipped = q.userAnswer === null || q.userAnswer === undefined;
+          const isCorrect = q.isCorrect;
 
           return (
             <motion.div
               key={q.questionId || index}
-              initial={{ opacity: 0, y: 15 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: index * 0.05 }}
+              transition={{ duration: 0.3, delay: index * 0.04 }}
               whileHover={{ scale: 1.01 }}
-              className={`rounded-2xl border shadow-md p-5 sm:p-6 transition-all duration-300 ${
+              className={`rounded-xl border shadow-sm p-5 transition-all ${
                 isCorrect
                   ? "bg-green-50 border-green-300"
                   : isSkipped
@@ -88,79 +138,72 @@ const ViewQuizPage = () => {
                   : "bg-red-50 border-red-300"
               }`}
             >
-              {/* ===== QUESTION TITLE ===== */}
-              <h2 className="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3">
-                Q{index + 1}. {q.question}
+              {/* Question */}
+              <h2 className="text-lg font-semibold text-gray-800 mb-3">
+                {index + 1}. {q.question}
               </h2>
 
-              {/* ===== OPTIONS ===== */}
-              <ul className="ml-4 space-y-2">
-                {q.options.map((opt, i) => {
-                  const isUserChoice = q.userAnswer === i;
-                  const isCorrectChoice = q.correctAnswer === i;
+              {/* Options */}
+              <div className="space-y-2 mb-4">
+                {q.options.map((option, optIndex) => {
+                  const isUser = q.userAnswer === optIndex;
+                  const isCorrectAns = q.correctAnswer === optIndex;
 
                   return (
-                    <motion.li
-                      key={i}
-                      whileHover={{ scale: 1.02 }}
-                      className={`text-sm sm:text-base px-3 py-2 rounded-lg cursor-default transition-colors duration-200 
-                        ${
-                          isCorrectChoice
-                            ? "bg-green-100 text-green-800 font-medium border border-green-300"
-                            : isUserChoice && isWrong
-                            ? "bg-red-100 text-red-700 font-medium border border-red-300"
-                            : "bg-white text-gray-700 border border-gray-200"
-                        }`}
+                    <div
+                      key={optIndex}
+                      className={`p-2 rounded-lg border text-sm
+                        ${isCorrectAns ? "bg-green-200 border-green-500" : ""}
+                        ${isUser && !isCorrectAns ? "bg-red-200 border-red-500" : ""}
+                      `}
                     >
-                      {opt}
-                      {isCorrectChoice && (
-                        <span className="ml-2 text-green-600 font-semibold">
-                          ✅ Correct
-                        </span>
-                      )}
-                      {isUserChoice && isWrong && (
-                        <span className="ml-2 text-red-600 font-semibold">
-                          ❌ Your Answer
-                        </span>
-                      )}
-                    </motion.li>
+                      {optIndex + 1}. {option}
+                    </div>
                   );
                 })}
-              </ul>
-
-              {/* ===== META INFO ===== */}
-              <div className="mt-4 flex flex-wrap gap-4 text-xs sm:text-sm text-gray-600">
-                {isSkipped && (
-                  <p className="text-yellow-600 font-semibold">
-                    ⚠️ You skipped this question.
-                  </p>
-                )}
-                <p>
-                  <span className="font-semibold">Topic:</span> {q.topic}
-                </p>
-                <p>
-                  <span className="font-semibold">Difficulty:</span>{" "}
-                  {q.difficulty}
-                </p>
-                <p>
-                  <span className="font-semibold">Marks:</span> {q.marks}
-                </p>
               </div>
 
-              {/* ===== CORRECT ANSWER IF SKIPPED/WRONG ===== */}
-              {(isSkipped || isWrong) && (
-                <div className="mt-3 text-sm sm:text-base text-green-700 font-medium">
-                  Correct Answer:{" "}
-                  <span className="text-green-800">
-                    {q.options[q.correctAnswer]}
-                  </span>
-                </div>
-              )}
+              {/* Status */}
+              <div>
+                {isCorrect ? (
+                  <span className="text-green-700 font-semibold">✔ Correct</span>
+                ) : isSkipped ? (
+                  <span className="text-yellow-700 font-semibold">⚠ Skipped</span>
+                ) : (
+                  <span className="text-red-700 font-semibold">✘ Wrong</span>
+                )}
+              </div>
             </motion.div>
           );
         })}
       </motion.div>
     </div>
+
+    {/* SIDEBAR */}
+    <aside className="w-full h-full">
+
+      <Suspense
+        fallback={
+          <div className="text-gray-500 text-center py-10">
+            Loading courses...
+          </div>
+        }
+      >
+        {/* Desktop Sidebar */}
+        <div className="hidden lg:block sticky top-24">
+          <CoursesYouLike title />
+        </div>
+
+        {/* Mobile / Tablet Sidebar */}
+        <div className="block lg:hidden">
+          <CoursesYouLike title={false} />
+        </div>
+      </Suspense>
+
+    </aside>
+  </div>
+</div>
+
   );
 };
 

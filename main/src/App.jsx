@@ -69,7 +69,7 @@ function App() {
             <Route path="/courses/:courseId" element={<DynamicCourses />} />
             <Route path="/exams/:_id" element={<DynamicExam />} />
             <Route path="/quiz/:_id" element={<DynamicQuiz />} />
-            <Route path="/view-quiz/:_id" element={<ViewQuizPop />} />
+            <Route path="/view-quiz/:finalQuizId" element={<ViewQuizPop />} />
 
             {/* Protected Routes */}
            <Route

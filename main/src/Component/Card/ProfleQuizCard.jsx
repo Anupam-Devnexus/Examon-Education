@@ -1,34 +1,57 @@
-import React from "react";
+import React, { memo, useMemo } from "react";
 import { motion } from "framer-motion";
 import { FaMedal, FaTrophy, FaCalendarAlt } from "react-icons/fa";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 
-/**
- * ProfileQuizCard
- * Displays quiz summary and navigates to details page.
- */
 const ProfileQuizCard = ({ quiz }) => {
   const navigate = useNavigate();
 
-  if (!quiz) return null;
+  // Safety check
+  if (!quiz || typeof quiz !== "object") return null;
 
-  // Normalize data
-  const quizId = quiz.quizId || quiz._id;
-  const quizTitle = quiz.quizTitle || "Untitled Exam";
-  const totalMarks = quiz.totalMarks || quiz.totalQuestions || 0;
-  const score = quiz.score ?? 0;
-  const attemptedAt = quiz.attemptedAt || new Date().toISOString();
+  /**
+   * Normalize fields (Stable, Memoized)
+   */
+  const {
+    quizId,
+    _id,
+    quizTitle,
+    totalMarks,
+    totalQuestions,
+    score,
+    attemptedAt,
+  } = useMemo(() => {
+    return {
+      quizId: quiz?.quizId || quiz?._id || null,
+      _id: quiz?._id,
+      quizTitle: quiz?.quizTitle || quiz?.title || "Untitled Exam",
+      totalMarks: quiz?.totalMarks ?? quiz?.totalQuestions ?? 0,
+      totalQuestions: quiz?.totalQuestions ?? quiz?.totalMarks ?? 0,
+      score: quiz?.score ?? 0,
+      attemptedAt: quiz?.attemptedAt || new Date().toISOString(),
+    };
+  }, [quiz]);
+
+  const finalQuizId = quizId || _id; // final fallback
+
+  // Prevent undefined id bug
+  const handleViewDetails = () => {
+    if (!finalQuizId) {
+      console.warn("Missing quizId for navigation:", quiz);
+      return;
+    }
+    navigate(`/view-quiz/${finalQuizId}`);
+  };
+
+
+  console.log("final Quiz", finalQuizId)
+
   const percentage = totalMarks ? (score / totalMarks) * 100 : 0;
   const result = percentage >= 40 ? "Passed" : "Failed";
-  const resultIcon = result === "Passed" ? "/passed.svg" : "/fail.svg";
-  const resultAlt = result === "Passed" ? "Passed Badge" : "Failed Badge";
+  const icon = result === "Passed" ? "/passed.svg" : "/fail.svg";
+  const altText = result === "Passed" ? "Passed Badge" : "Failed Badge";
   const year = new Date(attemptedAt).getFullYear();
-
-  // Navigation Handler
-  const handleViewDetails = () => {
-    if (quizId) navigate(`/view-quiz/${quizId}`, { state: { quiz } });
-  };
 
   return (
     <motion.div
@@ -41,33 +64,28 @@ const ProfileQuizCard = ({ quiz }) => {
                  w-[240px] sm:w-[280px] 
                  transition-all duration-300"
     >
-      {/* Card Content */}
+      {/* Content */}
       <div className="p-5 flex flex-col gap-3">
-        {/* Exam Title */}
         <h3 className="text-base font-semibold text-gray-800 leading-tight truncate">
           {quizTitle}
         </h3>
 
         <div className="flex items-center justify-between">
-          {/* Year */}
           <div className="flex items-center text-gray-500 text-sm gap-2">
             <FaCalendarAlt size={13} />
             <span>{year}</span>
           </div>
 
-          {/* Result Icon */}
           <img
-            src={resultIcon}
-            alt={resultAlt}
+            src={icon}
+            alt={altText}
             className="w-14 h-14 object-contain pointer-events-none select-none"
             loading="lazy"
           />
         </div>
 
-        {/* Divider */}
         <div className="h-px bg-gray-200" />
 
-        {/* Score & Result */}
         <div className="flex items-center justify-between mt-1">
           <div className="flex items-center gap-2">
             <FaTrophy className="text-yellow-500" />
@@ -75,6 +93,7 @@ const ProfileQuizCard = ({ quiz }) => {
               <span className="font-semibold">Score:</span> {score}/{totalMarks}
             </p>
           </div>
+
           <div className="flex items-center gap-2">
             <FaMedal className="text-blue-500" />
             <p className="text-sm text-gray-700">
@@ -84,7 +103,7 @@ const ProfileQuizCard = ({ quiz }) => {
         </div>
       </div>
 
-      {/* Footer Button */}
+      {/* Footer */}
       <div className="flex bg-[var(--primary-color)] p-2 items-center justify-center mx-0 w-full">
         <button
           onClick={handleViewDetails}
@@ -102,15 +121,15 @@ const ProfileQuizCard = ({ quiz }) => {
 
 ProfileQuizCard.propTypes = {
   quiz: PropTypes.shape({
-    quizId: PropTypes.string,
-    _id: PropTypes.string,
+    quizId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    _id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     quizTitle: PropTypes.string,
     totalMarks: PropTypes.number,
     totalQuestions: PropTypes.number,
     score: PropTypes.number,
     attemptedAt: PropTypes.string,
-    answers: PropTypes.array,
   }),
 };
 
-export default React.memo(ProfileQuizCard);
+// Memo for performance
+export default memo(ProfileQuizCard);
