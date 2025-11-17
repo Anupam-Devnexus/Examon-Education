@@ -13,7 +13,7 @@ const HomeQuiz = () => {
   // Zustand store for quiz data
   const { data, loading, error, fetchHomeQuiz } = useHomeQuiz();
 
-  // ✅ Fetch quiz data on mount
+  //  Fetch quiz data on mount
   useEffect(() => {
     fetchHomeQuiz();
   }, [fetchHomeQuiz]);

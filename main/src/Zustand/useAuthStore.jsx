@@ -102,9 +102,9 @@ export const useAuthStore = create((set) => ({
 
       set({ loading: false, error: null });
       //  Hard reload to clear stale state & navigate home
-      setTimeout(() => {
-        window.location.href = "/login";
-      }, 300);
+      // setTimeout(() => {
+      //   window.location.href = "/login";
+      // }, 300);
       console.log("Final User Data:", finalUser);
       return { success: true, message: message || "Signup successful" };
     } catch (err) {
