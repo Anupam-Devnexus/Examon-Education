@@ -29,8 +29,8 @@ const ChangePassword = ({ isOpen, onClose }) => {
     try {
       setLoading(true);
 
-      const authData = JSON.parse(localStorage.getItem("auth"));
-      const token = authData?.token;
+      const authData = JSON.parse(localStorage.getItem("token"));
+      const token = authData?.state?.token;
       if (!token) {
         toast.error("Unauthorized! Please login again.");
         return;
