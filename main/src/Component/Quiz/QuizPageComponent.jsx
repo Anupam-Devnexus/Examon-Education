@@ -12,7 +12,7 @@ const DynamicTest = ({ quizData }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(0);
   const [timerStarted, setTimerStarted] = useState(false); // to prevent early toasts
-console.log(quizData?.id)
+// console.log(quizData?.id)
   /** Initialize quiz answers and timer **/
   useEffect(() => {
     if (quizData?.questions?.length) {
@@ -80,10 +80,10 @@ console.log(quizData?.id)
     if (!storedAuth) return toast.warn("Please login before submitting!");
 
     const token  = storedAuth
-    console.log(token)
+    // console.log(token)
     if (!token) return toast.error("Invalid session. Please login again.");
     // console.log(token)
-console.log(quizData.id)
+// console.log(quizData.id)
     try {
       setSubmitting(true);
       await axios.post(
@@ -97,7 +97,7 @@ console.log(quizData.id)
           timeout: 10000,
         }
       );
-console.log(answers)
+// console.log(answers)
 
       toast.success("Quiz submitted successfully!");
       setHasSubmitted(true);
