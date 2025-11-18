@@ -19,6 +19,7 @@ export default function AttemptedQuiz() {
 
   // Raw attempts from backend
   const attemptedQuizzes = data?.attempts || [];
+  // console.log(attemptedQuizzes)
 
   // Normalize each quiz: Score, totalMarks, answers, quizId
   const normalizedQuizzes = useMemo(() => {

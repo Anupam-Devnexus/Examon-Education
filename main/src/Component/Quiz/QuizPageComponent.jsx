@@ -76,13 +76,13 @@ const DynamicTest = ({ quizData }) => {
   }, [currentQuestionIndex, quizData]);
 
   const handleSubmit = useCallback(async () => {
-    const storedAuth = JSON.parse(localStorage.getItem("token"))?.state.token || {};
+    const storedAuth = JSON.parse(localStorage.getItem("token"))?.state?.token || {};
     if (!storedAuth) return toast.warn("Please login before submitting!");
 
     const token  = storedAuth
     if (!token) return toast.error("Invalid session. Please login again.");
     // console.log(token)
-
+console.log(answers)
     try {
       setSubmitting(true);
       await axios.post(
