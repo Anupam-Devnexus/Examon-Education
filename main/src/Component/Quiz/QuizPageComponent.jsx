@@ -12,13 +12,13 @@ const DynamicTest = ({ quizData }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(0);
   const [timerStarted, setTimerStarted] = useState(false); // to prevent early toasts
-
+console.log(quizData?.id)
   /** Initialize quiz answers and timer **/
   useEffect(() => {
     if (quizData?.questions?.length) {
       setAnswers(
         quizData.questions.map((q, idx) => ({
-          questionId: q._id || `q${idx + 1}`,
+          questionId: q.id || `q${idx + 1}`,
           selectedIndex: null,
           correctAnswerIndex: q.correctAnswerIndex ?? null,
         }))
@@ -80,9 +80,10 @@ const DynamicTest = ({ quizData }) => {
     if (!storedAuth) return toast.warn("Please login before submitting!");
 
     const token  = storedAuth
+    console.log(token)
     if (!token) return toast.error("Invalid session. Please login again.");
     // console.log(token)
-console.log(answers)
+console.log(quizData.id)
     try {
       setSubmitting(true);
       await axios.post(
@@ -96,6 +97,8 @@ console.log(answers)
           timeout: 10000,
         }
       );
+console.log(answers)
+
       toast.success("Quiz submitted successfully!");
       setHasSubmitted(true);
     } catch (err) {
@@ -312,7 +315,7 @@ console.log(answers)
 
               return (
                 <div
-                  key={q._id || index}
+                  key={q.id || index}
                   className="border rounded-xl p-5 bg-white shadow-sm hover:shadow-md transition-all"
                 >
                   <p className="font-medium text-gray-800 mb-4">
