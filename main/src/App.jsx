@@ -10,7 +10,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./App.css";
-
+import NotficationPop from "./Component/Popup/NotificationPopup"
 import Navbar from "./Component/Navbar/Navbar";
 import Footer from "./Component/Footer";
 import Whatsapp from "./Component/Whatsapp";
@@ -43,6 +43,7 @@ function App() {
       <div className="App flex flex-col min-h-screen bg-white text-gray-900">
         {/* Global Navbar */}
         <Navbar />
+        <NotficationPop/>
 
         {/* Lazy-load route components */}
         <Suspense
