@@ -68,15 +68,15 @@ const NotificationPopup = () => {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -50, scale: 0.9 }}
           transition={{ duration: 0.35, ease: "easeOut" }}
-          className="relative w-full max-w-md p-2 rounded-3xl bg-[var(--primary-color)]"
+          className="relative w-full max-w-md p-3 rounded-3xl bg-[var(--primary-color)]"
         >
           {/* Neon Glow Border */}
           <div
-            className={`absolute inset-0 rounded-3xl bg-gradient-to-br ${style.border} opacity-1 blur-sm`}
+            className={`absolute inset-0 rounded-3xl bg-gradient-to-br ${style.border} opacity-1 blur-xl`}
           />
 
           {/* Card Content */}
-          <div className="relative bg-white/20 backdrop-blur-xl border border-white/20 rounded-3xl p-10 shadow-xl">
+          <div className="relative bg-white/20 backdrop-blur-xl border border-white/20 rounded-3xl p-10 shadow-sm">
             
             {/* Close */}
             <button
@@ -125,7 +125,7 @@ const NotificationPopup = () => {
               className="w-full py-3 rounded-xl 
               bg-gradient-to-r from-indigo-500 to-cyan-500 
               text-white text-lg font-semibold 
-              shadow-lg hover:shadow-xl 
+              shadow-sm hover:shadow-xl 
               active:scale-95 transition duration-150"
             >
               Continue

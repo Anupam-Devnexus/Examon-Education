@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from "react";
+import React, { Suspense, lazy, useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -37,13 +37,23 @@ const ViewQuizPop = lazy(() => import("./Component/ViewQuizPop"));
 
 /*  Main App */
 function App() {
+  const [popup, setPopup] = useState(false)
+
+  useEffect(() => {
+
+  const timer = setTimeout(() => {
+      setPopup(true)
+    }, 5000)
+
+    return () => clearTimeout(timer);
+  }, [])
 
   return (
     <Router>
       <div className="App flex flex-col min-h-screen bg-white text-gray-900">
         {/* Global Navbar */}
         <Navbar />
-        <NotficationPop/>
+        {popup && <NotficationPop />}
 
         {/* Lazy-load route components */}
         <Suspense
@@ -73,22 +83,22 @@ function App() {
             <Route path="/view-quiz/:finalQuizId" element={<ViewQuizPop />} />
 
             {/* Protected Routes */}
-           <Route
-  path="/profile"
-  element={
-    <ProtectedRoute>
-      <Profile />
-    </ProtectedRoute>
-  }
-/>
-<Route
-  path="/cart"
-  element={
-    <ProtectedRoute>
-      <Cart />
-    </ProtectedRoute>
-  }
-/>
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/cart"
+              element={
+                <ProtectedRoute>
+                  <Cart />
+                </ProtectedRoute>
+              }
+            />
 
 
             {/* Fallback 404 */}
