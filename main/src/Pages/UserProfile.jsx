@@ -7,7 +7,6 @@ import React, {
 } from "react";
 import { FaSignOutAlt } from "react-icons/fa";
 import { BsThreeDotsVertical } from "react-icons/bs";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { motion } from "framer-motion";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
