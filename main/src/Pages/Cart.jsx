@@ -14,7 +14,7 @@ const Cart = () => {
   );
 
   const handleCheckout = () => {
-    const token = JSON.parse(localStorage.getItem("auth"))?.token;
+    const token = JSON.parse(localStorage.getItem("token"))?.state?.token;
     if (!token) {
       navigate("/login");
     } else {
