@@ -158,7 +158,7 @@ const DHero = ({
           </motion.button>
 
           {/* Heart / Favorite Button */}
-          <motion.button
+          {/* <motion.button
             onClick={handleLike}
             whileTap={{ scale: 0.9 }}
             animate={{
@@ -175,7 +175,7 @@ const DHero = ({
             ) : (
               <CiHeart className="text-xl text-gray-300" />
             )}
-          </motion.button>
+          </motion.button> */}
         </div>
       </motion.div>
 
