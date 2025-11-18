@@ -5,9 +5,11 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FaStar } from "react-icons/fa";
 import { useAuthStore } from "../../Zustand/UserData";
+import { useProfileData } from "../../Zustand/GetuseProfile"
 
 export const ReviewSection = () => {
   const { data: coursesData = [], fetchCourses } = useCourseStore();
+  const { userData, error, fetchUserProfile } = useProfileData();
   const { user, token, isAuthenticated } = useAuthStore();
 
   const [selectedCourse, setSelectedCourse] = useState("");
@@ -19,15 +21,21 @@ export const ReviewSection = () => {
   // Fetch all courses
   useEffect(() => {
     fetchCourses();
-  }, [fetchCourses]);
+    fetchUserProfile();
+  }, [fetchCourses, fetchUserProfile]);
+
+  console.log(userData)
 
   // ===========================
   // HANDLE SUBMIT REVIEW
   // ===========================
+  const Data = JSON.parse(localStorage.getItem('token'))
+  console.log()
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const token = Data?.state?.token
 
-    if (!isAuthenticated || !user || !token) {
+    if (!token) {
       toast.error("You must be logged in to submit a review.");
       return;
     }
@@ -51,14 +59,14 @@ export const ReviewSection = () => {
       setLoading(true);
 
       const reviewPayload = {
-        clientname: user?.fullname,
-        profilePicture: user?.profileImage || "",
-        course: selectedCourse,
+        clientname: Data?.state?.name,
+        profilePicture: userData?.[0]?.profileImage || "",
+        course: userData?.[0]?.preferedCourse || "",
         star: rating,
         review: reviewText,
       };
 
-      // console.log("Submitting review:", reviewPayload);
+      console.log("Submitting review:", reviewPayload);
 
       await axios.post(
         "http://194.238.18.1:3004/api/review/create",
@@ -152,9 +160,8 @@ export const ReviewSection = () => {
       <button
         onClick={handleSubmit}
         disabled={loading}
-        className={`w-full bg-[var(--primary-color)] text-white py-2 rounded-lg hover:bg-indigo-700 transition ${
-          loading ? "opacity-70 cursor-not-allowed" : ""
-        }`}
+        className={`w-full bg-[var(--primary-color)] text-white py-2 rounded-lg hover:bg-indigo-700 transition ${loading ? "opacity-70 cursor-not-allowed" : ""
+          }`}
       >
         {loading ? "Submitting..." : "Submit Review"}
       </button>

@@ -16,11 +16,11 @@ const ProfileEditDropdown = () => {
   const [loading, setLoading] = useState(false);
   const fileRef = useRef(null);
 
-  // ✅ Get persistent data from localStorage (token store)
+  //  Get persistent data from localStorage (token store)
   const stored = JSON.parse(localStorage.getItem("token"))?.state || {};
   const { token, userId, name, email } = stored;
 
-  // ✅ Local form state
+  //  Local form state
   const [form, setForm] = useState({
     fullname: name || "",
     email: email || "",
@@ -31,16 +31,16 @@ const ProfileEditDropdown = () => {
 
   const [preview, setPreview] = useState(null);
 
-  // ✅ Fetch user profile (editable data)
+  //  Fetch user profile (editable data)
   useEffect(() => {
     if (userId && token) {
       fetchUserProfile(userId, token);
     }
   }, [userId, token, fetchUserProfile]);
 
-  // console.log(userData)
+  
 
-  // ✅ When profile data changes (after fetch)
+  //  When profile data changes (after fetch)
   useEffect(() => {
     if (userData) {
       setForm((prev) => ({
@@ -80,7 +80,7 @@ const ProfileEditDropdown = () => {
     try {
       const payload = new FormData();
       payload.append("phone", form.phone);
-      payload.append("course", form.course);
+      payload.append("preferedCourse", form.course);
       if (form.image instanceof File) payload.append("profileImage", form.image);
 
       const res = await axios.patch(`${API_BASE}/profile/update/${userId}`, payload, {
@@ -234,7 +234,7 @@ const ProfileEditDropdown = () => {
   );
 };
 
-// ✅ Reusable Input Field
+//  Reusable Input Field
 const Field = ({ label, value, onChange, readOnly, disabled }) => (
   <div>
     <label className="block text-sm text-gray-600 mb-1">{label}</label>
