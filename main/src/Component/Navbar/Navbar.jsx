@@ -32,6 +32,7 @@ const Navbar = () => {
   useEffect(() => {
     if (!exams.length) fetchAllExams();
   }, [exams.length, fetchAllExams]);
+  console.log(exams)
 
   /** ------------------ Auto-focus Search ------------------ **/
   useEffect(() => {
@@ -135,32 +136,46 @@ const Navbar = () => {
                     initial="hidden"
                     animate="visible"
                     exit="exit"
-                    className="absolute top-full left-0 mt-2 w-60 bg-white border rounded-md shadow-lg z-10 max-h-64 overflow-y-auto"
+                    className="absolute top-full left-0 mt-2 w-64 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl z-20 max-h-72 overflow-y-auto backdrop-blur-sm"
                   >
+                    {/* Loading State */}
                     {loading && (
-                      <p className="text-sm text-gray-500 p-4 text-center">
+                      <p className="text-sm text-gray-500 dark:text-gray-400 p-4 text-center">
                         Loading exams...
                       </p>
                     )}
+
+                    {/* Error State */}
                     {error && (
                       <p className="text-sm text-red-500 p-4 text-center">
                         Failed to load exams
                       </p>
                     )}
+
+                    {/* Exam List */}
                     {!loading &&
                       !error &&
                       exams.map((exam) => (
                         <div
                           key={exam._id}
                           onClick={() => handleExamClick(exam._id)}
-                          className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-gray-700 transition"
+                          className="
+              px-4 py-3 
+              cursor-pointer 
+              text-gray-700 dark:text-gray-300 
+              hover:bg-gray-100 dark:hover:bg-gray-800 
+              transition-all 
+              duration-200 
+              rounded-lg
+            "
                         >
-                          {exam.title}
+                          {exam.examDetailsCategory}
                         </div>
                       ))}
                   </motion.div>
                 )}
               </AnimatePresence>
+
             </div>
           </div>
 
