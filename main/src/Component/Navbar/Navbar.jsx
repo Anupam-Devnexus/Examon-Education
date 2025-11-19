@@ -105,7 +105,7 @@ const Navbar = () => {
   /** ------------------ JSX ------------------ **/
   return (
     <>
-      <nav className="bg-white shadow-md sticky top-0 z-[999]">
+      <nav className="bg-white shadow-md sticky top-0 z-[990]">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           {/* ----------- Left Section: Logo & Exams Dropdown ----------- */}
           <div className="flex items-center gap-5">

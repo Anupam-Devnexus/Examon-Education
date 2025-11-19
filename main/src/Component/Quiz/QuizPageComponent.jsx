@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { useAuthStore } from "../../Zustand/UserData";
 
 const API_BASE = "http://194.238.18.1:3004/api";
 
@@ -11,8 +10,8 @@ const DynamicTest = ({ quizData }) => {
   const [submitting, setSubmitting] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(0);
-  const [timerStarted, setTimerStarted] = useState(false); // to prevent early toasts
-// console.log(quizData?.id)
+  const [timerStarted, setTimerStarted] = useState(false);
+
   /** Initialize quiz answers and timer **/
   useEffect(() => {
     if (quizData?.questions?.length) {
@@ -79,11 +78,9 @@ const DynamicTest = ({ quizData }) => {
     const storedAuth = JSON.parse(localStorage.getItem("token"))?.state?.token || {};
     if (!storedAuth) return toast.warn("Please login before submitting!");
 
-    const token  = storedAuth
-    // console.log(token)
+    const token = storedAuth
     if (!token) return toast.error("Invalid session. Please login again.");
-    // console.log(token)
-// console.log(quizData.id)
+
     try {
       setSubmitting(true);
       await axios.post(
@@ -97,7 +94,7 @@ const DynamicTest = ({ quizData }) => {
           timeout: 10000,
         }
       );
-// console.log(answers)
+      // console.log(answers)
 
       toast.success("Quiz submitted successfully!");
       setHasSubmitted(true);
@@ -108,6 +105,7 @@ const DynamicTest = ({ quizData }) => {
       setSubmitting(false);
     }
   }, [answers, quizData]);
+
 
   const currentQuestion = quizData?.questions?.[currentQuestionIndex];
   if (!quizData?.questions?.length) return <p>Loading quiz...</p>;
@@ -159,9 +157,8 @@ const DynamicTest = ({ quizData }) => {
             Question {currentQuestionIndex + 1} / {quizData.questions.length}
           </p>
           <p
-            className={`font-semibold flex items-center gap-3 ${
-              timeLeft < 30 ? "text-red-500" : "text-gray-700"
-            }`}
+            className={`font-semibold flex items-center gap-3 ${timeLeft < 30 ? "text-red-500" : "text-gray-700"
+              }`}
           >
             <img src="/timer.svg" alt="" className="h-6 w-6" />{" "}
             {formatTime(timeLeft)}
@@ -199,11 +196,10 @@ const DynamicTest = ({ quizData }) => {
                     onClick={() =>
                       handleOptionSelect(currentQuestionIndex, optionIndex)
                     }
-                    className={`cursor-pointer flex items-center gap-3 border p-3 rounded-xl transition-all ${
-                      isSelected
-                        ? "bg-[var(--primary-color)] text-white border-[var(--primary-color)]"
-                        : "bg-gray-50 hover:bg-gray-100 border-gray-200"
-                    }`}
+                    className={`cursor-pointer flex items-center gap-3 border p-3 rounded-xl transition-all ${isSelected
+                      ? "bg-[var(--primary-color)] text-white border-[var(--primary-color)]"
+                      : "bg-gray-50 hover:bg-gray-100 border-gray-200"
+                      }`}
                   >
                     <input
                       type="radio"
@@ -256,11 +252,10 @@ const DynamicTest = ({ quizData }) => {
             </div>
 
             <div
-              className={`relative text-center rounded-md p-8 shadow-sm w-full ${
-                isFail
-                  ? "bg-[#FFE6E6] text-red-700"
-                  : "bg-[#E8FFF1] text-green-700"
-              }`}
+              className={`relative text-center rounded-md p-8 shadow-sm w-full ${isFail
+                ? "bg-[#FFE6E6] text-red-700"
+                : "bg-[#E8FFF1] text-green-700"
+                }`}
             >
               <div className="flex justify-center mb-4">
                 <img
@@ -271,17 +266,15 @@ const DynamicTest = ({ quizData }) => {
               </div>
 
               <p
-                className={`text-sm font-semibold ${
-                  isFail ? "text-red-600" : "text-green-600"
-                }`}
+                className={`text-sm font-semibold ${isFail ? "text-red-600" : "text-green-600"
+                  }`}
               >
                 Your Score: {percentage}%
               </p>
 
               <h3
-                className={`text-2xl sm:text-3xl font-bold mt-2 ${
-                  isFail ? "text-[#FF1111]" : "text-green-600"
-                }`}
+                className={`text-2xl sm:text-3xl font-bold mt-2 ${isFail ? "text-[#FF1111]" : "text-green-600"
+                  }`}
               >
                 {isFail ? "Better Luck Next Time!" : "Congratulations, You Passed!"}
               </h3>
