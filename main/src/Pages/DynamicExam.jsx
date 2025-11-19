@@ -17,7 +17,7 @@ const DynamicExam = () => {
     () => exams?.find((e) => String(e._id) === String(id)),
     [exams, id]
   );
-
+console.log("exam", exam)
   if (loading)
     return (
       <div className="flex justify-center items-center min-h-screen text-gray-600 text-lg animate-pulse">
@@ -41,8 +41,8 @@ const DynamicExam = () => {
 
   /** 🧩 Clean & style tables + enhance typography (with responsive scroll) */
   const styledHTML = useMemo(() => {
-    if (!exam.Content) return "";
-    const clean = DOMPurify.sanitize(exam.Content);
+    if (!exam.examDetails?.[0]?.Content) return "";
+    const clean = DOMPurify.sanitize(exam.examDetails?.[0]?.Content);
 
     return clean
       .replaceAll(
@@ -110,8 +110,8 @@ const DynamicExam = () => {
             className="h-12 md:h-16 w-auto object-contain"
           />
           <h1 className="text-2xl md:text-3xl font-bold text-[var(--primary-color)] text-center">
-            {exam.name || "Exam"} — Dates, Fees, Eligibility & Pattern
-          </h1>
+            {exam.examDetails?.[0]?.title || "Exam"} — Dates, Fees, Eligibility & Pattern
+          </h1> 
           {exam.year && (
             <p className="text-gray-600 text-sm md:text-base">
               Exam Year: <span className="font-medium">{exam.year}</span>
