@@ -50,9 +50,10 @@ const DynamicTest = ({ quizData }) => {
   useEffect(() => {
     if (timeLeft === 0 && !hasSubmitted && timerStarted) {
       toast.warn("Time's up! Submitting your quiz...");
-      handleSubmit();
+      handleSubmitSafe();
     }
   }, [timeLeft, hasSubmitted, timerStarted]);
+
 
   const handleOptionSelect = useCallback((questionIndex, optionIndex) => {
     setAnswers((prev) =>
@@ -65,14 +66,15 @@ const DynamicTest = ({ quizData }) => {
   const handleNext = useCallback(() => {
     currentQuestionIndex < quizData.questions.length - 1
       ? setCurrentQuestionIndex((i) => i + 1)
-      : handleSubmit();
+      : handleSubmitSafe()
   }, [currentQuestionIndex, quizData]);
 
   const handleSkip = useCallback(() => {
     currentQuestionIndex < quizData.questions.length - 1
       ? setCurrentQuestionIndex((i) => i + 1)
-      : handleSubmit();
+      : handleSubmitSafe();
   }, [currentQuestionIndex, quizData]);
+
 
   const handleSubmit = useCallback(async () => {
     const storedAuth = JSON.parse(localStorage.getItem("token"))?.state?.token || {};
@@ -105,6 +107,13 @@ const DynamicTest = ({ quizData }) => {
       setSubmitting(false);
     }
   }, [answers, quizData]);
+
+  const handleSubmitSafe = useCallback(() => {
+    setTimeout(() => {
+      handleSubmit();
+    }, 150);
+  }, [handleSubmit]);
+
 
 
   const currentQuestion = quizData?.questions?.[currentQuestionIndex];
@@ -223,17 +232,22 @@ const DynamicTest = ({ quizData }) => {
               >
                 Skip
               </button>
-              <button
-                onClick={handleNext}
-                disabled={submitting}
-                className="px-6 cursor-pointer py-2 bg-[var(--primary-color)] text-white rounded-xl hover:bg-[var(--secondary-color)] transition-all disabled:opacity-60"
-              >
-                {currentQuestionIndex === quizData.questions.length - 1
-                  ? submitting
-                    ? "Submitting..."
-                    : "Submit"
-                  : "Next"}
-              </button>
+             <button
+  onClick={
+    currentQuestionIndex === quizData.questions.length - 1
+      ? handleSubmitSafe    
+      : handleNext          
+  }
+  disabled={submitting}
+  className="px-6 cursor-pointer py-2 bg-[var(--primary-color)] text-white rounded-xl hover:bg-[var(--secondary-color)] transition-all disabled:opacity-60"
+>
+  {
+    currentQuestionIndex === quizData.questions.length - 1
+      ? (submitting ? "Submitting..." : "Submit")
+      : "Next"
+  }
+</button>
+
             </div>
           </div>
         </div>
