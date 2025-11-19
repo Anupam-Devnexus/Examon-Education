@@ -35,7 +35,7 @@ const DynamicTest = () => {
       setQuizData(response.data);
       setError(null);
     } catch (err) {
-      console.error("❌ Error fetching quiz:", err);
+      console.error("Error fetching quiz:", err);
       setError(
         err.response?.data?.message ||
           "Failed to load quiz. Please try again later."

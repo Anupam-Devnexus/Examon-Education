@@ -209,7 +209,7 @@ const Quiz = () => {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", stiffness: 120, damping: 20 }}
-              className="fixed top-0 right-0 w-80 h-full bg-white z-50 shadow-xl p-6 overflow-y-auto rounded-l-2xl"
+              className="fixed top-0 right-0 w-80 h-full bg-white z-[991] shadow-xl p-6 overflow-y-auto rounded-l-2xl"
             >
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-lg font-semibold text-gray-800">

@@ -7,35 +7,44 @@ import { useNavigate } from "react-router-dom";
 const ProfileQuizCard = ({ quiz }) => {
   const navigate = useNavigate();
 
-  // Safety check
   if (!quiz || typeof quiz !== "object") return null;
 
   /**
-   * Normalize fields (Stable, Memoized)
+   * Normalized quiz data
    */
-  const {
-    quizId,
-    _id,
-    quizTitle,
-    totalMarks,
-    totalQuestions,
-    score,
-    attemptedAt,
-  } = useMemo(() => {
+  const normalizedData = useMemo(() => {
+    const quizId = quiz?.quizId || quiz?._id || null;
+    const quizTitle = quiz?.quizTitle || quiz?.title || "Untitled Exam";
+
+    const totalMarks =
+      quiz?.totalMarks ??
+      quiz?.totalQuestions ??
+      0;
+
+    const totalQuestions =
+      quiz?.totalQuestions ??
+      quiz?.totalMarks ??
+      0;
+
+    const score = quiz?.score ?? 0;
+
+    const attemptedAt = quiz?.attemptedAt || new Date().toISOString();
+
     return {
-      quizId: quiz?.quizId || quiz?._id || null,
-      _id: quiz?._id,
-      quizTitle: quiz?.quizTitle || quiz?.title || "Untitled Exam",
-      totalMarks: quiz?.totalMarks ?? quiz?.totalQuestions ?? 0,
-      totalQuestions: quiz?.totalQuestions ?? quiz?.totalMarks ?? 0,
-      score: quiz?.score ?? 0,
-      attemptedAt: quiz?.attemptedAt || new Date().toISOString(),
+      quizId,
+      quizTitle,
+      totalMarks,
+      totalQuestions,
+      score,
+      attemptedAt,
     };
   }, [quiz]);
 
-  const finalQuizId = quizId || _id; // final fallback
+  const { quizId, quizTitle, totalMarks, totalQuestions, score, attemptedAt } =
+    normalizedData;
 
-  // Prevent undefined id bug
+  const finalQuizId = quizId;
+
   const handleViewDetails = () => {
     if (!finalQuizId) {
       console.warn("Missing quizId for navigation:", quiz);
@@ -44,14 +53,22 @@ const ProfileQuizCard = ({ quiz }) => {
     navigate(`/view-quiz/${finalQuizId}`);
   };
 
+  /** -------------------------------
+   *  🔥 Same Logic Style as Your Example
+   *  useMemo → calculate percentage & result
+   * -------------------------------- */
+  const { percentage, result, icon, altText, year } = useMemo(() => {
+    const percent = totalMarks
+      ? ((score / totalMarks) * 100).toFixed(2)
+      : 0;
 
-  console.log("final Quiz", finalQuizId)
+    const result = percent >= 40 ? "Passed" : "Failed";
+    const icon = result === "Passed" ? "/passed.svg" : "/fail.svg";
+    const altText = result === "Passed" ? "Passed Badge" : "Failed Badge";
+    const year = new Date(attemptedAt).getFullYear();
 
-  const percentage = totalMarks ? (score / totalMarks) * 100 : 0;
-  const result = percentage >= 40 ? "Passed" : "Failed";
-  const icon = result === "Passed" ? "/passed.svg" : "/fail.svg";
-  const altText = result === "Passed" ? "Passed Badge" : "Failed Badge";
-  const year = new Date(attemptedAt).getFullYear();
+    return { percentage: percent, result, icon, altText, year };
+  }, [score, totalMarks, attemptedAt]);
 
   return (
     <motion.div
@@ -131,5 +148,4 @@ ProfileQuizCard.propTypes = {
   }),
 };
 
-// Memo for performance
 export default memo(ProfileQuizCard);
