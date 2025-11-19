@@ -117,17 +117,41 @@ const Navbar = () => {
               onClick={() => handleNavigate("/")}
             />
 
-            <div className="h-12 w-px bg-gray-300" />
+            <div className="h-12  bg-gray-300" />
 
             <div className="relative">
+              <div className="flex items-center gap-4">
+
               <button
                 onClick={() => setExamOpen((prev) => !prev)}
                 aria-haspopup="true"
                 aria-expanded={examOpen}
-                className="px-3 py-1 rounded-xl border-2 border-[var(--secondary-color)] text-gray-700 font-medium hover:text-[var(--primary-color)] transition flex items-center gap-1"
+                className="px-2 py-1 rounded-xl border-2 border-[var(--secondary-color)] text-gray-700 font-medium hover:text-[var(--primary-color)] transition flex items-center gap-1"
               >
                 All Exams ▾
               </button>
+
+              <div
+  className="flex items-center gap-2 cursor-pointer"
+  onClick={() => navigate("/batches")}
+>
+  {/* Blinking Dot */}
+  <motion.p
+    className="w-2 h-2 bg-red-600 rounded-full"
+    animate={{ opacity: [1, 0, 1] }}
+    transition={{ duration: 1, repeat: Infinity, ease: "easeInOut" ,delay: 0.2  }}
+  />
+
+  {/* Blinking Text */}
+  <motion.span
+    className="text-red-600 font-bold"
+    animate={{ opacity: [1, 0, 1] }}
+    transition={{ duration: 1, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
+  >
+    Live
+  </motion.span>
+</div>
+              </div>
 
               <AnimatePresence>
                 {examOpen && (

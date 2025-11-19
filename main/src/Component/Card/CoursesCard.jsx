@@ -65,13 +65,15 @@ const CoursesCard = ({
   return (
     <div
       className="rounded-xl bg-white flex flex-col flex-1 max-h-[600px]  shadow-xl overflow-hidden transition-transform hover:scale-[1.02] duration-300"
-    >
+   
+   >
       {/* === TOP SECTION (Image + Pricing) === */}
       <div className="relative shadow-lg p-2 rounded-2xl w-full h-52 md:h-62 overflow-hidden">
         <img
           src={img}
           alt={courseDetails}
           className="object-center object-cover rounded-2xl w-full "
+          onClick={handleNavigate}
         />
 
         {/* === Pricing Overlay === */}

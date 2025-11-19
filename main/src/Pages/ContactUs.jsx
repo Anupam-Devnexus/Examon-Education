@@ -2,7 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import Hero from "../Component/Hero";
 import ContactForm from "../Form/ContactUspageForm";
-
+import Map from "../Component/Map/Map"
 const ContactUs = () => {
   return (
     <div className="flex flex-col w-full min-h-screen bg-white overflow-hidden">
@@ -36,8 +36,13 @@ const ContactUs = () => {
           whileHover={{ scale: 1.02 }}
         >
           <ContactForm />
+          <div className="py-2">
+
+      <Map/>
+          </div>
         </motion.div>
       </motion.section>
+
     </div>
   );
 };

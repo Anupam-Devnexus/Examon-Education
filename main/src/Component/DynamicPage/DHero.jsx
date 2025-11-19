@@ -127,7 +127,7 @@ const DHero = ({
             </div>
           ))}
         </motion.div>
-        {/* <div className="flex items-center gap-3">
+        <div className="flex items-center flex-wrap gap-3">
           {insideCourses?.map((course, index) => (
             <span
           key={index}
@@ -137,7 +137,7 @@ const DHero = ({
         </span>
           ))
           }
-        </div> */}
+        </div>
 
         {/*  Buttons */}
         <div className="flex items-center gap-4 mt-3">
@@ -157,25 +157,7 @@ const DHero = ({
             </motion.span>
           </motion.button>
 
-          {/* Heart / Favorite Button */}
-          {/* <motion.button
-            onClick={handleLike}
-            whileTap={{ scale: 0.9 }}
-            animate={{
-              scale: liked ? [1, 1.3, 1] : 1,
-              color: liked ? "#e0245e" : "#111",
-            }}
-            transition={{ duration: 0.3 }}
-            className={`p-3 rounded-full bg-white border shadow-md hover:shadow-lg transition-all ${
-              liked ? "bg-gray-100 " : "bg-black text-[var(--primary-color)]"
-            }`}
-          >
-            {liked ? (
-              <FaHeart className="text-xl text-[var(--primary-color)] drop-shadow-md" />
-            ) : (
-              <CiHeart className="text-xl text-gray-300" />
-            )}
-          </motion.button> */}
+        
         </div>
       </motion.div>
 

@@ -56,7 +56,7 @@ const DynamicCourse = () => {
   useEffect(() => {
     if (!data || data.length === 0) fetchCourses();
   }, [data, fetchCourses]);
-
+console.log(data)
 
   // Find the selected course
   const foundCourse = useMemo(() => {
@@ -93,7 +93,7 @@ const DynamicCourse = () => {
     }
 
     addToCart(foundCourse);
-    console.log("Added to favorites:", foundCourse);
+    // console.log("Added to favorites:", foundCourse);
     toast.success(`${course.title} added to your favorites!`);
   }, [foundCourse, cart, addToCart, navigate]);
 
@@ -155,6 +155,43 @@ const DynamicCourse = () => {
         <motion.section variants={fadeInUp} initial="hidden" whileInView="show" viewport={{ once: true }} className="w-full">
           <StagesOfSSC item={foundCourse} />
         </motion.section>
+
+   {/* Perks of Course */}
+<motion.div 
+  className="flex flex-wrap items-center gap-3 mt-4"
+  initial="hidden"
+  animate="visible"
+  variants={{
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.08 } }
+  }}
+>
+  {course?.perks?.map((perk, index) => (
+    <motion.span
+      key={index}
+      variants={{
+        hidden: { opacity: 0, y: 10 },
+        visible: { opacity: 1, y: 0 }
+      }}
+      className="
+        px-4 py-1.5 
+        rounded-full 
+        bg-gradient-to-r from-red-50 to-red-100 
+        text-red-700 border border-red-200 
+        text-sm font-semibold 
+        shadow-md hover:shadow-lg 
+        hover:from-red-100 hover:to-red-200
+        transition-all duration-300
+        flex items-center gap-2
+      "
+    >
+      <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+      {perk}
+    </motion.span>
+  ))}
+</motion.div>
+
+
 
         {/* Masterclass */}
         <motion.section variants={fadeInUp} initial="hidden" whileInView="show" viewport={{ once: true }} className="w-full">

@@ -34,6 +34,7 @@ const Cart = lazy(() => import("./Pages/Cart"));
 const Login = lazy(() => import("./auth/Login"));
 const Register = lazy(() => import("./auth/Register"));
 const ViewQuizPop = lazy(() => import("./Component/ViewQuizPop"));
+const Batches = lazy(() => import("./Pages/Batches"))
 
 /*  Main App */
 function App() {
@@ -75,6 +76,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:id" element={<DynamicBlog />} />
+            <Route path = "/batches" element={<Batches/>}/>
 
             {/* Dynamic Routes */}
             <Route path="/courses/:courseId" element={<DynamicCourses />} />
