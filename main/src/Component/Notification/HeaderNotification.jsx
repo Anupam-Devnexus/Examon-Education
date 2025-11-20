@@ -1,35 +1,26 @@
-import React from "react";
+import { useNotificationStore } from "../../Zustand/useNotificationStore";
 import { motion } from "framer-motion";
-import Data from "../../DataStore/Notifications.json";
-
+import Data from "../../DataStore/Notifications.json"
 const HeaderNotification = () => {
-  // Duplicate items so the banner loops smoothly
-  const notifications = [...Data, ...Data];
+  const notifications = useNotificationStore((s) => s.notifications);
+
+  if (notifications.length === 0) return null;
 
   return (
-    <div className="left-0 w-full bg-[var(--primary-color)] text-white py-2 overflow-hidden z-50 shadow-md">
-      <motion.div
-        className="flex whitespace-nowrap"
-        animate={{
-          x: ["0%", "-100%"]
-        }}
-        transition={{
-          repeat: Infinity,
-          ease: "linear",
-          duration: 20 // speed — increase for faster scroll
-        }}
-      >
-        {notifications.map((item, index) => (
-          <span
-            key={index}
-            className="mx-6 text-sm font-medium flex items-center gap-2"
-          >
-            <span className="w-2 h-2 bg-white rounded-full"></span>
-            {item.title || item.message}
+    <motion.div
+      className="fixed top-0 left-0 w-full py-2 px-4 text-white 
+                bg-[var(--primary-color)] overflow-hidden z-50"
+      animate={{ x: ["0%", "-100%"] }}
+      transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+    >
+      <div className="flex gap-8 whitespace-nowrap">
+        {notifications.map((n, index) => (
+          <span key={index} className="font-medium">
+            {n.title}
           </span>
         ))}
-      </motion.div>
-    </div>
+      </div>
+    </motion.div>
   );
 };
 

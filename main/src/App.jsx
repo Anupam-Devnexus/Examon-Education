@@ -1,10 +1,12 @@
 import React, { Suspense, lazy, useState, useEffect } from "react";
+import { useNotificationStore } from "./Zustand/useNotificationStore";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
 } from "react-router-dom";
+import { socket } from "./socket"
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "slick-carousel/slick/slick.css";
@@ -42,12 +44,21 @@ function App() {
 
   useEffect(() => {
 
-  const timer = setTimeout(() => {
+    const timer = setTimeout(() => {
       setPopup(true)
     }, 15000)
 
     return () => clearTimeout(timer);
   }, [])
+
+  const initSocket = useNotificationStore((state) => state.initSocket);
+
+  useEffect(() => {
+    initSocket();
+
+    const userId = JSON.parse(localStorage.getItem("token"))?.state?.token;
+    if (userId) socket.emit("join_room", userId);
+  }, []);
 
   return (
     <Router>
@@ -66,56 +77,56 @@ function App() {
         >
           <div className="mt-26">
 
-          <Routes >
-      
-            {/* Public Routes */}
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<Aboutus />} />
-            <Route path="/courses" element={<Courses />} />
-            <Route path="/quiz" element={<Quiz />} />
-            <Route path="/study-material" element={<StudyMaterial />} />
-            <Route path="/contact" element={<ContactUs />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/blog/:id" element={<DynamicBlog />} />
-            <Route path = "/batches" element={<Batches/>}/>
+            <Routes >
 
-            {/* Dynamic Routes */}
-            <Route path="/courses/:courseId" element={<DynamicCourses />} />
-            <Route path="/exams/:_id" element={<DynamicExam />} />
-            <Route path="/quiz/:_id" element={<DynamicQuiz />} />
-            <Route path="/view-quiz/:finalQuizId" element={<ViewQuizPop />} />
+              {/* Public Routes */}
+              <Route path="/" element={<Home />} />
+              <Route path="/about" element={<Aboutus />} />
+              <Route path="/courses" element={<Courses />} />
+              <Route path="/quiz" element={<Quiz />} />
+              <Route path="/study-material" element={<StudyMaterial />} />
+              <Route path="/contact" element={<ContactUs />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:id" element={<DynamicBlog />} />
+              <Route path="/batches" element={<Batches />} />
 
-            {/* Protected Routes */}
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/cart"
-              element={
-                <ProtectedRoute>
-                  <Cart />
-                </ProtectedRoute>
-              }
-            />
+              {/* Dynamic Routes */}
+              <Route path="/courses/:courseId" element={<DynamicCourses />} />
+              <Route path="/exams/:_id" element={<DynamicExam />} />
+              <Route path="/quiz/:_id" element={<DynamicQuiz />} />
+              <Route path="/view-quiz/:finalQuizId" element={<ViewQuizPop />} />
+
+              {/* Protected Routes */}
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/cart"
+                element={
+                  <ProtectedRoute>
+                    <Cart />
+                  </ProtectedRoute>
+                }
+              />
 
 
-            {/* Fallback 404 */}
-            <Route
-              path="*"
-              element={
-                <div className="flex justify-center items-center h-screen text-xl font-semibold text-gray-500">
-                  404 — Page Not Found
-                </div>
-              }
-            />
-          </Routes>
+              {/* Fallback 404 */}
+              <Route
+                path="*"
+                element={
+                  <div className="flex justify-center items-center h-screen text-xl font-semibold text-gray-500">
+                    404 — Page Not Found
+                  </div>
+                }
+              />
+            </Routes>
           </div>
         </Suspense>
         <Whatsapp
