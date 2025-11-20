@@ -183,7 +183,7 @@ const Register = () => {
         {/* Close Button */}
         <button
           onClick={() => navigate("/")}
-          className="absolute top-3 right-3 text-gray-500 dark:text-gray-300 hover:text-gray-700 text-xl"
+          className="absolute cursor-pointer top-3 right-3 text-gray-500 dark:text-gray-300 hover:text-gray-700 text-xl"
         >
           ✕
         </button>
@@ -222,9 +222,8 @@ const Register = () => {
                     value={formData.fullname}
                     onChange={handleChange}
                     placeholder="Enter your full name"
-                    className={`w-full p-2 text-black dark:text-white outline-none rounded-full border ${
-                      errors.fullname ? "border-red-500" : "border-gray-300"
-                    }`}
+                    className={`w-full p-2 text-black dark:text-white outline-none rounded-full border ${errors.fullname ? "border-red-500" : "border-gray-300"
+                      }`}
                   />
                   {errors.fullname && (
                     <p className="text-red-500 text-xs">{errors.fullname}</p>
@@ -241,9 +240,8 @@ const Register = () => {
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="Enter your email"
-                    className={`w-full p-2 text-black dark:text-white outline-none rounded-full border ${
-                      errors.email ? "border-red-500" : "border-gray-300"
-                    }`}
+                    className={`w-full p-2 text-black dark:text-white outline-none rounded-full border ${errors.email ? "border-red-500" : "border-gray-300"
+                      }`}
                   />
                   {errors.email && (
                     <p className="text-red-500 text-xs">{errors.email}</p>
@@ -260,9 +258,8 @@ const Register = () => {
                     value={formData.password}
                     onChange={handleChange}
                     placeholder="Create a password"
-                    className={`w-full p-2 text-black dark:text-white outline-none rounded-full border ${
-                      errors.password ? "border-red-500" : "border-gray-300"
-                    }`}
+                    className={`w-full p-2 text-black dark:text-white outline-none rounded-full border ${errors.password ? "border-red-500" : "border-gray-300"
+                      }`}
                   />
                   {errors.password && (
                     <p className="text-red-500 text-xs">{errors.password}</p>
@@ -273,9 +270,8 @@ const Register = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className={`mt-3 w-full flex items-center justify-center gap-2 text-white py-2 rounded-full transition ${
-                    loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
-                  }`}
+                  className={`mt-3 w-full flex items-center justify-center gap-2 text-white py-2 rounded-full transition ${loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
+                    }`}
                 >
                   {loading ? "Registering..." : <>Register <FaArrowRight /></>}
                 </button>
@@ -326,11 +322,10 @@ const Register = () => {
               <button
                 disabled={counter !== 0}
                 onClick={handleResend}
-                className={`w-full py-2 rounded-xl font-semibold text-md ${
-                  counter === 0
+                className={`w-full py-2 rounded-xl font-semibold text-md ${counter === 0
                     ? "bg-green-600 text-white hover:bg-green-700"
                     : "bg-gray-300 text-gray-600 cursor-not-allowed"
-                }`}
+                  }`}
               >
                 {counter === 0 ? "Resend OTP" : `Resend OTP in ${counter}s`}
               </button>

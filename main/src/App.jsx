@@ -59,12 +59,15 @@ function App() {
         {/* Lazy-load route components */}
         <Suspense
           fallback={
-            <div className="flex justify-center items-center h-[60vh] text-gray-500 animate-pulse text-lg font-medium">
+            <div className="flex justify-center items-center h-[70vh] text-gray-500 animate-pulse text-lg font-medium">
               Loading page…
             </div>
           }
         >
-          <Routes>
+          <div className="mt-26">
+
+          <Routes >
+      
             {/* Public Routes */}
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<Aboutus />} />
@@ -113,6 +116,7 @@ function App() {
               }
             />
           </Routes>
+          </div>
         </Suspense>
         <Whatsapp
         />
