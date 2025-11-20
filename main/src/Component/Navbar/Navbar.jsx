@@ -106,9 +106,9 @@ const Navbar = () => {
   const token = localStorage.getItem('token')
   /** ------------------ JSX ------------------ **/
   return (
-    <div className="flex flex-col fixed left-0 top-0  w-full">
-    
-      <nav className="bg-white shadow-md  z-[990]">
+    <div className="flex flex-col fixed left-0 top-0 z-[998]  w-full">
+
+      <nav className="bg-white shadow-md  ">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           {/* ----------- Left Section: Logo & Exams Dropdown ----------- */}
           <div className="flex items-center gap-5">
@@ -124,35 +124,35 @@ const Navbar = () => {
             <div className="relative">
               <div className="flex items-center gap-4">
 
-              <button
-                onClick={() => setExamOpen((prev) => !prev)}
-                aria-haspopup="true"
-                aria-expanded={examOpen}
-                className="px-2 py-1 z-[991] rounded-xl border-2 border-[var(--secondary-color)] text-gray-700 font-medium hover:text-[var(--primary-color)] transition flex items-center gap-1"
-              >
-                All Exams ▾
-              </button>
+                <button
+                  onClick={() => setExamOpen((prev) => !prev)}
+                  aria-haspopup="true"
+                  aria-expanded={examOpen}
+                  className="px-2 py-1 z-[991] rounded-xl border-2 border-[var(--secondary-color)] text-gray-700 font-medium hover:text-[var(--primary-color)] transition flex items-center gap-1"
+                >
+                  All Exams ▾
+                </button>
 
-              <div
-  className="flex items-center gap-2 cursor-pointer"
-  onClick={() => navigate("/batches")}
->
-  {/* Blinking Dot */}
-  <motion.p
-    className="w-2 h-2 bg-red-600 rounded-full"
-    animate={{ opacity: [1, 0, 1] }}
-    transition={{ duration: 1, repeat: Infinity, ease: "easeInOut" ,delay: 0.2  }}
-  />
+                <div
+                  className="flex items-center gap-2 cursor-pointer"
+                  onClick={() => navigate("/batches")}
+                >
+                  {/* Blinking Dot */}
+                  <motion.p
+                    className="w-2 h-2 bg-red-600 rounded-full"
+                    animate={{ opacity: [1, 0, 1] }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
+                  />
 
-  {/* Blinking Text */}
-  <motion.span
-    className="text-red-600 font-bold"
-    animate={{ opacity: [1, 0, 1] }}
-    transition={{ duration: 1, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
-  >
-    Live
-  </motion.span>
-</div>
+                  {/* Blinking Text */}
+                  <motion.span
+                    className="text-red-600 font-bold"
+                    animate={{ opacity: [1, 0, 1] }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
+                  >
+                    Live
+                  </motion.span>
+                </div>
               </div>
 
               <AnimatePresence>
@@ -193,7 +193,7 @@ const Navbar = () => {
               transition-all 
               duration-200 
               rounded-lg
-              z-[991]
+              z-[999]
             "
                         >
                           {exam.examDetailsCategory}
@@ -355,7 +355,7 @@ const Navbar = () => {
           onClose={() => setIsSearchOpen(false)}
         />
       </Suspense>
-      <HeaderNotification/>
+      <HeaderNotification />
     </div>
   );
 };

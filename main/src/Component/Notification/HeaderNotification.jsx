@@ -16,7 +16,7 @@ const HeaderNotification = () => {
   const marqueeItems = [...finalNotifications, ...finalNotifications];
 
   return (
-    <div className=" left-0 w-full z-[100] bg-[var(--primary-color)] text-white py-2 overflow-hidden shadow-md">
+    <div className=" left-0 w-full  bg-[var(--primary-color)] text-white py-2 overflow-hidden shadow-md">
       <motion.div
         className="flex items-center gap-8 whitespace-nowrap"
         animate={{ x: ["0%", "-100%"] }}
