@@ -155,7 +155,7 @@ const DynamicTest = () => {
    *  Final Layout
    * ------------------------------------------- */
   return (
-    <main className="min-h-screen bg-gradient-to-b from-[#f9fbff] to-white mb-18 md:mb-1 px-4 md:px-8 pb-6">
+    <main className="min-h-screen bg-gradient-to-b from-[#f9fbff] to-white mb-24 md:mb-1 px-4 md:px-8 pb-6">
       <div className="max-w-full mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         
         {/* QUIZ MAIN SECTION */}
