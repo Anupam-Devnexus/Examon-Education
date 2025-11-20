@@ -12,10 +12,6 @@ import Footer from "./Component/Footer";
 import Whatsapp from "./Component/Whatsapp";
 import ProtectedRoute from "./auth/ProtectedRoute";
 
-import { socket } from "./socket";
-import NotificationPopup from "./Component/Popup/NotificationPopup";
-import { useNotificationStore } from "./Zustand/useNotificationStore";
-
 /* Lazy-loaded pages */
 const Home = lazy(() => import("./Pages/Home"));
 const Aboutus = lazy(() => import("./Pages/Aboutus"));
@@ -39,60 +35,7 @@ const Batches = lazy(() => import("./Pages/Batches"));
     MAIN APP COMPONENT
 -------------------------------------------------------------------*/
 function App() {
-  const initSocket = useNotificationStore((state) => state.initSocket);
-  const addNotification = useNotificationStore((state) => state.addNotification);
-  const notifications = useNotificationStore((state) => state.notifications);
-  const removeNotification = useNotificationStore((state) => state.removeNotification);
-
-  /* -----------------------------------------------------------
-     1️⃣ INIT SOCKET + JOIN ROOM
-  ------------------------------------------------------------*/
-  useEffect(() => {
-    initSocket();
-
-    const auth = JSON.parse(localStorage.getItem("auth"));
-    const userId = auth?.token;
-
-    if (userId) socket.emit("join_room", userId);
-
-    /* When backend sends notification */
-    socket.on("new_notification", (data) => {
-      addNotification({
-        id: Date.now(),
-        title: data?.title || "New Update",
-        subtitle: data?.subtitle || "",
-        description: data?.description || "",
-        img: data?.img || "/logo2.svg",
-        path: data?.path || "",
-        autoClose: data?.autoClose ?? true,
-        autoCloseDelay: data?.autoCloseDelay ?? 5000,
-      });
-    });
-
-    return () => {
-      socket.off("new_notification");
-    };
-  }, []);
-
-  /* -----------------------------------------------------------
-     2️⃣ SHOW NOTIFICATION AFTER 15 SEC ONCE USER ENTERS
-  ------------------------------------------------------------*/
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      addNotification({
-        id: Date.now(),
-        title: "New Course Launched",
-        subtitle: "DDA 2025 – Shikhar Batch",
-        description:
-          "Level up your preparation with structured lessons, quizzes, and guidance!",
-        img: "/logo2.svg",
-        path: "courses",
-        autoClose: false,
-      });
-    }, 15000);
-
-    return () => clearTimeout(timer);
-  }, []);
+  
 
   return (
     <Router>
@@ -104,13 +47,13 @@ function App() {
         {/* -----------------------------------------------------------
            3️ GLOBAL NOTIFICATION POPUPS (QUEUE)
         ------------------------------------------------------------*/}
-        {notifications.map((popup) => (
+        {/* {notifications.map((popup) => (
           <NotificationPopup
             key={popup.id}
             {...popup}
             onClose={() => removeNotification(popup.id)}
           />
-        ))}
+        ))} */}
 
         {/* -----------------------------------------------------------
            ROUTES

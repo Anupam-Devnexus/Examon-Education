@@ -3,20 +3,35 @@ import { socket } from "../socket";
 
 export const useNotificationStore = create((set, get) => ({
   notifications: [],
-  unreadCount: 0,
+  socketConnected: false,
 
   initSocket: () => {
-    socket.on("new-notification", (data) => {
+    if (get().socketConnected) return; // prevent double listeners
+
+    console.log("🔌 Initializing Socket...");
+
+    socket.on("connect", () => {
+      console.log("⚡ Socket Connected:", socket.id);
+      set({ socketConnected: true });
+    });
+
+    // Listen to EXACT backend event
+    socket.on("new_notification", (data) => {
+      console.log("🔥 Live Notification RECEIVED:", data);
+
       set((state) => ({
         notifications: [data, ...state.notifications],
-        unreadCount: state.unreadCount + 1
       }));
     });
-  },
 
-  markAllRead: () => {
-    set({
-      unreadCount: 0
+    // Full event logger
+    socket.onAny((event, data) => {
+      console.log("📡 EVENT RECEIVED:", event, data);
     });
-  }
+
+    socket.on("disconnect", () => {
+      console.log("❌ Socket Disconnected");
+      set({ socketConnected: false });
+    });
+  },
 }));

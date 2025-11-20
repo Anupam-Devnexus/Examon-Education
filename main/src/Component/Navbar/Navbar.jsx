@@ -33,7 +33,7 @@ const Navbar = () => {
   useEffect(() => {
     if (!exams.length) fetchAllExams();
   }, [exams.length, fetchAllExams]);
-  console.log(exams)
+  // console.log(exams)
 
   /** ------------------ Auto-focus Search ------------------ **/
   useEffect(() => {
