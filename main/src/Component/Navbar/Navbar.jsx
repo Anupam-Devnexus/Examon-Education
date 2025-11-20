@@ -12,6 +12,7 @@ import { CiSearch, CiUser } from "react-icons/ci";
 import { FiMenu, FiX, FiShoppingCart } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { useExamStore } from "../../Zustand/GetAllExams";
+import HeaderNotification from "../Notification/HeaderNotification";
 
 const GlobalSearchModal = lazy(() => import("../GlobalSearch"));
 
@@ -105,8 +106,9 @@ const Navbar = () => {
   const token = localStorage.getItem('token')
   /** ------------------ JSX ------------------ **/
   return (
-    <>
-      <nav className="bg-white shadow-md sticky top-0 z-[990]">
+    <div className="flex flex-col fixed left-0 top-0 z-[990] w-full">
+    
+      <nav className="bg-white shadow-md  ">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           {/* ----------- Left Section: Logo & Exams Dropdown ----------- */}
           <div className="flex items-center gap-5">
@@ -236,7 +238,7 @@ const Navbar = () => {
               onClick={() => setIsSearchOpen(true)}
             />
 
-            <div className="h-8 w-px bg-gray-300" />
+            <div className="h-10 w-px bg-gray-300" />
 
             {/* ----------- Authenticated User Section ----------- */}
             {token ? (
@@ -352,7 +354,8 @@ const Navbar = () => {
           onClose={() => setIsSearchOpen(false)}
         />
       </Suspense>
-    </>
+      <HeaderNotification/>
+    </div>
   );
 };
 

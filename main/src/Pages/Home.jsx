@@ -14,7 +14,7 @@ import CoursesYouLike from '../Component/CoursesYouLike'
 const Home = () => {
 
   return (
-    <div className='flex flex-col '>
+    <div className='flex flex-col'>
 
       <HomeSlider />
       <HomeNumber />
