@@ -1,25 +1,22 @@
 import React, { Suspense, lazy, useState, useEffect } from "react";
-import { useNotificationStore } from "./Zustand/useNotificationStore";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
-import { socket } from "./socket"
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./App.css";
-import NotficationPop from "./Component/Popup/NotificationPopup"
+
 import Navbar from "./Component/Navbar/Navbar";
 import Footer from "./Component/Footer";
 import Whatsapp from "./Component/Whatsapp";
 import ProtectedRoute from "./auth/ProtectedRoute";
 
+import { socket } from "./socket";
+import NotificationPopup from "./Component/Popup/NotificationPopup";
+import { useNotificationStore } from "./Zustand/useNotificationStore";
 
-/* Lazy-loaded pages for better performance */
+/* Lazy-loaded pages */
 const Home = lazy(() => import("./Pages/Home"));
 const Aboutus = lazy(() => import("./Pages/Aboutus"));
 const ContactUs = lazy(() => import("./Pages/ContactUs"));
@@ -36,38 +33,88 @@ const Cart = lazy(() => import("./Pages/Cart"));
 const Login = lazy(() => import("./auth/Login"));
 const Register = lazy(() => import("./auth/Register"));
 const ViewQuizPop = lazy(() => import("./Component/ViewQuizPop"));
-const Batches = lazy(() => import("./Pages/Batches"))
+const Batches = lazy(() => import("./Pages/Batches"));
 
-/*  Main App */
+/* ------------------------------------------------------------------
+    MAIN APP COMPONENT
+-------------------------------------------------------------------*/
 function App() {
-  const [popup, setPopup] = useState(false)
-
-  useEffect(() => {
-
-    const timer = setTimeout(() => {
-      setPopup(true)
-    }, 15000)
-
-    return () => clearTimeout(timer);
-  }, [])
-
   const initSocket = useNotificationStore((state) => state.initSocket);
+  const addNotification = useNotificationStore((state) => state.addNotification);
+  const notifications = useNotificationStore((state) => state.notifications);
+  const removeNotification = useNotificationStore((state) => state.removeNotification);
 
+  /* -----------------------------------------------------------
+     1️⃣ INIT SOCKET + JOIN ROOM
+  ------------------------------------------------------------*/
   useEffect(() => {
     initSocket();
 
-    const userId = JSON.parse(localStorage.getItem("token"))?.state?.token;
+    const auth = JSON.parse(localStorage.getItem("auth"));
+    const userId = auth?.token;
+
     if (userId) socket.emit("join_room", userId);
+
+    /* When backend sends notification */
+    socket.on("new_notification", (data) => {
+      addNotification({
+        id: Date.now(),
+        title: data?.title || "New Update",
+        subtitle: data?.subtitle || "",
+        description: data?.description || "",
+        img: data?.img || "/logo2.svg",
+        path: data?.path || "",
+        autoClose: data?.autoClose ?? true,
+        autoCloseDelay: data?.autoCloseDelay ?? 5000,
+      });
+    });
+
+    return () => {
+      socket.off("new_notification");
+    };
+  }, []);
+
+  /* -----------------------------------------------------------
+     2️⃣ SHOW NOTIFICATION AFTER 15 SEC ONCE USER ENTERS
+  ------------------------------------------------------------*/
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      addNotification({
+        id: Date.now(),
+        title: "New Course Launched",
+        subtitle: "DDA 2025 – Shikhar Batch",
+        description:
+          "Level up your preparation with structured lessons, quizzes, and guidance!",
+        img: "/logo2.svg",
+        path: "courses",
+        autoClose: false,
+      });
+    }, 15000);
+
+    return () => clearTimeout(timer);
   }, []);
 
   return (
     <Router>
       <div className="App flex flex-col min-h-screen bg-white text-gray-900">
-        {/* Global Navbar */}
-        <Navbar />
-        {popup && <NotficationPop />}
 
-        {/* Lazy-load route components */}
+        {/* Navbar always visible */}
+        <Navbar />
+
+        {/* -----------------------------------------------------------
+           3️⃣ GLOBAL NOTIFICATION POPUPS (QUEUE)
+        ------------------------------------------------------------*/}
+        {notifications.map((popup) => (
+          <NotificationPopup
+            key={popup.id}
+            {...popup}
+            onClose={() => removeNotification(popup.id)}
+          />
+        ))}
+
+        {/* -----------------------------------------------------------
+           ROUTES
+        ------------------------------------------------------------*/}
         <Suspense
           fallback={
             <div className="flex justify-center items-center h-[70vh] text-gray-500 animate-pulse text-lg font-medium">
@@ -75,10 +122,8 @@ function App() {
             </div>
           }
         >
-          <div className="mt-26">
-
-            <Routes >
-
+          <div className="mt-28">
+            <Routes>
               {/* Public Routes */}
               <Route path="/" element={<Home />} />
               <Route path="/about" element={<Aboutus />} />
@@ -92,13 +137,13 @@ function App() {
               <Route path="/blog/:id" element={<DynamicBlog />} />
               <Route path="/batches" element={<Batches />} />
 
-              {/* Dynamic Routes */}
+              {/* Dynamic */}
               <Route path="/courses/:courseId" element={<DynamicCourses />} />
               <Route path="/exams/:_id" element={<DynamicExam />} />
               <Route path="/quiz/:_id" element={<DynamicQuiz />} />
               <Route path="/view-quiz/:finalQuizId" element={<ViewQuizPop />} />
 
-              {/* Protected Routes */}
+              {/* Protected */}
               <Route
                 path="/profile"
                 element={
@@ -116,8 +161,7 @@ function App() {
                 }
               />
 
-
-              {/* Fallback 404 */}
+              {/* 404 */}
               <Route
                 path="*"
                 element={
@@ -129,18 +173,18 @@ function App() {
             </Routes>
           </div>
         </Suspense>
-        <Whatsapp
-        />
 
-        {/* Global Footer */}
+        {/* Floating WhatsApp button */}
+        <Whatsapp />
+
+        {/* Footer */}
         <Footer />
 
-        {/* Toast Notifications */}
+        {/* Toast */}
         <ToastContainer
           position="top-right"
           autoClose={1000}
           hideProgressBar={false}
-          newestOnTop={false}
           closeOnClick
           pauseOnHover
           draggable
