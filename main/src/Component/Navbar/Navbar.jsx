@@ -111,7 +111,7 @@ const Navbar = () => {
       <nav className="bg-white shadow-md  ">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           {/* ----------- Left Section: Logo & Exams Dropdown ----------- */}
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-2 md:gap-5">
             <img
               src="/examon_logo.svg"
               alt="Logo"
@@ -122,7 +122,7 @@ const Navbar = () => {
             <div className="h-12  bg-gray-300" />
 
             <div className="relative">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3 md:gap-4">
 
                 <button
                   onClick={() => setExamOpen((prev) => !prev)}
