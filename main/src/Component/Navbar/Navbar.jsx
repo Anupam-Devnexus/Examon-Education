@@ -236,7 +236,7 @@ const Navbar = () => {
               onClick={() => setIsSearchOpen(true)}
             />
 
-            <div className="h-8 w-px bg-gray-300" />
+            <div className="h-10 w-px bg-gray-300" />
 
             {/* ----------- Authenticated User Section ----------- */}
             {token ? (

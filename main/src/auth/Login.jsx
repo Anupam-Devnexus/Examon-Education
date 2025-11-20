@@ -142,7 +142,7 @@ const Login = () => {
                   className={`w-full p-2 rounded-full border ${errors.email
                     ? "border-red-500 focus:ring-red-400"
                     : "border-gray-300 dark:border-gray-700 focus:ring-blue-400"
-                    } focus:outline-none focus:ring-2 dark:bg-gray-800 dark:text-white`}
+                    } focus:outline-none text-black focus:ring-2 dark:bg-gray-800 dark:text-white`}
                 />
                 {errors.email && (
                   <p className="text-red-500 text-xs mt-1">{errors.email}</p>
