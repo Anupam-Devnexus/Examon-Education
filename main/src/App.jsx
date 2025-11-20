@@ -102,7 +102,7 @@ function App() {
         <Navbar />
 
         {/* -----------------------------------------------------------
-           3️⃣ GLOBAL NOTIFICATION POPUPS (QUEUE)
+           3️ GLOBAL NOTIFICATION POPUPS (QUEUE)
         ------------------------------------------------------------*/}
         {notifications.map((popup) => (
           <NotificationPopup

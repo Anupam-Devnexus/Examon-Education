@@ -106,9 +106,9 @@ const Navbar = () => {
   const token = localStorage.getItem('token')
   /** ------------------ JSX ------------------ **/
   return (
-    <div className="flex flex-col fixed left-0 top-0 z-[990] w-full">
+    <div className="flex flex-col fixed left-0 top-0  w-full">
     
-      <nav className="bg-white shadow-md  ">
+      <nav className="bg-white shadow-md  z-[990]">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           {/* ----------- Left Section: Logo & Exams Dropdown ----------- */}
           <div className="flex items-center gap-5">
@@ -128,7 +128,7 @@ const Navbar = () => {
                 onClick={() => setExamOpen((prev) => !prev)}
                 aria-haspopup="true"
                 aria-expanded={examOpen}
-                className="px-2 py-1 rounded-xl border-2 border-[var(--secondary-color)] text-gray-700 font-medium hover:text-[var(--primary-color)] transition flex items-center gap-1"
+                className="px-2 py-1 z-[991] rounded-xl border-2 border-[var(--secondary-color)] text-gray-700 font-medium hover:text-[var(--primary-color)] transition flex items-center gap-1"
               >
                 All Exams ▾
               </button>
@@ -193,6 +193,7 @@ const Navbar = () => {
               transition-all 
               duration-200 
               rounded-lg
+              z-[991]
             "
                         >
                           {exam.examDetailsCategory}
