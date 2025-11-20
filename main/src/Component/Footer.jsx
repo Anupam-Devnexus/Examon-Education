@@ -41,7 +41,7 @@ const Footer = () => {
 
   return (
 
-    <footer className="bg-[var(--primary-color)] text-[var(--text-color)] px-6 py-16 md:px-20 rounded-t-xl shadow-lg">
+    <footer className="bg-[var(--primary-color)] text-[var(--text-color)] px-6 py-16 md:px-20 rounded-t-xl mt-4 shadow-lg">
       {/* Newsletter */}
       <div className="-mt-33">
         <NewsLetter />

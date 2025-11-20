@@ -15,20 +15,20 @@ const CoursesSmallCard = ({
   const navigate = useNavigate();
   const { addToCart, removeFromCart, cart } = useCourseStore();
 
-  // ✅ Fetch token from localStorage
-  const authData = JSON.parse(localStorage.getItem("auth"));
+  //  Fetch token from localStorage
+
   const token = localStorage.getItem('token');
 
-  // ✅ Check if course already in cart
+  //  Check if course already in cart
   const isInCart = useMemo(
     () => cart.some((item) => item.id === courseId),
     [cart, courseId]
   );
 
-  // ✅ Navigate to course details
+  //  Navigate to course details
   const handleExplore = () => navigate(`/courses/${courseId}`);
 
-  // ✅ Handle Add/Remove Cart with Login Check
+  //  Handle Add/Remove Cart with Login Check
   const handleCartToggle = () => {
     if (!token) {
       toast.warning("Please login first to add items to your cart.", {
@@ -116,10 +116,9 @@ const CoursesSmallCard = ({
           <button
             onClick={handleCartToggle}
             className={`flex items-center justify-center gap-2 px-2 py-2 rounded-lg font-semibold text-sm transition
-              ${
-                isInCart
-                  ? "bg-red-500 text-white hover:bg-red-600"
-                  : "border border-[var(--primary-color)] text-[var(--primary-color)] hover:bg-[var(--tertiary-color)]"
+              ${isInCart
+                ? "bg-red-500 text-white hover:bg-red-600"
+                : "border border-[var(--primary-color)] text-[var(--primary-color)] hover:bg-[var(--tertiary-color)]"
               }`}
           >
             {isInCart ? (

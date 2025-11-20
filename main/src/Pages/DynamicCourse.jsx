@@ -56,7 +56,7 @@ const DynamicCourse = () => {
   useEffect(() => {
     if (!data || data.length === 0) fetchCourses();
   }, [data, fetchCourses]);
-console.log(data)
+// console.log(data)
 
   // Find the selected course
   const foundCourse = useMemo(() => {

@@ -1,147 +1,140 @@
-import React, { useState, useEffect } from "react";
-import { useNotificationStores } from "../../Zustand/GetNotification";
+import React, { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  X,
-  ExternalLink,
-  CheckCircle,
-  AlertCircle,
-  Info,
-  Triangle,
-} from "lucide-react";
+import { X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-const typeStyles = {
-  success: {
-    border: "from-cyan-400 to-emerald-500",
-    icon: <CheckCircle className="text-cyan-400" size={36} />,
-  },
-  error: {
-    border: "from-rose-500 to-pink-600",
-    icon: <AlertCircle className="text-rose-500" size={36} />,
-  },
-  warning: {
-    border: "from-amber-400 to-yellow-500",
-    icon: <Triangle className="text-amber-400" size={36} />,
-  },
-  info: {
-    border: "from-indigo-400 to-cyan-500",
-    icon: <Info className="text-indigo-400" size={36} />,
-  },
-};
+const NotificationPopup = ({
+  title = "New Course Launched",
+  subtitle = "DDA 2025 - Shikhar Batch",
+  description = "Ready to level up your preparation? Join our latest batch with structured lessons, quizzes, and expert guidance!",
+  img = "/logo2.svg",
+  path = "",
+  onClose = () => { },
+  autoClose = true,
+  autoCloseDelay = 2000,
+}) => {
 
-const NotificationPopup = () => {
-  const { notifications, loading, error, fetchNotifications } =
-    useNotificationStores();
+  const navigate = useNavigate();
 
-  const [currentIndex, setCurrentIndex] = useState(0);
-
+  /* Disable scroll while popup open */
   useEffect(() => {
-    fetchNotifications("http://194.238.18.1:3004/api/notification/latest");
-    const interval = setInterval(() => {
-      fetchNotifications("http://194.238.18.1:3004/api/notification/latest");
-    }, 30000);
-
-    return () => clearInterval(interval);
+    document.body.style.overflow = "hidden";
+    return () => (document.body.style.overflow = "auto");
   }, []);
 
+  /* Auto close */
   useEffect(() => {
-    if (notifications.length > 0) setCurrentIndex(0);
-  }, [notifications]);
+    if (!autoClose) return;
+    const t = setTimeout(() => onClose(), autoCloseDelay);
+    return () => clearTimeout(t);
+  }, [autoClose, autoCloseDelay]);
 
-  if (loading || error) return null;
-  if (!notifications.length || currentIndex === -1) return null;
+  /* Safe navigation */
+  const handleNavigate = () => {
+    if (!path) return;
+    onClose();
+    setTimeout(() => navigate(`/${path}`), 250);
+  };
 
-  const current = notifications[currentIndex];
-  const style = typeStyles[current?.type] || typeStyles.info;
+  /* Motion Variants */
+  const backdrop = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1 },
+    exit: { opacity: 0 },
+  };
 
-  const handleNext = () =>
-    currentIndex < notifications.length - 1
-      ? setCurrentIndex((prev) => prev + 1)
-      : setCurrentIndex(-1);
+  const card = {
+    hidden: { opacity: 0, scale: 0.85, y: 40 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      transition: { duration: 0.35, ease: "easeOut" },
+    },
+    exit: {
+      opacity: 0,
+      scale: 0.85,
+      y: -20,
+      transition: { duration: 0.25 },
+    },
+  };
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-md px-4">
-      <AnimatePresence mode="wait">
+    <AnimatePresence>
+      <motion.div
+        variants={backdrop}
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+        className="fixed inset-0 z-[9999] bg-black/50  backdrop-blur-xl 
+                   flex items-center justify-center px-4"
+      >
         <motion.div
-          key={currentIndex}
-          initial={{ opacity: 0, y: 50, scale: 0.9 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -50, scale: 0.9 }}
-          transition={{ duration: 0.35, ease: "easeOut" }}
-          className="relative w-full max-w-md p-3 rounded-3xl bg-[var(--primary-color)]"
+          variants={card}
+          className="
+            relative rounded-3xl p-6 md:p-10 m-24 w-full max-w-4xl 
+            bg-gradient-to-br from-[#2D2D2D]/90 to-[#79ABCD]/90
+            shadow-[0_0_40px_rgba(0,0,0,0.4)]
+            border-[8px] border-gray-500/20
+            flex flex-col-reverse md:flex-row gap-8
+          "
         >
-          {/* Neon Glow Border */}
-          <div
-            className={`absolute inset-0 rounded-3xl bg-gradient-to-br ${style.border} opacity-1 blur-xl`}
-          />
+          {/* Close Button */}
+          <button
+            onClick={onClose}
+            className="absolute top-4 bg-black p-1 cursor-pointer rounded-full right-4 text-white/70 hover:text-white"
+          >
+            <X size={24} />
+          </button>
 
-          {/* Card Content */}
-          <div className="relative bg-white/20 backdrop-blur-xl border border-white/20 rounded-3xl p-10 shadow-sm">
-            
-            {/* Close */}
-            <button
-              onClick={handleNext}
-              className="absolute top-4 right-4 text-white/70 hover:text-white transition"
-            >
-              <X size={22} />
-            </button>
+          {/* Left Text Section */}
+          <div className="flex flex-col justify-center flex-1 gap-4">
+            <h3 className="text-sm tracking-widest text-white">
+              {title}
+            </h3>
 
-            {/* Icon */}
-            <div className="flex justify-center mb-4 drop-shadow-md">
-              {style.icon}
-            </div>
+            <h1 className="text-3xl md:text-4xl font-bold text-white leading-snug">
+              {subtitle}
+            </h1>
 
-            {/* Title */}
-            <h2 className="text-2xl font-semibold text-white text-center mb-3 tracking-wide">
-              {current?.label || "Notification"}
-            </h2>
-
-            {/* Message */}
-            <p className="text-white/80 text-center leading-relaxed mb-8">
-              {current?.message}
+            <p className="text-gray-300 text-base leading-relaxed">
+              {description}
             </p>
 
-            {/* Open Link */}
-            {current?.redirectURI && (
-              <a
-                href={current.redirectURI}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 py-3 px-6 mb-5 
-                rounded-xl bg-white/10 text-white/90 
-                font-medium backdrop-blur-md 
-                border border-white/20 
-                hover:bg-white/20 active:scale-95 
-                transition duration-200"
-              >
-                Open Link
-                <ExternalLink size={18} />
-              </a>
-            )}
-
-            {/* Continue */}
-            <button
-              onClick={handleNext}
-              className="w-full py-3 rounded-xl 
-              bg-gradient-to-r from-indigo-500 to-cyan-500 
-              text-white text-lg font-semibold 
-              shadow-sm hover:shadow-xl 
-              active:scale-95 transition duration-150"
+            <motion.button
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
+              onClick={handleNavigate}
+              className="
+                mt-4 px-6 py-3 w-fit rounded-full
+                bg-[var(--primary-color)] hover:bg-[var(--secondary-color)]
+                font-semibold text-white shadow-lg shadow-[var(--primary-color)]/30
+              "
             >
-              Continue
-            </button>
+              Enroll Now →
+            </motion.button>
+          </div>
 
-            {/* Counter */}
-            <div className="flex justify-center mt-6">
-              <span className="text-xs px-4 py-1.5 bg-white/10 border border-white/20 rounded-full text-white/70 backdrop-blur-sm">
-                {currentIndex + 1} / {notifications.length}
-              </span>
-            </div>
+          {/* Image Section */}
+          <div className="relative flex justify-center md:justify-end">
+            <img
+              src={img}
+              alt="Course"
+              className="w-56 md:w-64 h-auto rounded-2xl object-cover"
+              draggable="false"
+            />
 
+            {/* Decorative Badge */}
+            <img
+              src="/new 1.svg"
+              className="absolute w-12 h-12 top-3 right-3 md:top-50 md:right-[-14px] rotate-[-6deg]"
+              alt="badge"
+              draggable="false"
+            />
           </div>
         </motion.div>
-      </AnimatePresence>
-    </div>
+      </motion.div>
+    </AnimatePresence>
   );
 };
 
