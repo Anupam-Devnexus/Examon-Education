@@ -6,45 +6,88 @@ const HeaderNotification = () => {
   const { notifications, initSocket } = useNotificationStore();
 
   useEffect(() => {
+    console.log("HeaderNotification Mounted");
     initSocket();
   }, []);
 
   const hasData = notifications.length > 0;
 
   return (
-    <div className="w-full bg-[var(--primary-color)] text-white py-2 overflow-hidden shadow-md z-50">
-      
+    <div className="
+      w-full 
+      bg-[var(--primary-color)] 
+      text-white 
+      py-2 
+      overflow-hidden 
+      shadow-lg
+      backdrop-blur-sm
+      border-b border-white/10
+    ">
+      {/* No Data */}
       {!hasData && (
-        <div className="text-center text-sm py-1">
+        <div className="text-center text-sm py-1 opacity-80">
           🔔 No offers available currently
         </div>
       )}
 
+      {/* Scrolling Notification Section */}
       {hasData && (
         <motion.div
-          className="flex items-center gap-8 whitespace-nowrap"
+          className="flex items-center gap-12 whitespace-nowrap"
           animate={{ x: ["0%", "-100%"] }}
-          transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
         >
           {[...notifications, ...notifications].map((item, index) => (
-            <div key={index} className="flex items-center gap-3 px-3">
-
-              {item.tags?.map((tag) => (
-                <span className="bg-white/20 text-white px-2 py-0.5 rounded-full text-xs">
+            <div
+              key={index}
+              className="
+                flex items-center gap-4 px-4 py-1 
+                rounded-lg 
+                bg-white/10 
+                backdrop-blur-md 
+                border border-white/20 
+                shadow-md 
+                hover:bg-white/20 
+                transition duration-300
+              "
+            >
+              {/* TAGS */}
+              {item?.tags?.map((tag, i) => (
+                <span
+                  key={i}
+                  className="
+                    bg-white/20 
+                    text-white 
+                    px-2 py-0.5 
+                    rounded-full 
+                    text-xs 
+                    font-medium 
+                    tracking-wide
+                  "
+                >
                   {tag}
                 </span>
               ))}
 
-              <span className="font-semibold text-sm md:text-base">
+              {/* TITLE */}
+              <span className="font-semibold text-sm md:text-base tracking-wide">
                 {item.title}
               </span>
 
+              {/* DISCOUNT */}
               {item.discount && (
-                <span className="text-yellow-300 font-bold text-sm">
+                <span
+                  className="
+                    font-bold text-sm 
+                    bg-yellow-300 text-black 
+                    px-2 py-0.5 rounded-md 
+                    shadow 
+                    animate-pulse
+                  "
+                >
                   {item.discount}% OFF
                 </span>
               )}
-
             </div>
           ))}
         </motion.div>
