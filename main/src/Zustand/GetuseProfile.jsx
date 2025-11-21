@@ -11,9 +11,9 @@ export const useProfileData = create((set, get) => ({
   fetchUserProfile: async () => {
     try {
       set({ loading: true, error: null });
-
+const tokens = JSON.parse(localStorage.getItem("token"))?.state?.token;
       // Get token & userId from auth store
-      const { token, userId } = useAuthStore.getState();
+      const { token , userId } = useAuthStore.getState();
       if (!token || !userId) {
         throw new Error("Missing authentication details");
       }
